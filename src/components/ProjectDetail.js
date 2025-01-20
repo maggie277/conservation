@@ -1,34 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
+import { useParams, useNavigate } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
-import { useParams } from 'react-router-dom';
-import { Typography } from '@mui/material';
+import { Button } from '@mui/material';
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
   const [project, setProject] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProject = async () => {
       const docRef = doc(db, 'projects', projectId);
       const docSnap = await getDoc(docRef);
+
       if (docSnap.exists()) {
         setProject(docSnap.data());
+      } else {
+        console.log('No such document!');
       }
     };
 
     fetchProject();
   }, [projectId]);
 
+  const handleDonate = () => {
+    navigate(`/donate/${projectId}`);
+  };
+
   if (!project) {
-    return <p>Loading...</p>;
+    return <div>Loading...</div>;
   }
 
   return (
     <div>
-      <Typography variant="h4">{project.title}</Typography>
-      <Typography variant="body1">{project.description}</Typography>
-      <Typography variant="body2">Goal: ${project.goal}</Typography>
+      <h1>{project.title}</h1>
+      <p>{project.description}</p>
+      <p>Needed: {project.goal}</p>
+      <Button variant="contained" color="primary" onClick={handleDonate}>Donate</Button>
     </div>
   );
 };
