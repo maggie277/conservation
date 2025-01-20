@@ -10,6 +10,7 @@ const Register = () => {
     email: '',
     password: '',
     type: 'individual',
+    companyId: '', // Add company ID state
   });
 
   const [verificationStatus, setVerificationStatus] = useState(null);
@@ -22,13 +23,13 @@ const Register = () => {
     e.preventDefault();
     if (user.type === 'organization') {
       try {
-        const result = await verifyOrganization(user.email);
+        const result = await verifyOrganization(user.companyId);
         if (result.verified) {
           await registerUser();
-          setVerificationStatus('Organization verified and registered!');
+          setVerificationStatus('Company verified and registered!');
         }
       } catch (err) {
-        setVerificationStatus(err.message || 'Verification failed. Organization not recognized.');
+        setVerificationStatus(err.message || 'Verification failed. Company ID not recognized.');
       }
     } else {
       await registerUser();
@@ -44,7 +45,7 @@ const Register = () => {
         email: user.email,
         type: user.type,
       });
-      setUser({ email: '', password: '', type: 'individual' });
+      setUser({ email: '', password: '', type: 'individual', companyId: '' });
     } catch (err) {
       console.error(err);
     }
@@ -58,6 +59,9 @@ const Register = () => {
         <FormControlLabel value="individual" control={<Radio />} label="Individual" />
         <FormControlLabel value="organization" control={<Radio />} label="Organization" />
       </RadioGroup>
+      {user.type === 'organization' && (
+        <TextField name="companyId" label="Company ID" value={user.companyId} onChange={handleChange} fullWidth />
+      )}
       <Button type="submit" color="primary" variant="contained">Register</Button>
       {verificationStatus && <p>{verificationStatus}</p>}
     </form>

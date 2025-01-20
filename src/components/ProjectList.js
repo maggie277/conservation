@@ -23,8 +23,8 @@ const ProjectList = () => {
   return (
     <List>
       {projects.map((project) => (
-        <ListItem button={true} component={Link} to={`/projects/${project.id}`} key={project.id}>
-          <ListItemText primary={project.title} />
+        <ListItem button component={Link} to={`/projects/${project.id}`} key={project.id}>
+          <ListItemText primary={project.title} secondary={`Goal: $${project.goal}`} />
         </ListItem>
       ))}
     </List>

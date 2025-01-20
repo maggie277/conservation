@@ -1,30 +1,35 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
-import { useDocumentData } from 'react-firebase-hooks/firestore';
+import React, { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
-import { doc } from 'firebase/firestore';
-import { Paper, Typography } from '@mui/material';
-import { FacebookShareButton, TwitterShareButton } from 'react-share';
+import { doc, getDoc } from 'firebase/firestore';
+import { useParams } from 'react-router-dom';
+import { Typography } from '@mui/material';
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
-  const [project] = useDocumentData(doc(db, 'projects', projectId));
+  const [project, setProject] = useState(null);
 
-  if (!project) return <p>Loading...</p>;
+  useEffect(() => {
+    const fetchProject = async () => {
+      const docRef = doc(db, 'projects', projectId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setProject(docSnap.data());
+      }
+    };
+
+    fetchProject();
+  }, [projectId]);
+
+  if (!project) {
+    return <p>Loading...</p>;
+  }
 
   return (
-    <Paper>
+    <div>
       <Typography variant="h4">{project.title}</Typography>
       <Typography variant="body1">{project.description}</Typography>
-      <Typography variant="body2">Goal: {project.goal}</Typography>
-      <img src={project.imageUrl} alt={project.title} style={{ width: '100%' }} />
-      <FacebookShareButton url={window.location.href}>
-        Share on Facebook
-      </FacebookShareButton>
-      <TwitterShareButton url={window.location.href}>
-        Share on Twitter
-      </TwitterShareButton>
-    </Paper>
+      <Typography variant="body2">Goal: ${project.goal}</Typography>
+    </div>
   );
 };
 
