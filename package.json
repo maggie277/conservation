@@ -1,6 +1,7 @@
 {
   "name": "conservation-platform",
   "version": "0.1.0",
+  "proxy": "https://secure.3gdirectpay.com",
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -9,7 +10,10 @@
     "@mui/material": "^6.4.0",
     "@stripe/react-stripe-js": "^3.1.1",
     "@stripe/stripe-js": "^5.5.0",
+    "axios": "^1.7.9",
+    "cors": "^2.8.5",
     "cra-template": "1.2.0",
+    "express": "^4.21.2",
     "firebase": "^11.2.0",
     "jspdf": "^2.5.2",
     "react": "^18.0.0",
