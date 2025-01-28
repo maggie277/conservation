@@ -1,36 +1,78 @@
 /* Register.css */
-input::placeholder {
-  color: #888888; /* Lighter gray for placeholder */
-  opacity: 1; /* Ensure the placeholder is visible */
-}
-
-input {
-  color: #333333; /* Darker color for input text */
-  font-size: 16px;
-}
-
-input[type="password"] {
-  font-family: 'Courier New', Courier, monospace; /* Monospace font for password */
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-form {
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
-  margin: 20px auto;
-  text-align: left;
-}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  
+  form {
+    background-color: #FFFFFF; /* White */
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: left;
+  }
+  
+  input::placeholder {
+    color: #888888; /* Lighter gray for placeholder */
+    opacity: 1; /* Ensure the placeholder is visible */
+  }
+  
+  input {
+    color: #333333; /* Dark Gray */
+    font-size: 16px;
+  }
+  
+  input[type="password"] {
+    font-family: 'Courier New', Courier, monospace; /* Monospace font for password */
+  }
+  
+  input[type="text"],
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  
+  .MuiFormControl-root {
+    margin: 10px 0; /* Ensure spacing between fields */
+  }
+  
+  .MuiInputLabel-root {
+    color: #8B4513; /* Dark Brown */
+  }
+  
+  .MuiOutlinedInput-root {
+    color: #333333; /* Dark Gray */
+    fieldset {
+      border-color: #D2B48C; /* Brownish Nude */
+    }
+    &:hover fieldset {
+      border-color: #C4A484; /* Slightly Darker Nude */
+    }
+  }
+  
+  .MuiButton-containedPrimary {
+    background-color: #D2B48C; /* Brownish Nude */
+    &:hover {
+      background-color: #C4A484; /* Slightly Darker Nude */
+    }
+  }
+  
+  p {
+    color: #8B4513; /* Dark Brown */
+  }
+  
