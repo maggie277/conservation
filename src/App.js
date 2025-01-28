@@ -8,16 +8,24 @@ import Donate from './components/Donate';
 import Payment from './components/Payment';
 import Receipt from './components/Receipt'; // Import the Receipt component
 import './App.css';
+import homeImage from './pictures/home-image.jpg';
 
 function Home() {
   return (
-    <div>
-      <h1>Welcome to Our Platform</h1>
-      <a href="/register">Sign Up</a>
-      <a href="/login">Login</a>
+    <div className="container">
+      <img src={homeImage} alt="Welcome" className="home-image" />
+      <div className="overlay">
+        <h1>Welcome to Our Platform</h1>
+        <div className="home-links">
+          <a href="/register">Sign Up</a>
+          <a href="/login">Login</a>
+        </div>
+      </div>
     </div>
   );
 }
+
+
 
 function App() {
   return (
