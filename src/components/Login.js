@@ -3,39 +3,86 @@ import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Button, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { makeStyles } from '@mui/styles';
+import './Login.css'; // Ensure this import is correct
+import loginBackground from '../pictures/login.jpg'; // Import the new login image
+
+const useStyles = makeStyles({
+  root: {
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: 'var(--brown)', // Use variable for consistent color
+      },
+      '&:hover fieldset': {
+        borderColor: 'var(--brown-hover)', // Use variable for consistent color
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'var(--brown)', // Use variable for consistent color
+      },
+    },
+    '& .MuiInputBase-input': {
+      color: '#333333', // Dark Gray
+    },
+    '& .MuiInputLabel-root': {
+      color: 'var(--brown)', // Use variable for consistent color
+    },
+    '& .MuiButton-containedPrimary': {
+      backgroundColor: 'var(--brown)', // Use variable for consistent color
+      '&:hover': {
+        backgroundColor: 'var(--brown-hover)', // Use variable for consistent color
+      },
+    },
+  },
+});
 
 const Login = () => {
+  const classes = useStyles();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loginStatus, setLoginStatus] = useState(null);
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    if (e.target.name === 'email') {
-      setEmail(e.target.value);
-    } else if (e.target.name === 'password') {
-      setPassword(e.target.value);
-    }
-  };
+  const [error, setError] = useState(null);
+  const navigate = useNavigate(); // Initialize the navigate hook
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      setLoginStatus('Successfully logged in!');
-      navigate('/projects'); // Redirect to projects page
+      navigate('/dashboard'); // Redirect to dashboard or desired page
     } catch (err) {
-      setLoginStatus('Login failed. Please check your credentials.');
+      setError(err.message);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <TextField name="email" label="Email" value={email} onChange={handleChange} fullWidth />
-      <TextField name="password" label="Password" type="password" value={password} onChange={handleChange} fullWidth />
-      <Button type="submit" color="primary" variant="contained">Login</Button>
-      {loginStatus && <p>{loginStatus}</p>}
-    </form>
+    <div className="login-page">
+      <img src={loginBackground} alt="Background" className="background" /> {/* Use the new login image */}
+      <div className="form-container">
+        <form className={classes.root} onSubmit={handleSubmit}>
+          <TextField
+            name="email"
+            label="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            name="password"
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+          />
+          <Button type="submit" color="primary" variant="contained">Login</Button>
+          {error && <p>{error}</p>}
+        </form>
+      </div>
+    </div>
   );
 };
 
