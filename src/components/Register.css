@@ -1,0 +1,36 @@
+/* Register.css */
+input::placeholder {
+  color: #888888; /* Lighter gray for placeholder */
+  opacity: 1; /* Ensure the placeholder is visible */
+}
+
+input {
+  color: #333333; /* Darker color for input text */
+  font-size: 16px;
+}
+
+input[type="password"] {
+  font-family: 'Courier New', Courier, monospace; /* Monospace font for password */
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+form {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto;
+  text-align: left;
+}
