@@ -5,9 +5,46 @@ import { collection, addDoc } from 'firebase/firestore';
 import { Button, TextField, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import { verifyOrganization } from '../utils/verifyOrganization';
 import { useNavigate } from 'react-router-dom';
+import { makeStyles } from '@mui/styles';
 import './Register.css'; // Ensure this import is correct
+import backgroundImage from '../pictures/register-image.jpg'; // Import the image
+
+const useStyles = makeStyles({
+  root: {
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: 'var(--brown)', // Use variable for consistent color
+      },
+      '&:hover fieldset': {
+        borderColor: 'var(--brown-hover)', // Use variable for consistent color
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'var(--brown)', // Use variable for consistent color
+      },
+    },
+    '& .MuiInputBase-input': {
+      color: '#333333', // Dark Gray
+    },
+    '& .MuiInputLabel-root': {
+      color: 'var(--brown)', // Use variable for consistent color
+    },
+    '& .MuiButton-containedPrimary': {
+      backgroundColor: 'var(--brown)', // Use variable for consistent color
+      '&:hover': {
+        backgroundColor: 'var(--brown-hover)', // Use variable for consistent color
+      },
+    },
+    '& .MuiRadio-root': {
+      color: 'var(--brown)', // Default Brown Color
+      '&.Mui-checked': {
+        color: 'var(--brown)', // Brown Color When Checked
+      },
+    },
+  },
+});
 
 const Register = () => {
+  const classes = useStyles();
   const [user, setUser] = useState({
     email: '',
     password: '',
@@ -57,47 +94,52 @@ const Register = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <TextField
-        name="email"
-        label="Email" // The label appears above the input box
-        value={user.email}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-        variant="outlined"
-        InputLabelProps={{ shrink: true }} // Ensures the label stays above the input
-      />
-      <TextField
-        name="password"
-        label="Password" // The label appears above the input box
-        type="password"
-        value={user.password}
-        onChange={handleChange}
-        fullWidth
-        margin="normal"
-        variant="outlined"
-        InputLabelProps={{ shrink: true }} // Ensures the label stays above the input
-      />
-      <RadioGroup name="type" value={user.type} onChange={handleChange} row>
-        <FormControlLabel value="individual" control={<Radio />} label="Individual" />
-        <FormControlLabel value="organization" control={<Radio />} label="Organization" />
-      </RadioGroup>
-      {user.type === 'organization' && (
-        <TextField
-          name="companyId"
-          label="Company ID" // The label appears above the input box
-          value={user.companyId}
-          onChange={handleChange}
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          InputLabelProps={{ shrink: true }} // Ensures the label stays above the input
-        />
-      )}
-      <Button type="submit" color="primary" variant="contained">Register</Button>
-      {verificationStatus && <p>{verificationStatus}</p>}
-    </form>
+    <div className="register-page">
+      <img src={backgroundImage} alt="Background" className="background" /> {/* Use imported image */}
+      <div className="form-container">
+        <form className={classes.root} onSubmit={handleSubmit}>
+          <TextField
+            name="email"
+            label="Email"
+            value={user.email}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            name="password"
+            label="Password"
+            type="password"
+            value={user.password}
+            onChange={handleChange}
+            fullWidth
+            margin="normal"
+            variant="outlined"
+            InputLabelProps={{ shrink: true }}
+          />
+          <RadioGroup name="type" value={user.type} onChange={handleChange} row>
+            <FormControlLabel value="individual" control={<Radio />} label="Individual" />
+            <FormControlLabel value="organization" control={<Radio />} label="Organization" />
+          </RadioGroup>
+          {user.type === 'organization' && (
+            <TextField
+              name="companyId"
+              label="Company ID"
+              value={user.companyId}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              InputLabelProps={{ shrink: true }}
+            />
+          )}
+          <Button type="submit" color="primary" variant="contained">Register</Button>
+          {verificationStatus && <p>{verificationStatus}</p>}
+        </form>
+      </div>
+    </div>
   );
 };
 

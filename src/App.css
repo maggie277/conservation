@@ -1,4 +1,9 @@
-/* App.css */
+/* src/App.css */
+:root {
+  --brown: #6B3D0C; /* Darker Brown */
+  --brown-hover: #4B2F07; /* Even Darker Brown for hover */
+}
+
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -62,6 +67,6 @@ h1 {
 }
 
 .home-links a:hover {
-  background-color: #8B4513; /* Darker Brown */
+  background-color: var(--brown); /* Use variable for consistent color */
   color: #FFFFFF; /* White */
 }
