@@ -5,7 +5,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import { Button, TextField, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import { verifyOrganization } from '../utils/verifyOrganization';
 import { useNavigate } from 'react-router-dom';
-import './Register.css'; // Import the CSS file
+import './Register.css'; // Ensure this import is correct
 
 const Register = () => {
   const [user, setUser] = useState({

@@ -1,36 +1,30 @@
 /* Register.css */
 body {
     font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
     background-color: #f4f4f4;
-    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     text-align: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
   }
   
   form {
-    background-color: #FFFFFF; /* White */
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #FFFFFF;
+    padding: 30px; /* Increased padding */
+    border-radius: 10px; /* More rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slightly more pronounced shadow */
     width: 100%;
     max-width: 400px;
     margin: 20px auto;
     text-align: left;
   }
   
-  input::placeholder {
-    color: #888888; /* Lighter gray for placeholder */
-    opacity: 1; /* Ensure the placeholder is visible */
-  }
-  
   input {
-    color: #333333; /* Dark Gray */
     font-size: 16px;
-  }
+  color: #333333;
   
   input[type="password"] {
     font-family: 'Courier New', Courier, monospace; /* Monospace font for password */
@@ -40,11 +34,16 @@ body {
   input[type="email"],
   input[type="password"] {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin: 10px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
+  }
+
+  input::placeholder {
+    color: #888888;
+    opacity: 1;
   }
   
   .MuiFormControl-root {
@@ -75,4 +74,10 @@ body {
   p {
     color: #8B4513; /* Dark Brown */
   }
-  
+  @media (max-width: 600px) {
+  form {
+    padding: 20px;
+    width: 90%;
+  }
+}
+  }
