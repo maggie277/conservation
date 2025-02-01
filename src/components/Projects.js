@@ -3,6 +3,7 @@ import { db } from '../firebaseConfig';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
 import './projects.css';
+import backgroundImage from '../pictures/projects.jpg'; // Import background image
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -21,7 +22,18 @@ const Projects = () => {
   }, []);
 
   return (
-    <div className="projects-container">
+    <div
+      className="projects-container"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed',
+        minHeight: '100vh',
+        width: '100vw',
+      }}
+    >
       {projects.map((project) => (
         <div key={project.id} className="project-card">
           {project.imageUrl ? (
@@ -32,7 +44,7 @@ const Projects = () => {
           <div className="project-details">
             <h2>{project.title}</h2>
             <p>{project.description}</p>
-            <p>Needed: ${project.goal}</p>
+            <p>{`Needed: ${project.goal}`}</p>
             <Link to={`/projects/${project.id}`}>View Project</Link>
           </div>
         </div>
