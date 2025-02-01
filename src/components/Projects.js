@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, query, onSnapshot } from 'firebase/firestore';
-import { List, ListItem, ListItemText } from '@mui/material';
 import { Link } from 'react-router-dom';
+import './projects.css';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -21,13 +21,23 @@ const Projects = () => {
   }, []);
 
   return (
-    <List>
+    <div className="projects-container">
       {projects.map((project) => (
-        <ListItem button component={Link} to={`/projects/${project.id}`} key={project.id}>
-          <ListItemText primary={project.title} secondary={`Needed: ${project.goal}`} />
-        </ListItem>
+        <div key={project.id} className="project-card">
+          {project.imageUrl ? (
+            <img src={project.imageUrl} alt={project.title} className="project-image" />
+          ) : (
+            <div className="project-image-placeholder">Image not available</div>
+          )}
+          <div className="project-details">
+            <h2>{project.title}</h2>
+            <p>{project.description}</p>
+            <p>Needed: ${project.goal}</p>
+            <Link to={`/projects/${project.id}`}>View Project</Link>
+          </div>
+        </div>
       ))}
-    </List>
+    </div>
   );
 };
 

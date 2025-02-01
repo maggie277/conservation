@@ -1,14 +1,13 @@
-// src/utils/verifyOrganization.js
-
-const validCompanyIds = ['12345', '67890', 'ABCDE']; // Example company IDs for demo purposes
-
 export const verifyOrganization = async (companyId) => {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     setTimeout(() => {
-      if (validCompanyIds.includes(companyId)) {
+      // Check if companyId matches the pattern ZMW followed by 6 digits
+      const isValidFormat = /^ZMW\d{6}$/.test(companyId);
+
+      if (isValidFormat) {
         resolve({ verified: true });
       } else {
-        reject({ verified: false, message: 'Company ID not recognized.' });
+        resolve({ verified: false, message: 'Company ID not recognized. It should start with "ZMW" followed by 6 digits.' }); // Always resolve
       }
     }, 1500);
   });

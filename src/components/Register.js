@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { auth, db } from '../firebaseConfig';
+import { auth, db } from '../firebaseConfig'; // Ensure correct import path
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore';
 import { Button, TextField, RadioGroup, FormControlLabel, Radio } from '@mui/material';
-import { verifyOrganization } from '../utils/verifyOrganization';
+import { verifyOrganization } from '../utils/verifyOrganization'; // Ensure correct import path
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
 import './Register.css'; // Ensure this import is correct
-import backgroundImage from '../pictures/register-image.jpg'; // Import the image
+import registerBackground from '../pictures/register-image.jpg'; // Ensure the correct path
 
 const useStyles = makeStyles({
   root: {
@@ -61,41 +61,44 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (user.type === 'organization') {
-      try {
-        const result = await verifyOrganization(user.companyId);
-        if (result.verified) {
-          await registerUser();
-          setVerificationStatus('Company verified and registered!');
-          navigate('/projects'); // Redirect to projects page
-        }
-      } catch (err) {
-        setVerificationStatus(err.message || 'Verification failed. Company ID not recognized.');
-      }
-    } else {
-      await registerUser();
-      setVerificationStatus('Individual registered!');
-      navigate('/projects'); // Redirect to projects page
-    }
-  };
-
-  const registerUser = async () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
-      await addDoc(collection(db, 'users'), {
-        uid: userCredential.user.uid,
-        email: user.email,
-        type: user.type,
-      });
-      setUser({ email: '', password: '', type: 'individual', companyId: '' });
+
+      if (user.type === 'organization') {
+        const companyId = `ZMW${user.companyId}`;
+        try {
+          const result = await verifyOrganization(companyId);
+          if (result.verified) {
+            await addDoc(collection(db, 'users'), {
+              uid: userCredential.user.uid,
+              email: user.email,
+              type: user.type,
+              companyId: companyId,
+            });
+            setVerificationStatus('Company verified and registered!');
+          } else {
+            setVerificationStatus(result.message); // Display the verification message
+          }
+        } catch (error) {
+          setVerificationStatus(error.message || 'Verification failed');
+        }
+      } else {
+        await addDoc(collection(db, 'users'), {
+          uid: userCredential.user.uid,
+          email: user.email,
+          type: user.type,
+        });
+      }
+
+      navigate('/projects'); // Redirect after successful registration
     } catch (err) {
-      console.error(err);
+      setVerificationStatus(err.message);
     }
   };
 
   return (
     <div className="register-page">
-      <img src={backgroundImage} alt="Background" className="background" /> {/* Use imported image */}
+      <img src={registerBackground} alt="Background" className="background" /> {/* Use imported image */}
       <div className="form-container">
         <form className={classes.root} onSubmit={handleSubmit}>
           <TextField

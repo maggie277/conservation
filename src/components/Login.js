@@ -5,7 +5,7 @@ import { Button, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
 import './Login.css'; // Ensure this import is correct
-import loginBackground from '../pictures/login.jpg'; // Import the new login image
+import loginBackground from '../pictures/login.jpg'; // Import the image
 
 const useStyles = makeStyles({
   root: {
@@ -45,8 +45,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate('/dashboard'); // Redirect to dashboard or desired page
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      navigate('/dashboard'); // Redirect to default dashboard route
     } catch (err) {
       setError(err.message);
     }
@@ -54,7 +54,7 @@ const Login = () => {
 
   return (
     <div className="login-page">
-      <img src={loginBackground} alt="Background" className="background" /> {/* Use the new login image */}
+      <img src={loginBackground} alt="Background" className="background" /> {/* Use imported image */}
       <div className="form-container">
         <form className={classes.root} onSubmit={handleSubmit}>
           <TextField

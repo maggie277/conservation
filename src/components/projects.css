@@ -1,0 +1,76 @@
+.projects-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80px 20px 20px; /* Adjusted top padding to accommodate navbar */
+  gap: 20px;
+}
+
+.project-card {
+  display: flex;
+  align-items: center;
+  background-color: #fff;
+  border: 1px solid #b5651d; /* Brown border */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 600px;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  transition: transform 0.2s;
+}
+
+.project-card:hover {
+  transform: scale(1.05);
+}
+
+.project-image {
+  width: 120px; /* Smaller image */
+  height: 120px; /* Maintain aspect ratio */
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+.project-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.project-card h2 {
+  color: #4b2e00; /* Dark brown */
+  margin: 0;
+}
+
+.project-card p {
+  color: #7a3f00; /* Medium brown */
+  margin: 0;
+}
+
+.project-image-placeholder {
+  width: 120px;
+  height: 120px;
+  background-color: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 16px;
+  border-radius: 8px;
+  margin-right: 20px;
+}
+
+a {
+  color: #8b4513; /* Saddle brown */
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Add top margin to the first project card */
+.project-card:first-child {
+  margin-top: 20px;
+}
