@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: 20px;
+  padding-left: 10%;
+  padding-right: 10%;
   gap: 15px;
   width: 100vw;
   min-height: 100vh;
@@ -11,10 +12,23 @@
   background-repeat: no-repeat;
   background-attachment: fixed;
   position: relative;
-  margin:50;
-  padding-top: 350px; /* Adjust if there's a navbar */
+  padding-top: 300px; /* Prevent navbar overlap */
+  background-image: url('C:\Users\user\CFP\conservation-platform\src\pictures\projects.jpg');
 }
 
+/* Keep Upload Button Fixed */
+.upload-button-container {
+  position: fixed;
+  top: 80px; /* Adjust this based on navbar height */
+  left: 10%;
+  z-index: 1000;
+}
+
+/* Projects List Expands Downwards */
+.projects-list {
+  margin-top: 150px; /* Push projects below the fixed button */
+  width: 100%;
+}
 
 .project-card {
   display: flex;

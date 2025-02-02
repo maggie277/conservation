@@ -11,6 +11,7 @@ import Home from './components/Home';
 import Profile from './components/Profile';
 import Share from './components/Share';
 import Navbar from './components/Navbar';
+import UploadProject from './components/UploadProject'; // Import UploadProject
 import './App.css';
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
           <Route path="/receipt/:projectId" element={<Receipt />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/share" element={<Share />} />
+          <Route path="/projects/upload-project" element={<UploadProject />} /> {/* Added route */}
         </Routes>
       </div>
     </Router>
