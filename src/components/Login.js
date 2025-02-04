@@ -45,12 +45,14 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Remove the userCredential variable if it's not needed
+      await signInWithEmailAndPassword(auth, email, password);
       navigate('/dashboard'); // Redirect to default dashboard route
     } catch (err) {
       setError(err.message);
     }
   };
+  
 
   return (
     <div className="login-page">
