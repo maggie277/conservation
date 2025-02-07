@@ -1,0 +1,47 @@
+:root {
+  --brown: #6B3D0C;
+  --brown-hover: #4B2F07;
+}
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100vh; /* Full viewport height */
+  width: 100vw; /* Full viewport width */
+  background-image: url('../pictures/home-image.jpg');
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover; /* Ensures the image covers the entire container */
+  margin: 0; /* Remove any default margin */
+  padding: 0; /* Remove any default padding */
+}
+
+.welcome-message {
+  font-size: 2rem;
+  color: white;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.home-buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.home-button {
+  padding: 10px 20px;
+  font-size: 1rem;
+  color: white;
+  background-color: var(--brown);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: var(--brown-hover);
+}

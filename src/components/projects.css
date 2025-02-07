@@ -1,9 +1,9 @@
+/* Container for the entire projects section */
 .projects-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  padding-left: 10%;
-  padding-right: 10%;
+  align-items: center;
+  padding: 150px 10% 15px; /* Adjusted padding to account for fixed elements */
   gap: 15px;
   width: 100vw;
   min-height: 100vh;
@@ -12,11 +12,12 @@
   background-repeat: no-repeat;
   background-attachment: fixed;
   position: relative;
-  padding-top: 300px; /* Prevent navbar overlap */
-  background-image: url('C:\Users\user\CFP\conservation-platform\src\pictures\projects.jpg');
+  overflow: hidden;
+  padding-top: 350px;
+  background-image: url('C:/Users/user/CFP/conservation-platform/src/pictures/projects.jpg');
 }
 
-/* Keep Upload Button Fixed */
+/* Fixed position for the upload button */
 .upload-button-container {
   position: fixed;
   top: 80px; /* Adjust this based on navbar height */
@@ -24,12 +25,15 @@
   z-index: 1000;
 }
 
-/* Projects List Expands Downwards */
+/* List of projects */
 .projects-list {
-  margin-top: 150px; /* Push projects below the fixed button */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
   width: 100%;
 }
 
+/* Individual project card */
 .project-card {
   display: flex;
   align-items: center;
@@ -48,6 +52,7 @@
   transform: scale(1.05);
 }
 
+/* Project image styling */
 .project-image {
   width: 80px;
   height: 80px;
@@ -56,6 +61,21 @@
   margin-right: 15px;
 }
 
+/* Placeholder for projects without an image */
+.project-image-placeholder {
+  width: 80px;
+  height: 80px;
+  background-color: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #888;
+  font-size: 14px;
+  border-radius: 8px;
+  margin-right: 15px;
+}
+
+/* Details section within each project card */
 .project-details {
   display: flex;
   flex-direction: column;
@@ -74,19 +94,7 @@
   font-size: 0.9rem;
 }
 
-.project-image-placeholder {
-  width: 80px;
-  height: 80px;
-  background-color: #ddd;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #888;
-  font-size: 14px;
-  border-radius: 8px;
-  margin-right: 15px;
-}
-
+/* Link styling */
 a {
   color: #8b4513;
   text-decoration: none;
