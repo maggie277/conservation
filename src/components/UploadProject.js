@@ -34,6 +34,8 @@ const UploadProject = () => {
         formData
       );
 
+      console.log('Image URL:', res.data.secure_url); // Log the image URL for debugging
+
       // Update the state with the uploaded image URL
       setProject((prev) => ({ ...prev, imageUrl: res.data.secure_url }));
     } catch (err) {
@@ -93,7 +95,7 @@ const UploadProject = () => {
           }} 
           required
         />
-        
+
         {/* Hidden File Input */}
         <input
           type="file"
