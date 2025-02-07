@@ -3,62 +3,30 @@ import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Button, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { makeStyles } from '@mui/styles';
-import './Login.css'; // Ensure this import is correct
-import loginBackground from '../pictures/login.jpg'; // Import the image
-
-const useStyles = makeStyles({
-  root: {
-    '& .MuiOutlinedInput-root': {
-      '& fieldset': {
-        borderColor: 'var(--brown)', // Use variable for consistent color
-      },
-      '&:hover fieldset': {
-        borderColor: 'var(--brown-hover)', // Use variable for consistent color
-      },
-      '&.Mui-focused fieldset': {
-        borderColor: 'var(--brown)', // Use variable for consistent color
-      },
-    },
-    '& .MuiInputBase-input': {
-      color: '#333333', // Dark Gray
-    },
-    '& .MuiInputLabel-root': {
-      color: 'var(--brown)', // Use variable for consistent color
-    },
-    '& .MuiButton-containedPrimary': {
-      backgroundColor: 'var(--brown)', // Use variable for consistent color
-      '&:hover': {
-        backgroundColor: 'var(--brown-hover)', // Use variable for consistent color
-      },
-    },
-  },
-});
+import './Login.css'; 
+import loginBackground from '../pictures/login.jpg'; 
 
 const Login = () => {
-  const classes = useStyles();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Initialize the navigate hook
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Remove the userCredential variable if it's not needed
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/dashboard'); // Redirect to default dashboard route
+      navigate('/profile'); // Redirect to profile after login
     } catch (err) {
-      setError(err.message);
+      setError('Invalid email or password. Please try again.');
     }
   };
-  
 
   return (
     <div className="login-page">
-      <img src={loginBackground} alt="Background" className="background" /> {/* Use imported image */}
+      <img src={loginBackground} alt="Background" className="background" />
       <div className="form-container">
-        <form className={classes.root} onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <TextField
             name="email"
             label="Email"
@@ -81,7 +49,7 @@ const Login = () => {
             InputLabelProps={{ shrink: true }}
           />
           <Button type="submit" color="primary" variant="contained">Login</Button>
-          {error && <p>{error}</p>}
+          {error && <p className="error">{error}</p>}
         </form>
       </div>
     </div>

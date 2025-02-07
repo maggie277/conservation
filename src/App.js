@@ -11,26 +11,31 @@ import Home from './components/Home';
 import Profile from './components/Profile';
 import Share from './components/Share';
 import Navbar from './components/Navbar';
-import UploadProject from './components/UploadProject'; // Import UploadProject
+import UploadProject from './components/UploadProject';
+import PrivateRoute from './components/PrivateRoute';
 import './App.css';
 
 function App() {
   return (
     <Router>
       <Navbar />
-      <div className="content"> {/* Ensures content is below navbar */}
+      <div className="content">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/projects/:projectId" element={<ProjectDetail />} />
-          <Route path="/donate/:projectId" element={<Donate />} />
-          <Route path="/payment/:projectId" element={<Payment />} />
-          <Route path="/receipt/:projectId" element={<Receipt />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/share" element={<Share />} />
-          <Route path="/projects/upload-project" element={<UploadProject />} /> {/* Added route */}
+          
+          {/* Private Routes (Protected Pages) */}
+          <Route element={<PrivateRoute />}>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/projects/:projectId" element={<ProjectDetail />} />
+            <Route path="/donate/:projectId" element={<Donate />} />
+            <Route path="/payment/:projectId" element={<Payment />} />
+            <Route path="/receipt/:projectId" element={<Receipt />} />
+            <Route path="/share" element={<Share />} />
+            <Route path="/projects/upload-project" element={<UploadProject />} />
+          </Route>
         </Routes>
       </div>
     </Router>

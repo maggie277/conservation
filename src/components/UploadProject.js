@@ -10,15 +10,18 @@ const UploadProject = () => {
     title: '',
     description: '',
     goal: '',
-    imageUrl: '' // Ensuring this gets updated before sending to Firebase
+    imageUrl: '' // Ensure this gets updated before submission
   });
+
   const [uploading, setUploading] = useState(false);
   const navigate = useNavigate();
 
+  // Handle text input changes
   const handleChange = (e) => {
     setProject({ ...project, [e.target.name]: e.target.value });
   };
 
+  // Handle file upload to Cloudinary
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -34,7 +37,11 @@ const UploadProject = () => {
         formData
       );
 
-      console.log('Image URL:', res.data.secure_url); // Log the image URL for debugging
+      if (!res.data.secure_url) {
+        throw new Error("Cloudinary response does not contain image URL");
+      }
+
+      console.log('Image Uploaded Successfully:', res.data.secure_url);
 
       // Update the state with the uploaded image URL
       setProject((prev) => ({ ...prev, imageUrl: res.data.secure_url }));
@@ -45,6 +52,7 @@ const UploadProject = () => {
     }
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -54,8 +62,15 @@ const UploadProject = () => {
     }
 
     try {
-      await addDoc(collection(db, 'projects'), project);
-      navigate('/projects'); // Redirect after submission
+      await addDoc(collection(db, "projects"), {
+        title: project.title,
+        description: project.description,
+        goal: project.goal,
+        imageUrl: project.imageUrl,
+      });
+
+      console.log("Project saved successfully:", project);
+      navigate("/projects"); // Redirect after successful submission
     } catch (err) {
       console.error("Error uploading project", err);
     }

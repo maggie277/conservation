@@ -7,8 +7,8 @@ export const verifyOrganization = async (companyId) => {
       if (isValidFormat) {
         resolve({ verified: true });
       } else {
-        resolve({ verified: false, message: 'Company ID not recognized. It should start with "ZMW" followed by 6 digits.' }); // Always resolve
+        resolve({ verified: false, message: 'Company ID not recognized. It should start with "ZMW" followed by 6 digits.' });
       }
-    }, 1500);
+    }, 1500); // Simulate a 1.5-second delay
   });
 };

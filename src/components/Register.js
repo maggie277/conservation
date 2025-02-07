@@ -49,56 +49,77 @@ const Register = () => {
     email: '',
     password: '',
     type: 'individual',
-    companyId: '', // Add company ID state
+    companyId: '',
   });
 
   const [verificationStatus, setVerificationStatus] = useState(null);
-  const navigate = useNavigate(); // Initialize the navigate hook
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === 'companyId' && user.type === 'organization') {
+      setUser({ ...user, [name]: value.startsWith('ZMW') ? value : `ZMW${value}` });
+    } else {
+      setUser({ ...user, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
+      const uid = userCredential.user.uid;
 
       if (user.type === 'organization') {
-        const companyId = `ZMW${user.companyId}`;
-        try {
-          const result = await verifyOrganization(companyId);
-          if (result.verified) {
-            await addDoc(collection(db, 'users'), {
-              uid: userCredential.user.uid,
-              email: user.email,
-              type: user.type,
-              companyId: companyId,
-            });
-            setVerificationStatus('Company verified and registered!');
-          } else {
-            setVerificationStatus(result.message); // Display the verification message
-          }
-        } catch (error) {
-          setVerificationStatus(error.message || 'Verification failed');
+        const companyId = user.companyId;
+        const result = await verifyOrganization(companyId);
+
+        if (result.verified) {
+          await addDoc(collection(db, 'users'), {
+            uid: uid,
+            email: user.email,
+            type: user.type,
+            companyId: companyId,
+          });
+          setVerificationStatus('Company verified and registered!');
+        } else {
+          setVerificationStatus(result.message);
+          return;
         }
       } else {
         await addDoc(collection(db, 'users'), {
-          uid: userCredential.user.uid,
+          uid: uid,
           email: user.email,
           type: user.type,
         });
       }
 
-      navigate('/projects'); // Redirect after successful registration
-    } catch (err) {
-      setVerificationStatus(err.message);
+      navigate('/projects');
+    } catch (error) {
+      console.error('Registration error:', error);
+      let errorMessage = 'Registration failed. Please try again.';
+      if (error.code) {
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            errorMessage = 'This email is already associated with an account.';
+            break;
+          case 'auth/invalid-email':
+            errorMessage = 'The email address is not valid.';
+            break;
+          case 'auth/weak-password':
+            errorMessage = 'The password is too weak. Please choose a stronger password.';
+            break;
+          default:
+            errorMessage = error.message;
+        }
+      }
+      setVerificationStatus(errorMessage);
     }
   };
 
   return (
     <div className="register-page">
-      <img src={registerBackground} alt="Background" className="background" /> {/* Use imported image */}
+      <img src={registerBackground} alt="Background" className="background" />
       <div className="form-container">
         <form className={classes.root} onSubmit={handleSubmit}>
           <TextField
@@ -136,6 +157,12 @@ const Register = () => {
               margin="normal"
               variant="outlined"
               InputLabelProps={{ shrink: true }}
+              error={user.type === 'organization' && !/^ZMW\d{6}$/.test(user.companyId)}
+              helperText={
+                user.type === 'organization' && !/^ZMW\d{6}$/.test(user.companyId)
+                  ? 'Company ID must start with "ZMW" followed by 6 digits.'
+                  : ''
+              }
             />
           )}
           <Button type="submit" color="primary" variant="contained">Register</Button>
