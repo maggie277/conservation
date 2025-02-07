@@ -1,0 +1,22 @@
+:root {
+  --brown: #6B3D0C;
+  --brown-hover: #4B2F07;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* Ensure the body takes up the full height of the viewport */
+}
+
+.content {
+  padding-top: 80px;
+  width: 100%;
+}

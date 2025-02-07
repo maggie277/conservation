@@ -1,0 +1,66 @@
+/* src/components/Login.css */
+:root {
+  --brown: #6B3D0C; /* Darker Brown */
+  --brown-hover: #4B2F07; /* Even Darker Brown for hover */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.form-container {
+  background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent background */
+  padding: 30px; /* Increased padding */
+  border-radius: 10px; /* More rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slightly more pronounced shadow */
+  max-width: 400px;
+  margin: 20px;
+}
+
+input {
+  font-size: 16px;
+  color: #333333; /* Dark Gray */
+}
+
+input[type="password"] {
+  font-family: 'Courier New', Courier, monospace; /* Monospace font for password */
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+input::placeholder {
+  color: #888888; /* Lighter gray for placeholder */
+  opacity: 1; /* Ensure the placeholder is visible */
+}
+
+.MuiFormControl-root {
+  margin: 10px 0; /* Ensure spacing between fields */
+}
+
+p {
+  color: var(--brown); /* Use variable for consistent color */
+}
+
+@media (max-width: 600px) {
+  .form-container {
+    padding: 20px;
+    width: 90%;
+  }
+}
