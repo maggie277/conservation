@@ -7,12 +7,12 @@ import ProjectDetail from './components/ProjectDetail';
 import Donate from './components/Donate';
 import Payment from './components/Payment';
 import Receipt from './components/Receipt';
-import Home from './components/Home';
 import Profile from './components/Profile';
 import Share from './components/Share';
 import Navbar from './components/Navbar';
 import UploadProject from './components/UploadProject';
 import PrivateRoute from './components/PrivateRoute';
+import Home from './components/Home'; // Import the Home component
 import './App.css';
 
 function App() {
@@ -21,10 +21,9 @@ function App() {
       <Navbar />
       <div className="content">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home />} /> {/* Route for Home component */}
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          
           {/* Private Routes (Protected Pages) */}
           <Route element={<PrivateRoute />}>
             <Route path="/profile" element={<Profile />} />

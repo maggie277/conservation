@@ -10,10 +10,10 @@ body {
   background-color: #f4f4f4;
 }
 
-html, body {
+html, body, #root {
   margin: 0;
   padding: 0;
-  height: 100%; /* Ensure the body takes up the full height of the viewport */
+  height: 100%;
 }
 
 .content {

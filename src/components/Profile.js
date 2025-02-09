@@ -1,74 +1,126 @@
-import React, { useState, useEffect } from 'react';
-import { db, auth } from '../firebaseConfig';
-import { doc, getDoc } from 'firebase/firestore';
-import { Button, Avatar } from '@mui/material';
+import React, { useEffect, useState } from "react";
+import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 const Profile = () => {
+  const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const user = auth.currentUser;
+  const [isEditing, setIsEditing] = useState(false);
+  const [email, setEmail] = useState("");
+  const [type, setType] = useState("");
+  const [companyId, setCompanyId] = useState("");
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (user) {
-        console.log("Fetching Firestore Data for:", user.uid);
-        try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            console.log("User Data:", userDoc.data());
-            setUserData(userDoc.data());
-          } else {
-            console.warn("No user data found in Firestore.");
-          }
-        } catch (error) {
-          console.error("Error fetching user data:", error);
+    const fetchUserData = async (uid) => {
+      try {
+        const q = query(collection(db, "users"), where("uid", "==", uid));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const docData = querySnapshot.docs[0].data();
+          console.log("User document found:", docData);
+          setUserData(docData);
+          setEmail(docData.email);
+          setType(docData.type);
+          setCompanyId(docData.companyId || "");  // Make sure companyId exists for organizations
+        } else {
+          console.log(`User document NOT found for UID: ${uid}`);
         }
-      } else {
-        console.warn("No authenticated user found.");
+      } catch (error) {
+        console.error("Error fetching user data:", error);
       }
-      setLoading(false);
     };
 
-    fetchUserData();
-  }, [user]);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        console.log("Auth State Changed: ", currentUser);
+        fetchUserData(currentUser.uid);
+      }
+    });
 
-  if (loading) return <p>Loading profile...</p>;
+    return () => unsubscribe();
+  }, []);
+
+  // Handle sign out
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      console.log("User signed out");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
+  // Handle edit form submission
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const userRef = doc(db, "users", userData.id); // Assumes you are using document ID, else adjust
+      await updateDoc(userRef, {
+        email,
+        type,
+        companyId,
+      });
+      console.log("User data updated");
+      setIsEditing(false);
+      setUserData((prevData) => ({
+        ...prevData,
+        email,
+        type,
+        companyId,
+      }));
+    } catch (error) {
+      console.error("Error updating user data:", error);
+    }
+  };
+
+  if (!userData) return <p>Loading profile...</p>;
 
   return (
-    <div style={{ textAlign: 'center', padding: '20px' }}>
-      <h1>Profile Page</h1>
-      {userData ? (
-        <div>
-          <Avatar 
-            src={userData.profilePicture || 'https://via.placeholder.com/150'} 
-            sx={{ width: 100, height: 100, margin: 'auto' }} 
-          />
-          <h2>{userData.name}</h2>
-          <p>Email: {user.email}</p>
-          <h3>My Projects</h3>
-          {userData.projects?.length ? (
-            <ul>
-              {userData.projects.map((project) => (
-                <li key={project.id}>{project.title}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>No projects created yet.</p>
+    <div>
+      <h2>Profile</h2>
+      <p>Email: {userData.email}</p>
+      <p>Type: {userData.type}</p>
+      {userData.type === "organization" && <p>Company ID: {userData.companyId}</p>}
+      
+      <button onClick={handleSignOut}>Sign Out</button>
+
+      <button onClick={() => setIsEditing(!isEditing)}>
+        {isEditing ? "Cancel Edit" : "Edit Profile"}
+      </button>
+
+      {isEditing && (
+        <form onSubmit={handleEditSubmit}>
+          <div>
+            <label>Email: </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>Type: </label>
+            <select value={type} onChange={(e) => setType(e.target.value)}>
+              <option value="individual">Individual</option>
+              <option value="organization">Organization</option>
+            </select>
+          </div>
+          {type === "organization" && (
+            <div>
+              <label>Company ID: </label>
+              <input
+                type="text"
+                value={companyId}
+                onChange={(e) => setCompanyId(e.target.value)}
+              />
+            </div>
           )}
-          <h3>My Contributions</h3>
-          {userData.contributions?.length ? (
-            <ul>
-              {userData.contributions.map((donation, index) => (
-                <li key={index}>Donated K{donation.amount} to {donation.projectTitle}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>No contributions made yet.</p>
-          )}
-          <Button variant="contained" color="primary">Edit Profile</Button>
-        </div>
-      ) : (
-        <p>No profile data found.</p>
+          <button type="submit">Save Changes</button>
+        </form>
       )}
     </div>
   );
