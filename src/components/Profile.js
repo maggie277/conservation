@@ -3,13 +3,29 @@ import { collection, query, where, getDocs, updateDoc, doc } from "firebase/fire
 import { auth, db } from "../firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
+const countries = ["Zambia", "United States", "Canada", "United Kingdom", "Australia", "South Africa", "India", "China", "Brazil", "Germany"];
+
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [email, setEmail] = useState("");
   const [type, setType] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [age, setAge] = useState("");
+  const [nrcPassport, setNrcPassport] = useState("");
+  const [country, setCountry] = useState("");
+  const [address, setAddress] = useState("");
+  const [projects, setProjects] = useState("");
+  const [contributions, setContributions] = useState("");
+  const [organizationName, setOrganizationName] = useState("");
+  const [organizationAddress, setOrganizationAddress] = useState("");
+  const [organizationPhone, setOrganizationPhone] = useState("");
+  const [organizationWebsite, setOrganizationWebsite] = useState("");
+  const [missionStatement, setMissionStatement] = useState("");
   const [companyId, setCompanyId] = useState("");
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchUserData = async (uid) => {
@@ -18,12 +34,26 @@ const Profile = () => {
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          const docData = querySnapshot.docs[0].data();
+          const docSnapshot = querySnapshot.docs[0]; // Get the first document
+          const docData = docSnapshot.data(); // Get the document data
           console.log("User document found:", docData);
-          setUserData(docData);
+          setUserData({ ...docData, id: docSnapshot.id }); // Include the document ID
           setEmail(docData.email);
           setType(docData.type);
-          setCompanyId(docData.companyId || "");  // Make sure companyId exists for organizations
+          setFirstName(docData.firstName || "");
+          setLastName(docData.lastName || "");
+          setAge(docData.age || "");
+          setNrcPassport(docData.nrcPassport || "");
+          setCountry(docData.country || "");
+          setAddress(docData.address || "");
+          setProjects(docData.projects || "");
+          setContributions(docData.contributions || "");
+          setOrganizationName(docData.organizationName || "");
+          setOrganizationAddress(docData.organizationAddress || "");
+          setOrganizationPhone(docData.organizationPhone || "");
+          setOrganizationWebsite(docData.organizationWebsite || "");
+          setMissionStatement(docData.missionStatement || "");
+          setCompanyId(docData.companyId || "");
         } else {
           console.log(`User document NOT found for UID: ${uid}`);
         }
@@ -43,7 +73,6 @@ const Profile = () => {
     return () => unsubscribe();
   }, []);
 
-  // Handle sign out
   const handleSignOut = async () => {
     try {
       await signOut(auth);
@@ -53,24 +82,65 @@ const Profile = () => {
     }
   };
 
-  // Handle edit form submission
+  const validateForm = () => {
+    const newErrors = {};
+    if (type === "individual") {
+      if (!firstName) newErrors.firstName = "First Name is required";
+      if (!lastName) newErrors.lastName = "Last Name is required";
+      if (!age) newErrors.age = "Age is required";
+      if (!nrcPassport) newErrors.nrcPassport = "NRC/Passport is required";
+    } else if (type === "organization") {
+      if (!organizationName) newErrors.organizationName = "Organization Name is required";
+      if (!organizationAddress) newErrors.organizationAddress = "Organization Address is required";
+      if (!organizationPhone) newErrors.organizationPhone = "Organization Phone is required";
+      if (!organizationWebsite) newErrors.organizationWebsite = "Organization Website is required";
+      if (!missionStatement) newErrors.missionStatement = "Mission Statement is required";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleEditSubmit = async (e) => {
     e.preventDefault();
 
+    if (!validateForm()) return;
+
     try {
-      const userRef = doc(db, "users", userData.id); // Assumes you are using document ID, else adjust
+      const userRef = doc(db, "users", userData.id); // Now userData.id is defined
       await updateDoc(userRef, {
-        email,
         type,
-        companyId,
+        firstName,
+        lastName,
+        age,
+        nrcPassport,
+        country,
+        address,
+        projects,
+        contributions,
+        organizationName,
+        organizationAddress,
+        organizationPhone,
+        organizationWebsite,
+        missionStatement,
       });
       console.log("User data updated");
-      setIsEditing(false);
+      setIsEditing(false); // Switch back to read-only mode
       setUserData((prevData) => ({
         ...prevData,
-        email,
         type,
-        companyId,
+        firstName,
+        lastName,
+        age,
+        nrcPassport,
+        country,
+        address,
+        projects,
+        contributions,
+        organizationName,
+        organizationAddress,
+        organizationPhone,
+        organizationWebsite,
+        missionStatement,
       }));
     } catch (error) {
       console.error("Error updating user data:", error);
@@ -82,46 +152,65 @@ const Profile = () => {
   return (
     <div>
       <h2>Profile</h2>
-      <p>Email: {userData.email}</p>
-      <p>Type: {userData.type}</p>
-      {userData.type === "organization" && <p>Company ID: {userData.companyId}</p>}
-      
-      <button onClick={handleSignOut}>Sign Out</button>
+      <p><strong>Email:</strong> {userData.email}</p>
+      <p><strong>Type:</strong> {userData.type}</p>
 
-      <button onClick={() => setIsEditing(!isEditing)}>
-        {isEditing ? "Cancel Edit" : "Edit Profile"}
-      </button>
-
-      {isEditing && (
-        <form onSubmit={handleEditSubmit}>
-          <div>
-            <label>Email: </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <label>Type: </label>
-            <select value={type} onChange={(e) => setType(e.target.value)}>
-              <option value="individual">Individual</option>
-              <option value="organization">Organization</option>
-            </select>
-          </div>
+      {isEditing ? (
+        <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+          {type === "individual" && (
+            <>
+              <label>First Name:<input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} /></label>
+              {errors.firstName && <p style={{ color: 'red' }}>{errors.firstName}</p>}
+              <label>Last Name:<input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} /></label>
+              {errors.lastName && <p style={{ color: 'red' }}>{errors.lastName}</p>}
+              <label>Age:<input type="text" value={age} onChange={(e) => setAge(e.target.value)} /></label>
+              {errors.age && <p style={{ color: 'red' }}>{errors.age}</p>}
+              <label>NRC/Passport:<input type="text" value={nrcPassport} onChange={(e) => setNrcPassport(e.target.value)} /></label>
+              {errors.nrcPassport && <p style={{ color: 'red' }}>{errors.nrcPassport}</p>}
+            </>
+          )}
           {type === "organization" && (
-            <div>
-              <label>Company ID: </label>
-              <input
-                type="text"
-                value={companyId}
-                onChange={(e) => setCompanyId(e.target.value)}
-              />
-            </div>
+            <>
+              <label>Organization Name:<input type="text" value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} /></label>
+              {errors.organizationName && <p style={{ color: 'red' }}>{errors.organizationName}</p>}
+              <label>Company ID:<input type="text" value={companyId} readOnly /></label>
+              <label>Organization Address:<input type="text" value={organizationAddress} onChange={(e) => setOrganizationAddress(e.target.value)} /></label>
+              {errors.organizationAddress && <p style={{ color: 'red' }}>{errors.organizationAddress}</p>}
+              <label>Phone:<input type="text" value={organizationPhone} onChange={(e) => setOrganizationPhone(e.target.value)} /></label>
+              {errors.organizationPhone && <p style={{ color: 'red' }}>{errors.organizationPhone}</p>}
+              <label>Website:<input type="text" value={organizationWebsite} onChange={(e) => setOrganizationWebsite(e.target.value)} /></label>
+              {errors.organizationWebsite && <p style={{ color: 'red' }}>{errors.organizationWebsite}</p>}
+              <label>Mission Statement:<textarea value={missionStatement} onChange={(e) => setMissionStatement(e.target.value)} /></label>
+              {errors.missionStatement && <p style={{ color: 'red' }}>{errors.missionStatement}</p>}
+            </>
           )}
           <button type="submit">Save Changes</button>
+          <button type="button" onClick={() => setIsEditing(false)}>Cancel</button>
         </form>
+      ) : (
+        <>
+          {type === "individual" && (
+            <>
+              <p><strong>First Name:</strong> {firstName}</p>
+              <p><strong>Last Name:</strong> {lastName}</p>
+              <p><strong>Age:</strong> {age}</p>
+              <p><strong>NRC/Passport:</strong> {nrcPassport}</p>
+            </>
+          )}
+          {type === "organization" && (
+            <>
+              <p><strong>Organization Name:</strong> {organizationName}</p>
+              <p><strong>Company ID:</strong> {companyId}</p>
+              <p><strong>Organization Address:</strong> {organizationAddress}</p>
+              <p><strong>Phone:</strong> {organizationPhone}</p>
+              <p><strong>Website:</strong> {organizationWebsite}</p>
+              <p><strong>Mission Statement:</strong> {missionStatement}</p>
+            </>
+          )}
+          <button onClick={() => setIsEditing(true)} style={{ marginTop: '20px' }}>Edit Profile</button>
+        </>
       )}
+      <button onClick={handleSignOut}>Sign Out</button>
     </div>
   );
 };
