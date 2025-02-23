@@ -1,0 +1,163 @@
+/* Profile.css */
+
+/* General styles */
+.profile-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw; /* Ensures it covers the full width */
+  background-color: #f4f4f4; /* Optional: Set a background color */
+  background-size: cover; /* Ensures background image covers the whole screen */
+  background-position: center;
+  background: url('../pictures/profile.jpg') no-repeat center center fixed;
+}
+
+
+.profile-card {
+  background-color: #d4c4b2a1;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 30px; /* Increased padding for more space */
+  max-width: 800px; /* Increased max-width for a larger box */
+  width: 100%;
+  margin: 20px; /* Added margin for better spacing */
+}
+
+.profile-card h2 {
+  margin-bottom: 25px; /* Increased margin for better spacing */
+  font-size: 28px; /* Larger font size for the heading */
+  color: #333;
+  text-align: center; /* Center the heading */
+}
+
+.profile-card p {
+  margin: 15px 0; /* Increased margin for better spacing */
+  font-size: 18px; /* Larger font size for better readability */
+  color: #555;
+}
+
+.profile-card strong {
+  color: #333;
+}
+
+/* Form styles */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* Increased gap for better spacing */
+}
+
+.profile-form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px; /* Larger font size for labels */
+  color: #555;
+}
+
+.profile-form input,
+.profile-form textarea {
+  padding: 12px; /* Increased padding for better input field size */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px; /* Larger font size for input text */
+  margin-top: 8px; /* Increased margin for better spacing */
+}
+
+.profile-form textarea {
+  resize: vertical;
+  min-height: 120px; /* Increased height for textarea */
+}
+
+/* Error messages */
+.error {
+  color: #663f0d94;
+  font-size: 14px; /* Larger font size for error messages */
+  margin-top: 8px; /* Increased margin for better spacing */
+}
+
+/* Button styles */
+.edit-button,
+.save-button,
+.cancel-button,
+.signout-button {
+  padding: 12px 24px; /* Increased padding for larger buttons */
+  border: none;
+  border-radius: 5px;
+  font-size: 16px; /* Larger font size for buttons */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin: 10px 0; /* Added margin for better spacing */
+}
+
+.edit-button {
+  background-color: #663f0d94;
+  color: #000000;
+}
+
+.edit-button:hover {
+  background-color: #6B3D0C;
+}
+
+.save-button {
+  background-color: #663f0d94;
+  color: #000000;
+}
+
+.save-button:hover {
+  background-color: #6B3D0C
+}
+
+.cancel-button {
+  background-color: #663f0d94;
+  color: #000000;
+}
+
+.cancel-button:hover {
+  background-color: #6B3D0C;;
+}
+
+.signout-button {
+  background-color: #663f0d94;
+  color: #000000;;
+  margin-top: 20px; /* Increased margin for better spacing */
+}
+
+.signout-button:hover {
+  background-color: #6B3D0C;;
+}
+
+/* Loading state */
+.loading {
+  text-align: center;
+  font-size: 20px; /* Larger font size for loading message */
+  color: #6B3D0C;;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .profile-card {
+    padding: 20px; /* Adjusted padding for smaller screens */
+  }
+
+  .profile-card h2 {
+    font-size: 24px; /* Adjusted font size for smaller screens */
+  }
+
+  .profile-card p {
+    font-size: 16px; /* Adjusted font size for smaller screens */
+  }
+
+  .profile-form input,
+  .profile-form textarea {
+    font-size: 14px; /* Adjusted font size for smaller screens */
+  }
+
+  .edit-button,
+  .save-button,
+  .cancel-button,
+  .signout-button {
+    font-size: 14px; /* Adjusted font size for smaller screens */
+    padding: 10px 20px; /* Adjusted padding for smaller screens */
+  }
+}

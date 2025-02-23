@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import "./Profile.css"; // Import the CSS file for styling
 
 const countries = ["Zambia", "United States", "Canada", "United Kingdom", "Australia", "South Africa", "India", "China", "Brazil", "Germany"];
 
@@ -147,70 +148,72 @@ const Profile = () => {
     }
   };
 
-  if (!userData) return <p>Loading profile...</p>;
+  if (!userData) return <p className="loading">Loading profile...</p>;
 
   return (
-    <div>
-      <h2>Profile</h2>
-      <p><strong>Email:</strong> {userData.email}</p>
-      <p><strong>Type:</strong> {userData.type}</p>
+    <div className="profile-container">
+      <div className="profile-card">
+        <h2>Profile</h2>
+        <p><strong>Email:</strong> {userData.email}</p>
+        <p><strong>Type:</strong> {userData.type}</p>
 
-      {isEditing ? (
-        <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-          {type === "individual" && (
-            <>
-              <label>First Name:<input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} /></label>
-              {errors.firstName && <p style={{ color: 'red' }}>{errors.firstName}</p>}
-              <label>Last Name:<input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} /></label>
-              {errors.lastName && <p style={{ color: 'red' }}>{errors.lastName}</p>}
-              <label>Age:<input type="text" value={age} onChange={(e) => setAge(e.target.value)} /></label>
-              {errors.age && <p style={{ color: 'red' }}>{errors.age}</p>}
-              <label>NRC/Passport:<input type="text" value={nrcPassport} onChange={(e) => setNrcPassport(e.target.value)} /></label>
-              {errors.nrcPassport && <p style={{ color: 'red' }}>{errors.nrcPassport}</p>}
-            </>
-          )}
-          {type === "organization" && (
-            <>
-              <label>Organization Name:<input type="text" value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} /></label>
-              {errors.organizationName && <p style={{ color: 'red' }}>{errors.organizationName}</p>}
-              <label>Company ID:<input type="text" value={companyId} readOnly /></label>
-              <label>Organization Address:<input type="text" value={organizationAddress} onChange={(e) => setOrganizationAddress(e.target.value)} /></label>
-              {errors.organizationAddress && <p style={{ color: 'red' }}>{errors.organizationAddress}</p>}
-              <label>Phone:<input type="text" value={organizationPhone} onChange={(e) => setOrganizationPhone(e.target.value)} /></label>
-              {errors.organizationPhone && <p style={{ color: 'red' }}>{errors.organizationPhone}</p>}
-              <label>Website:<input type="text" value={organizationWebsite} onChange={(e) => setOrganizationWebsite(e.target.value)} /></label>
-              {errors.organizationWebsite && <p style={{ color: 'red' }}>{errors.organizationWebsite}</p>}
-              <label>Mission Statement:<textarea value={missionStatement} onChange={(e) => setMissionStatement(e.target.value)} /></label>
-              {errors.missionStatement && <p style={{ color: 'red' }}>{errors.missionStatement}</p>}
-            </>
-          )}
-          <button type="submit">Save Changes</button>
-          <button type="button" onClick={() => setIsEditing(false)}>Cancel</button>
-        </form>
-      ) : (
-        <>
-          {type === "individual" && (
-            <>
-              <p><strong>First Name:</strong> {firstName}</p>
-              <p><strong>Last Name:</strong> {lastName}</p>
-              <p><strong>Age:</strong> {age}</p>
-              <p><strong>NRC/Passport:</strong> {nrcPassport}</p>
-            </>
-          )}
-          {type === "organization" && (
-            <>
-              <p><strong>Organization Name:</strong> {organizationName}</p>
-              <p><strong>Company ID:</strong> {companyId}</p>
-              <p><strong>Organization Address:</strong> {organizationAddress}</p>
-              <p><strong>Phone:</strong> {organizationPhone}</p>
-              <p><strong>Website:</strong> {organizationWebsite}</p>
-              <p><strong>Mission Statement:</strong> {missionStatement}</p>
-            </>
-          )}
-          <button onClick={() => setIsEditing(true)} style={{ marginTop: '20px' }}>Edit Profile</button>
-        </>
-      )}
-      <button onClick={handleSignOut}>Sign Out</button>
+        {isEditing ? (
+          <form onSubmit={handleEditSubmit} className="profile-form">
+            {type === "individual" && (
+              <>
+                <label>First Name:<input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} /></label>
+                {errors.firstName && <p className="error">{errors.firstName}</p>}
+                <label>Last Name:<input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} /></label>
+                {errors.lastName && <p className="error">{errors.lastName}</p>}
+                <label>Age:<input type="text" value={age} onChange={(e) => setAge(e.target.value)} /></label>
+                {errors.age && <p className="error">{errors.age}</p>}
+                <label>NRC/Passport:<input type="text" value={nrcPassport} onChange={(e) => setNrcPassport(e.target.value)} /></label>
+                {errors.nrcPassport && <p className="error">{errors.nrcPassport}</p>}
+              </>
+            )}
+            {type === "organization" && (
+              <>
+                <label>Organization Name:<input type="text" value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} /></label>
+                {errors.organizationName && <p className="error">{errors.organizationName}</p>}
+                <label>Company ID:<input type="text" value={companyId} readOnly /></label>
+                <label>Organization Address:<input type="text" value={organizationAddress} onChange={(e) => setOrganizationAddress(e.target.value)} /></label>
+                {errors.organizationAddress && <p className="error">{errors.organizationAddress}</p>}
+                <label>Phone:<input type="text" value={organizationPhone} onChange={(e) => setOrganizationPhone(e.target.value)} /></label>
+                {errors.organizationPhone && <p className="error">{errors.organizationPhone}</p>}
+                <label>Website:<input type="text" value={organizationWebsite} onChange={(e) => setOrganizationWebsite(e.target.value)} /></label>
+                {errors.organizationWebsite && <p className="error">{errors.organizationWebsite}</p>}
+                <label>Mission Statement:<textarea value={missionStatement} onChange={(e) => setMissionStatement(e.target.value)} /></label>
+                {errors.missionStatement && <p className="error">{errors.missionStatement}</p>}
+              </>
+            )}
+            <button type="submit" className="save-button">Save Changes</button>
+            <button type="button" className="cancel-button" onClick={() => setIsEditing(false)}>Cancel</button>
+          </form>
+        ) : (
+          <>
+            {type === "individual" && (
+              <>
+                <p><strong>First Name:</strong> {firstName}</p>
+                <p><strong>Last Name:</strong> {lastName}</p>
+                <p><strong>Age:</strong> {age}</p>
+                <p><strong>NRC/Passport:</strong> {nrcPassport}</p>
+              </>
+            )}
+            {type === "organization" && (
+              <>
+                <p><strong>Organization Name:</strong> {organizationName}</p>
+                <p><strong>Company ID:</strong> {companyId}</p>
+                <p><strong>Organization Address:</strong> {organizationAddress}</p>
+                <p><strong>Phone:</strong> {organizationPhone}</p>
+                <p><strong>Website:</strong> {organizationWebsite}</p>
+                <p><strong>Mission Statement:</strong> {missionStatement}</p>
+              </>
+            )}
+            <button onClick={() => setIsEditing(true)} className="edit-button">Edit Profile</button>
+          </>
+        )}
+        <button onClick={handleSignOut} className="signout-button">Sign Out</button>
+      </div>
     </div>
   );
 };
