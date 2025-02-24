@@ -8,7 +8,7 @@ import Donate from './components/Donate';
 import Payment from './components/Payment';
 import Receipt from './components/Receipt';
 import Profile from './components/Profile';
-import Share from './components/Share';
+import HelpCenter from './components/HelpCenter';
 import Navbar from './components/Navbar';
 import UploadProject from './components/UploadProject';
 import PrivateRoute from './components/PrivateRoute';
@@ -32,7 +32,7 @@ function App() {
             <Route path="/donate/:projectId" element={<Donate />} />
             <Route path="/payment/:projectId" element={<Payment />} />
             <Route path="/receipt/:projectId" element={<Receipt />} />
-            <Route path="/share" element={<Share />} />
+            <Route path="/help-center" element={<HelpCenter />} />
             <Route path="/projects/upload-project" element={<UploadProject />} />
           </Route>
         </Routes>

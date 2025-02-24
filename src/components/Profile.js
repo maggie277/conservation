@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+import { collection, query, where, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import ProjectCard from "../components/ProjectCard"; // Import the ProjectCard component
 import "./Profile.css"; // Import the CSS file for styling
-
-const countries = ["Zambia", "United States", "Canada", "United Kingdom", "Australia", "South Africa", "India", "China", "Brazil", "Germany"];
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -18,7 +17,7 @@ const Profile = () => {
   const [nrcPassport, setNrcPassport] = useState("");
   const [country, setCountry] = useState("");
   const [address, setAddress] = useState("");
-  const [projects, setProjects] = useState("");
+  const [projects, setProjects] = useState([]); // Array to store user's projects
   const [contributions, setContributions] = useState("");
   const [organizationName, setOrganizationName] = useState("");
   const [organizationAddress, setOrganizationAddress] = useState("");
@@ -31,14 +30,14 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async (uid) => {
       try {
+        // Fetch user data
         const q = query(collection(db, "users"), where("uid", "==", uid));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          const docSnapshot = querySnapshot.docs[0]; // Get the first document
-          const docData = docSnapshot.data(); // Get the document data
-          console.log("User document found:", docData);
-          setUserData({ ...docData, id: docSnapshot.id }); // Include the document ID
+          const docSnapshot = querySnapshot.docs[0];
+          const docData = docSnapshot.data();
+          setUserData({ ...docData, id: docSnapshot.id });
           setEmail(docData.email);
           setType(docData.type);
           setFirstName(docData.firstName || "");
@@ -47,7 +46,6 @@ const Profile = () => {
           setNrcPassport(docData.nrcPassport || "");
           setCountry(docData.country || "");
           setAddress(docData.address || "");
-          setProjects(docData.projects || "");
           setContributions(docData.contributions || "");
           setOrganizationName(docData.organizationName || "");
           setOrganizationAddress(docData.organizationAddress || "");
@@ -55,6 +53,15 @@ const Profile = () => {
           setOrganizationWebsite(docData.organizationWebsite || "");
           setMissionStatement(docData.missionStatement || "");
           setCompanyId(docData.companyId || "");
+
+          // Fetch projects associated with the user
+          const projectsQuery = query(collection(db, "projects"), where("userId", "==", uid));
+          const projectsSnapshot = await getDocs(projectsQuery);
+          const projectsData = projectsSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+          setProjects(projectsData);
         } else {
           console.log(`User document NOT found for UID: ${uid}`);
         }
@@ -66,7 +73,6 @@ const Profile = () => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        console.log("Auth State Changed: ", currentUser);
         fetchUserData(currentUser.uid);
       }
     });
@@ -107,7 +113,7 @@ const Profile = () => {
     if (!validateForm()) return;
 
     try {
-      const userRef = doc(db, "users", userData.id); // Now userData.id is defined
+      const userRef = doc(db, "users", userData.id);
       await updateDoc(userRef, {
         type,
         firstName,
@@ -116,7 +122,6 @@ const Profile = () => {
         nrcPassport,
         country,
         address,
-        projects,
         contributions,
         organizationName,
         organizationAddress,
@@ -125,7 +130,7 @@ const Profile = () => {
         missionStatement,
       });
       console.log("User data updated");
-      setIsEditing(false); // Switch back to read-only mode
+      setIsEditing(false);
       setUserData((prevData) => ({
         ...prevData,
         type,
@@ -135,7 +140,6 @@ const Profile = () => {
         nrcPassport,
         country,
         address,
-        projects,
         contributions,
         organizationName,
         organizationAddress,
@@ -145,6 +149,17 @@ const Profile = () => {
       }));
     } catch (error) {
       console.error("Error updating user data:", error);
+    }
+  };
+
+  // Function to delete a project
+  const handleDeleteProject = async (projectId) => {
+    try {
+      await deleteDoc(doc(db, "projects", projectId)); // Delete the project from Firestore
+      setProjects((prevProjects) => prevProjects.filter((project) => project.id !== projectId)); // Remove the project from the UI
+      console.log("Project deleted successfully");
+    } catch (error) {
+      console.error("Error deleting project:", error);
     }
   };
 
@@ -213,6 +228,24 @@ const Profile = () => {
           </>
         )}
         <button onClick={handleSignOut} className="signout-button">Sign Out</button>
+      </div>
+
+      {/* Projects Section */}
+      <div className="projects-section">
+        <h3>My Projects</h3>
+        {projects.length > 0 ? (
+          <div className="projects-list">
+            {projects.map((project) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                handleDeleteProject={handleDeleteProject}
+              />
+            ))}
+          </div>
+        ) : (
+          <p>No projects posted yet.</p>
+        )}
       </div>
     </div>
   );

@@ -10,7 +10,7 @@ const UploadProject = () => {
     title: '',
     description: '',
     goal: '',
-    imageUrl: '' // Ensure this gets updated before submission
+    imageUrl: '', // Ensure this gets updated before submission
   });
 
   const [uploading, setUploading] = useState(false);
@@ -29,7 +29,7 @@ const UploadProject = () => {
     const checkProfile = async () => {
       const user = auth.currentUser;
       if (user) {
-        const q = query(collection(db, "users"), where("uid", "==", user.uid));
+        const q = query(collection(db, 'users'), where('uid', '==', user.uid));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
@@ -68,17 +68,17 @@ const UploadProject = () => {
 
     setUploading(true);
     const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", "ml_default"); // Replace with your Cloudinary preset
+    formData.append('file', file);
+    formData.append('upload_preset', 'ml_default'); // Replace with your Cloudinary preset
 
     try {
       const res = await axios.post(
-        "https://api.cloudinary.com/v1_1/dz5gjdu9v/image/upload", // Replace with your Cloudinary URL
+        'https://api.cloudinary.com/v1_1/dz5gjdu9v/image/upload', // Replace with your Cloudinary URL
         formData
       );
 
       if (!res.data.secure_url) {
-        throw new Error("Cloudinary response does not contain image URL");
+        throw new Error('Cloudinary response does not contain image URL');
       }
 
       console.log('Image Uploaded Successfully:', res.data.secure_url);
@@ -86,7 +86,7 @@ const UploadProject = () => {
       // Update the state with the uploaded image URL
       setProject((prev) => ({ ...prev, imageUrl: res.data.secure_url }));
     } catch (err) {
-      console.error("Error uploading image", err);
+      console.error('Error uploading image', err);
     } finally {
       setUploading(false);
     }
@@ -97,29 +97,36 @@ const UploadProject = () => {
     e.preventDefault();
 
     if (!profileComplete) {
-      alert("Please complete all mandatory fields in your profile before uploading a project.");
-      navigate("/profile"); // Redirect to profile page
+      alert('Please complete all mandatory fields in your profile before uploading a project.');
+      navigate('/profile'); // Redirect to profile page
       return;
     }
 
     if (!project.imageUrl) {
-      alert("Please upload an image before submitting.");
+      alert('Please upload an image before submitting.');
       return;
     }
 
     try {
-      await addDoc(collection(db, "projects"), {
+      const user = auth.currentUser;
+      if (!user) {
+        console.error('No user is logged in.');
+        return;
+      }
+
+      // Add project to Firestore with the user's UID
+      await addDoc(collection(db, 'projects'), {
         title: project.title,
         description: project.description,
         goal: project.goal,
         imageUrl: project.imageUrl,
-        uid: auth.currentUser.uid, // Associate the project with the user
+        userId: user.uid, // Add the user's UID to the project
       });
 
-      console.log("Project saved successfully:", project);
-      navigate("/projects"); // Redirect after successful submission
+      console.log('Project saved successfully:', project);
+      navigate('/projects'); // Redirect after successful submission
     } catch (err) {
-      console.error("Error uploading project", err);
+      console.error('Error uploading project', err);
     }
   };
 
@@ -134,7 +141,7 @@ const UploadProject = () => {
       <div>
         <h2>Upload a New Project</h2>
         <p>Please complete all mandatory fields in your profile before uploading a project.</p>
-        <Button variant="contained" onClick={() => navigate("/profile")}>
+        <Button variant="contained" onClick={() => navigate('/profile')}>
           Go to Profile
         </Button>
       </div>
@@ -170,10 +177,10 @@ const UploadProject = () => {
           value={project.goal}
           onChange={(e) => {
             const value = e.target.value;
-            if (/^K?\d*$/.test(value)) {  
-              setProject((prev) => ({ ...prev, goal: value.startsWith("K") ? value : `K${value}` }));
+            if (/^K?\d*$/.test(value)) {
+              setProject((prev) => ({ ...prev, goal: value.startsWith('K') ? value : `K${value}` }));
             }
-          }} 
+          }}
           required
         />
 
@@ -182,23 +189,14 @@ const UploadProject = () => {
           type="file"
           accept="image/*"
           id="file-input"
-          style={{ display: "none" }}
+          style={{ display: 'none' }}
           onChange={handleFileChange}
         />
 
         {/* Upload Button */}
-        <Button
-          variant="contained"
-          component="label"
-          disabled={uploading}
-        >
-          {uploading ? "Uploading..." : "Upload Image"}
-          <input
-            type="file"
-            hidden
-            accept="image/*"
-            onChange={handleFileChange}
-          />
+        <Button variant="contained" component="label" disabled={uploading}>
+          {uploading ? 'Uploading...' : 'Upload Image'}
+          <input type="file" hidden accept="image/*" onChange={handleFileChange} />
         </Button>
 
         {/* Show Image Preview if Uploaded */}
