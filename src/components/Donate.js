@@ -1,97 +1,151 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Button, TextField } from '@mui/material';
-import { db, auth } from '../firebaseConfig';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { useState } from "react";
+import axios from "axios";
 
 const Donate = () => {
-  const { projectId } = useParams();
-  const [amount, setAmount] = useState('');
-  const [donationStatus, setDonationStatus] = useState(null);
-  const [hasProfile, setHasProfile] = useState(false);
-  const navigate = useNavigate();
+    const [amount, setAmount] = useState("");
+    const [email, setEmail] = useState("");
+    const [phone, setPhone] = useState("");
+    const [paymentMethod, setPaymentMethod] = useState("mobile");
+    const [message, setMessage] = useState(null);
+    const [receipt, setReceipt] = useState(null);
+    const [isLoading, setIsLoading] = useState(false); // Add loading state
 
-  // Check if the user has a profile
-  useEffect(() => {
-    const checkProfile = async () => {
-      const user = auth.currentUser;
-      if (user) {
-        const q = query(collection(db, "users"), where("uid", "==", user.uid));
-        const querySnapshot = await getDocs(q);
-        setHasProfile(!querySnapshot.empty);
-      }
+    const handlePayment = async () => {
+        setMessage(null); // Reset messages
+        setReceipt(null);
+        setIsLoading(true); // Start loading
+
+        try {
+            // Step 1: Initiate Payment
+            const response = await axios.post("http://localhost:4000/process-payment", {
+                amount,
+                email,
+                phone,
+                payment_method: paymentMethod,
+            });
+
+            console.log("✅ Payment Initiation Response:", response.data);
+
+            if (response.data.response?.response_code === "120") {
+                setMessage({ type: "info", text: "Payment initiated. Waiting for confirmation..." });
+
+                const referenceNo = response.data.response.reference_no;
+
+                // Step 2: Poll for Payment Status
+                let attempts = 0;
+                const maxAttempts = 18; // 18 attempts * 10 seconds = 3 minutes
+                const interval = setInterval(async () => {
+                    attempts++;
+                    console.log(`🔍 Checking payment status (Attempt ${attempts})...`);
+
+                    try {
+                        const statusResponse = await axios.post("http://localhost:4000/check-payment-status", {
+                            reference_no: referenceNo,
+                        });
+
+                        console.log("📢 Payment Status Response:", statusResponse.data);
+
+                        if (statusResponse.data.status === "success") {
+                            clearInterval(interval);
+                            setIsLoading(false);
+                            setMessage({ type: "success", text: "Payment Successful!" });
+
+                            // Generate Receipt
+                            const receiptDetails = `
+                                RECEIPT
+                                ---------------------
+                                Reference No: ${referenceNo}
+                                Amount: ZMW ${amount}
+                                Email: ${email}
+                                Phone: ${phone}
+                                Payment Method: ${paymentMethod}
+                                Status: Success ✅
+                            `;
+
+                            setReceipt(receiptDetails);
+                        } else if (statusResponse.data.status === "failed") {
+                            clearInterval(interval);
+                            setIsLoading(false);
+                            setMessage({ type: "error", text: "Payment Failed. Please try again." });
+                        }
+                    } catch (error) {
+                        console.error("🚨 Status Check Error:", error);
+                        clearInterval(interval);
+                        setIsLoading(false);
+                        setMessage({ type: "error", text: "Error checking payment status. Please try again." });
+                    }
+
+                    // Stop polling after max attempts (3 minutes)
+                    if (attempts >= maxAttempts) {
+                        clearInterval(interval);
+                        setIsLoading(false);
+                        setMessage({ type: "error", text: "Payment timed out. Please check your mobile money for confirmation." });
+                    }
+                }, 10000); // Check every 10 seconds
+            } else {
+                setIsLoading(false);
+                setMessage({ type: "error", text: "Payment initiation failed. Please try again." });
+            }
+        } catch (error) {
+            console.error("🚨 Payment Error:", error);
+            setIsLoading(false);
+            setMessage({ type: "error", text: "Payment Error. Please check your details." });
+        }
     };
 
-    checkProfile();
-  }, []);
+    const downloadReceipt = () => {
+        const element = document.createElement("a");
+        const file = new Blob([receipt], { type: "text/plain" });
+        element.href = URL.createObjectURL(file);
+        element.download = "Payment_Receipt.txt";
+        document.body.appendChild(element);
+        element.click();
+    };
 
-  const handleChange = (e) => {
-    setAmount(e.target.value);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!hasProfile) {
-      alert("Please complete your profile before donating.");
-      navigate("/profile"); // Redirect to profile page
-      return;
-    }
-
-    try {
-      const transactionData = {
-        CompanyToken: '8D3DA73D-9D7F-4E09-96D4-3D44E7A83EA3',
-        PaymentAmount: amount,
-        PaymentCurrency: 'USD',
-        CompanyRef: `TRX-${Date.now()}`,
-        RedirectURL: `http://localhost:3000/receipt/${projectId}`,
-        BackURL: `http://localhost:3000/receipt/${projectId}`,
-        CompanyRefUnique: '0',
-        PTL: '5',
-        ServiceType: '3854',
-        ServiceDescription: 'Test Product',
-        ServiceDate: new Date().toISOString().split('T')[0]
-      };
-
-      const response = await fetch('http://localhost:4000/create-token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(transactionData)
-      });
-
-      const tokenResponse = await response.text();
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(tokenResponse, 'text/xml');
-      const transToken = xmlDoc.getElementsByTagName('TransToken')[0].childNodes[0].nodeValue;
-      const paymentURL = `https://secure.3gdirectpay.com/payv3.php?ID=${transToken}`;
-
-      // Redirect the customer to the payment URL
-      window.location.href = paymentURL;
-    } catch (error) {
-      setDonationStatus('Payment failed. Please try again.');
-    }
-  };
-
-  if (!hasProfile) {
     return (
-      <div>
-        <h1>Donate to Project {projectId}</h1>
-        <p>You must complete your profile before donating.</p>
-        <Button variant="contained" onClick={() => navigate("/profile")}>
-          Go to Profile
-        </Button>
-      </div>
-    );
-  }
+        <div style={{ maxWidth: "400px", margin: "auto", padding: "20px", textAlign: "center" }}>
+            <h2>Donate</h2>
+            <input
+                type="number"
+                placeholder="Amount"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+            />
+            <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+            />
+            <input
+                type="tel"
+                placeholder="Phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+            />
+            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+                <option value="mobile">Mobile Money</option>
+                <option value="card">Card</option>
+            </select>
+            <button onClick={handlePayment} disabled={isLoading}>
+                {isLoading ? "Processing..." : "Pay Now"}
+            </button>
 
-  return (
-    <form onSubmit={handleSubmit}>
-      <h1>Donate to Project {projectId}</h1>
-      <TextField name="amount" label="Amount" value={amount} onChange={handleChange} fullWidth />
-      <Button type="submit" color="primary" variant="contained">Pay</Button>
-      {donationStatus && <p>{donationStatus}</p>}
-    </form>
-  );
+            {message && (
+                <div style={{ color: message.type === "success" ? "green" : message.type === "info" ? "blue" : "red", marginTop: "10px" }}>
+                    {message.text}
+                </div>
+            )}
+
+            {receipt && (
+                <div>
+                    <h3>Payment Successful ✅</h3>
+                    <pre>{receipt}</pre>
+                    <button onClick={downloadReceipt}>Download Receipt</button>
+                </div>
+            )}
+        </div>
+    );
 };
 
 export default Donate;
