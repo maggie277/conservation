@@ -26,10 +26,14 @@ const Donate = () => {
 
             console.log("✅ Payment Initiation Response:", response.data);
 
-            if (response.data.response?.response_code === "120") {
+            if (response.data.status === "redirect") {
+                // Redirect the user to the payment page
+                window.location.href = response.data.redirect_url;
+            } else if (response.data.response?.response_code === "120") {
                 setMessage({ type: "info", text: "Payment initiated. Waiting for confirmation..." });
 
                 const referenceNo = response.data.response.reference_no;
+                console.log("🔍 Reference No:", referenceNo);
 
                 // Step 2: Poll for Payment Status
                 let attempts = 0;
@@ -63,6 +67,9 @@ const Donate = () => {
                             `;
 
                             setReceipt(receiptDetails);
+                        } else if (statusResponse.data.status === "pending") {
+                            // Payment is still pending, continue polling
+                            setMessage({ type: "info", text: "Payment is still processing. Please wait..." });
                         } else if (statusResponse.data.status === "failed") {
                             clearInterval(interval);
                             setIsLoading(false);
