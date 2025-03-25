@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import './Donate.css';
 
 const Donate = () => {
     const [amount, setAmount] = useState("");
@@ -8,12 +9,12 @@ const Donate = () => {
     const [paymentMethod, setPaymentMethod] = useState("mobile");
     const [message, setMessage] = useState(null);
     const [receipt, setReceipt] = useState(null);
-    const [isLoading, setIsLoading] = useState(false); // Add loading state
+    const [isLoading, setIsLoading] = useState(false);
 
     const handlePayment = async () => {
-        setMessage(null); // Reset messages
+        setMessage(null);
         setReceipt(null);
-        setIsLoading(true); // Start loading
+        setIsLoading(true);
 
         try {
             // Step 1: Initiate Payment
@@ -22,133 +23,183 @@ const Donate = () => {
                 email,
                 phone,
                 payment_method: paymentMethod,
+                first_name: "John",
+                last_name: "Doe",
+                address: "123 Main St",
+                city: "Lusaka",
+                state: "Lusaka",
+                zip_code: "10101",
+                country: "ZMB"
             });
 
             console.log("✅ Payment Initiation Response:", response.data);
 
-            if (response.data.status === "redirect") {
-                // Redirect the user to the payment page
-                window.location.href = response.data.redirect_url;
-            } else if (response.data.response?.response_code === "120") {
+            // Handle both mobile and card responses
+            if (response.data.response?.response_code === "120" || response.data.response_code === "120") {
+                // Mobile payment flow (unchanged)
                 setMessage({ type: "info", text: "Payment initiated. Waiting for confirmation..." });
-
-                const referenceNo = response.data.response.reference_no;
-                console.log("🔍 Reference No:", referenceNo);
-
-                // Step 2: Poll for Payment Status
-                let attempts = 0;
-                const maxAttempts = 18; // 18 attempts * 10 seconds = 3 minutes
-                const interval = setInterval(async () => {
-                    attempts++;
-                    console.log(`🔍 Checking payment status (Attempt ${attempts})...`);
-
-                    try {
-                        const statusResponse = await axios.post("http://localhost:4000/check-payment-status", {
-                            reference_no: referenceNo,
-                        });
-
-                        console.log("📢 Payment Status Response:", statusResponse.data);
-
-                        if (statusResponse.data.status === "success") {
-                            clearInterval(interval);
-                            setIsLoading(false);
-                            setMessage({ type: "success", text: "Payment Successful!" });
-
-                            // Generate Receipt
-                            const receiptDetails = `
-                                RECEIPT
-                                ---------------------
-                                Reference No: ${referenceNo}
-                                Amount: ZMW ${amount}
-                                Email: ${email}
-                                Phone: ${phone}
-                                Payment Method: ${paymentMethod}
-                                Status: Success ✅
-                            `;
-
-                            setReceipt(receiptDetails);
-                        } else if (statusResponse.data.status === "pending") {
-                            // Payment is still pending, continue polling
-                            setMessage({ type: "info", text: "Payment is still processing. Please wait..." });
-                        } else if (statusResponse.data.status === "failed") {
-                            clearInterval(interval);
-                            setIsLoading(false);
-                            setMessage({ type: "error", text: "Payment Failed. Please try again." });
-                        }
-                    } catch (error) {
-                        console.error("🚨 Status Check Error:", error);
-                        clearInterval(interval);
-                        setIsLoading(false);
-                        setMessage({ type: "error", text: "Error checking payment status. Please try again." });
-                    }
-
-                    // Stop polling after max attempts (3 minutes)
-                    if (attempts >= maxAttempts) {
-                        clearInterval(interval);
-                        setIsLoading(false);
-                        setMessage({ type: "error", text: "Payment timed out. Please check your mobile money for confirmation." });
-                    }
-                }, 10000); // Check every 10 seconds
-            } else {
+                const referenceNo = response.data.response?.reference_no || response.data.reference_no;
+                pollPaymentStatus(referenceNo);
+            } 
+            else if (response.data.redirect_url || response.data.response?.redirect_url) {
+                // Card payment flow
+                const redirectUrl = response.data.redirect_url || response.data.response.redirect_url;
+                window.open(redirectUrl, "_blank");
+                setMessage({ 
+                    type: "info", 
+                    text: "Please complete payment in the new tab. This page will update when payment is confirmed." 
+                });
+                const referenceNo = response.data.reference_no || response.data.response?.reference_no;
+                pollPaymentStatus(referenceNo);
+            }
+            else {
                 setIsLoading(false);
-                setMessage({ type: "error", text: "Payment initiation failed. Please try again." });
+                setMessage({ 
+                    type: "error", 
+                    text: response.data.message || response.data.response?.response_description || "Payment initiation failed" 
+                });
             }
         } catch (error) {
             console.error("🚨 Payment Error:", error);
             setIsLoading(false);
-            setMessage({ type: "error", text: "Payment Error. Please check your details." });
+            let errorMessage = "Payment Error. Please check your details.";
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            } else if (error.response?.data?.response?.response_description) {
+                errorMessage = error.response.data.response.response_description;
+            }
+            setMessage({ type: "error", text: errorMessage });
         }
+    };
+
+    const pollPaymentStatus = async (referenceNo) => {
+        let attempts = 0;
+        const maxAttempts = 18;
+        const interval = setInterval(async () => {
+            attempts++;
+            console.log(`🔍 Checking payment status (Attempt ${attempts})...`);
+
+            try {
+                const statusResponse = await axios.post("http://localhost:4000/check-payment-status", {
+                    reference_no: referenceNo,
+                });
+
+                console.log("📢 Payment Status Response:", statusResponse.data);
+
+                if (statusResponse.data.status === "success") {
+                    clearInterval(interval);
+                    setIsLoading(false);
+                    setMessage({ type: "success", text: "Payment Successful!" });
+
+                    const receiptDetails = 
+                        `RECEIPT
+                        ---------------------
+                        Reference No: ${referenceNo}
+                        Amount: ZMW ${amount}
+                        Email: ${email}
+                        Phone: ${phone}
+                        Payment Method: ${paymentMethod}
+                        Status: Success ✅
+                        Date: ${new Date().toLocaleString()}
+                        `;
+
+                    setReceipt(receiptDetails);
+                } else if (statusResponse.data.status === "pending") {
+                    setMessage({ type: "info", text: "Payment is still processing. Please wait..." });
+                } else if (statusResponse.data.status === "failed") {
+                    clearInterval(interval);
+                    setIsLoading(false);
+                    setMessage({ type: "error", text: "Payment Failed. Please try again." });
+                }
+            } catch (error) {
+                console.error("🚨 Status Check Error:", error);
+                clearInterval(interval);
+                setIsLoading(false);
+                setMessage({ type: "error", text: "Error checking payment status. Please try again." });
+            }
+
+            if (attempts >= maxAttempts) {
+                clearInterval(interval);
+                setIsLoading(false);
+                setMessage({ type: "error", text: "Payment timed out. Please check your payment method for confirmation." });
+            }
+        }, 10000);
     };
 
     const downloadReceipt = () => {
         const element = document.createElement("a");
         const file = new Blob([receipt], { type: "text/plain" });
         element.href = URL.createObjectURL(file);
-        element.download = "Payment_Receipt.txt";
+        element.download = `Payment_Receipt_${Date.now()}.txt`;
         document.body.appendChild(element);
         element.click();
     };
 
     return (
-        <div style={{ maxWidth: "400px", margin: "auto", padding: "20px", textAlign: "center" }}>
+        <div className="donate-container">
             <h2>Donate</h2>
             <input
+                className="donate-input"
                 type="number"
-                placeholder="Amount"
+                placeholder="Amount (ZMW)"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
+                min="1"
             />
             <input
+                className="donate-input"
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                required
             />
             <input
+                className="donate-input"
                 type="tel"
-                placeholder="Phone"
+                placeholder="Phone (e.g., 0961234567)"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+                required
             />
-            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)}>
+            <select 
+                className="donate-select"
+                value={paymentMethod} 
+                onChange={(e) => setPaymentMethod(e.target.value)}
+            >
                 <option value="mobile">Mobile Money</option>
                 <option value="card">Card</option>
             </select>
-            <button onClick={handlePayment} disabled={isLoading}>
-                {isLoading ? "Processing..." : "Pay Now"}
+            <button 
+                className={`donate-button ${isLoading ? 'disabled' : ''}`}
+                onClick={handlePayment} 
+                disabled={isLoading || !amount || !email || !phone}
+            >
+                {isLoading ? (
+                    <span className="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </span>
+                ) : "Pay Now"}
             </button>
 
             {message && (
-                <div style={{ color: message.type === "success" ? "green" : message.type === "info" ? "blue" : "red", marginTop: "10px" }}>
+                <div className={`donate-message ${message.type}`}>
                     {message.text}
                 </div>
             )}
 
             {receipt && (
-                <div>
+                <div className="donate-receipt">
                     <h3>Payment Successful ✅</h3>
                     <pre>{receipt}</pre>
-                    <button onClick={downloadReceipt}>Download Receipt</button>
+                    <button 
+                        className="download-button"
+                        onClick={downloadReceipt}
+                    >
+                        Download Receipt
+                    </button>
                 </div>
             )}
         </div>
