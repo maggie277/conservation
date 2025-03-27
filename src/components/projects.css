@@ -3,7 +3,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 150px 10% 15px; /* Adjusted padding to account for fixed elements */
+  padding: 150px 10% 15px;
   gap: 15px;
   width: 100vw;
   min-height: 100vh;
@@ -14,13 +14,25 @@
   position: relative;
   overflow: hidden;
   padding-top: 90px;
-  background-image: url('C:/Users/user/CFP/conservation-platform/src/pictures/projects.jpg');
+  background-image: url('../pictures/projects.jpg');
+}
+
+/* Overlay for background */
+.projects-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(249, 245, 240, 0);
+  z-index: 0;
 }
 
 /* Fixed position for the upload button */
 .upload-button-container {
   position: fixed;
-  top: 80px; /* Adjust this based on navbar height */
+  top: 80px;
   left: 10%;
   z-index: 1000;
 }
@@ -31,19 +43,21 @@
   flex-wrap: wrap;
   gap: 15px;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 /* Individual project card */
 .project-card {
   display: flex;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.9);
   border: 1px solid #b5651d;
   border-radius: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 300px;
   width: 90%;
-  padding: 8px;
+  padding: 12px;
   margin-bottom: 10px;
   transition: transform 0.2s;
 }
@@ -79,7 +93,8 @@
 .project-details {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
+  flex-grow: 1;
 }
 
 .project-card h2 {
@@ -94,12 +109,76 @@
   font-size: 0.9rem;
 }
 
+/* Category and Tags styling */
+.project-category {
+  display: inline-block;
+  padding: 3px 8px;
+  background-color: #b5651d;
+  color: white;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.project-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  background-color: rgba(212, 163, 115, 0.2);
+  border-radius: 10px;
+  font-size: 0.7rem;
+  color: #7a3f00;
+}
+
 /* Link styling */
 a {
   color: #8b4513;
   text-decoration: none;
+  font-size: 0.9rem;
+  margin-top: 5px;
 }
 
 a:hover {
   text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .projects-container {
+    padding: 100px 5% 15px;
+    padding-top: 80px;
+  }
+
+  .upload-button-container {
+    left: 5%;
+  }
+
+  .project-card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .projects-container {
+    padding: 90px 3% 15px;
+  }
+
+  .project-details {
+    gap: 5px;
+  }
+
+  .project-card h2 {
+    font-size: 1rem;
+  }
+
+  .project-card p {
+    font-size: 0.8rem;
+  }
 }

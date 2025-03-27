@@ -1,0 +1,283 @@
+/* Main container styling */
+.upload-project-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    min-width: 100vw;
+    background-color: #f9f5f0;
+    background-image: url('../pictures/helpcenter.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    position: relative;
+    padding: 100px 5% 50px;
+    box-sizing: border-box;
+  }
+  
+  .upload-project-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(249, 245, 240, 0);
+    z-index: 0;
+  }
+  
+  .upload-project-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 800px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 8px 32px rgba(107, 70, 0, 0.15);
+    border: 1px solid rgba(181, 101, 29, 0.2);
+  }
+  
+  /* Header styling */
+  .upload-project-header {
+    color: #4b2e00;
+    margin-bottom: 32px;
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 600;
+    position: relative;
+  }
+  
+  .upload-project-header::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 4px;
+    background-color: #b5651d;
+    margin: 16px auto 0;
+    border-radius: 2px;
+  }
+  
+  /* Form styling */
+  .upload-project-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  /* Input field styling */
+  .project-input .MuiOutlinedInput-root {
+    border-radius: 8px;
+  }
+  
+  .project-input .MuiOutlinedInput-notchedOutline {
+    border-color: #d4a373;
+  }
+  
+  .project-input .Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: #b5651d;
+    border-width: 2px;
+  }
+  
+  .project-input .MuiInputLabel-root {
+    color: #7a3f00;
+  }
+  
+  .project-input .MuiInputLabel-root.Mui-focused {
+    color: #b5651d;
+  }
+  
+  /* Form sections */
+  .form-section {
+    margin-bottom: 20px;
+  }
+  
+  .category-select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #d4a373;
+    background-color: white;
+    font-size: 1rem;
+  }
+  
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .tag-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 8px 12px;
+    background-color: rgba(212, 163, 115, 0.2);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+  }
+  
+  .tag-label:hover {
+    background-color: rgba(212, 163, 115, 0.3);
+  }
+  
+  .tag-label input {
+    margin: 0;
+    accent-color: #b5651d;
+  }
+  
+  /* Upload sections styling */
+  .upload-section {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px dashed #d4a373;
+    transition: all 0.3s ease;
+  }
+  
+  .upload-section:hover {
+    border-color: #b5651d;
+    background-color: rgba(255, 255, 255, 0.9);
+  }
+  
+  .upload-section-header {
+    color: #4b2e00;
+    margin-bottom: 12px;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+  
+  .upload-section-description {
+    color: #7a3f00;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+  
+  /* Button styling */
+  .upload-button,
+  .submit-button {
+    background-color: #b5651d !important;
+    color: white !important;
+    padding: 12px 24px !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    transition: all 0.3s ease !important;
+  }
+  
+  .upload-button:hover,
+  .submit-button:hover {
+    background-color: #9a5516 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(181, 101, 29, 0.3) !important;
+  }
+  
+  .upload-button:disabled,
+  .submit-button:disabled {
+    background-color: #d4a373 !important;
+  }
+  
+  /* Preview styling */
+  .preview-container {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    border: 1px solid #d4a373;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .pdf-link {
+    color: #8b4513;
+    text-decoration: none;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.2s;
+  }
+  
+  .pdf-link:hover {
+    color: #b5651d;
+    text-decoration: underline;
+  }
+  
+  /* Error message styling */
+  .error-message {
+    color: #d32f2f;
+    background-color: rgba(211, 47, 47, 0.1);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    border-left: 4px solid #d32f2f;
+  }
+  
+  /* Loading styling */
+  .loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: rgba(249, 245, 240, 0.8);
+  }
+  
+  /* Profile incomplete styling */
+  .profile-incomplete-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+    background: rgba(249, 245, 240, 0.8);
+    text-align: center;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .upload-project-container {
+      padding: 80px 5% 30px;
+    }
+    
+    .upload-project-content {
+      padding: 30px 20px;
+    }
+    
+    .upload-project-header {
+      font-size: 1.8rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .upload-project-container {
+      padding: 70px 3% 20px;
+    }
+    
+    .upload-project-content {
+      padding: 25px 15px;
+    }
+    
+    .upload-project-header {
+      font-size: 1.5rem;
+    }
+  
+    .tags-container {
+      gap: 8px;
+    }
+  
+    .tag-label {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+    }
+  }
