@@ -34,18 +34,18 @@ const HelpCenter = () => {
     >
       <div
         style={{
-          backgroundColor: "rgba(255, 255, 255, 0.9)", // Semi-transparent white background
+          backgroundColor: "#5D4037", // Semi-transparent white background
           borderRadius: "8px",
           padding: "20px",
           maxWidth: "800px",
           width: "100%",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          boxShadow: "#4B2F07 0px 0px 20px",
           marginTop: "160px", // Moves section lower
         }}
       >
         <h1
           style={{
-            color: "#333",
+            color: "#5D4037",
             textAlign: "center",
             fontSize: "24px",
             marginBottom: "20px",
@@ -58,7 +58,7 @@ const HelpCenter = () => {
             <div
               key={index}
               style={{
-                backgroundColor: "#fff",
+                backgroundColor: "#5D4037",
                 border: "1px solid #ddd",
                 borderRadius: "4px",
                 overflow: "hidden",
@@ -73,7 +73,7 @@ const HelpCenter = () => {
                   backgroundColor: "#f0f0f0",
                   cursor: "pointer",
                   fontSize: "18px",
-                  color: "#333",
+                  color: "#5D4037",
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",

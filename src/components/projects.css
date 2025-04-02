@@ -1,23 +1,21 @@
-/* Container for the entire projects section */
+/* Main container - full viewport coverage */
 .projects-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 150px 10% 15px;
-  gap: 15px;
-  width: 100vw;
   min-height: 100vh;
+  width: 100vw;
+  padding: 90px 20px 20px;
+  box-sizing: border-box;
+  position: relative;
+  background-image: url('../pictures/projects.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
-  position: relative;
-  overflow: hidden;
-  padding-top: 90px;
-  background-image: url('../pictures/projects.jpg');
+  background-color: #5D4037; /* Fallback matching navbar */
 }
 
-/* Overlay for background */
 .projects-container::before {
   content: '';
   position: absolute;
@@ -25,71 +23,65 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(249, 245, 240, 0);
+  background-color: rgba(93, 64, 55, 0.85); /* Darker overlay matching navbar */
   z-index: 0;
 }
 
-/* Fixed position for the upload button */
-.upload-button-container {
-  position: fixed;
-  top: 80px;
-  left: 10%;
-  z-index: 1000;
-}
-
-/* List of projects */
+/* Projects list */
 .projects-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  justify-content: center;
+  gap: 20px;
   width: 100%;
-  position: relative;
+  max-width: 1200px;
+  padding: 20px 0;
+  box-sizing: border-box;
   z-index: 1;
 }
 
-/* Individual project card */
+/* Project card - matching navbar palette */
 .project-card {
   display: flex;
-  align-items: center;
-  background-color: rgba(255, 255, 255, 0.9);
-  border: 1px solid #b5651d;
-  border-radius: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  max-width: 300px;
-  width: 90%;
-  padding: 12px;
-  margin-bottom: 10px;
-  transition: transform 0.2s;
+  flex-direction: column;
+  width: 280px;
+  background-color: #F5F5DC; /* Light beige from navbar text */
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(77, 51, 43, 0.2);
+  border: 1px solid #4E342E; /* Navbar hover color */
+  transition: all 0.3s ease;
 }
 
 .project-card:hover {
-  transform: scale(1.05);
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(77, 51, 43, 0.3);
 }
 
-/* Project image styling */
+/* Project image */
 .project-image {
-  width: 80px;
-  height: 80px;
+  width: 100%;
+  height: 150px;
   object-fit: cover;
   border-radius: 8px;
-  margin-right: 15px;
+  margin-bottom: 12px;
+  border: 1px solid #6D4C41; /* Highlight color */
 }
 
-/* Placeholder for projects without an image */
 .project-image-placeholder {
-  width: 80px;
-  height: 80px;
-  background-color: #ddd;
+  width: 100%;
+  height: 150px;
+  background-color: #D2B48C; /* Navbar accent color */
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #888;
-  font-size: 14px;
+  color: #5D4037; /* Navbar background */
   border-radius: 8px;
-  margin-right: 15px;
+  margin-bottom: 12px;
+  border: 1px dashed #8B4513;
 }
 
-/* Details section within each project card */
+/* Project details */
 .project-details {
   display: flex;
   flex-direction: column;
@@ -97,88 +89,78 @@
   flex-grow: 1;
 }
 
-.project-card h2 {
-  color: #4b2e00;
-  margin: 0;
+.project-details h2 {
+  color: #5D4037; /* Navbar background */
+  margin: 0 0 5px 0;
   font-size: 1.1rem;
 }
 
-.project-card p {
-  color: #7a3f00;
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-/* Category and Tags styling */
 .project-category {
   display: inline-block;
   padding: 3px 8px;
-  background-color: #b5651d;
-  color: white;
+  background-color: #8B4513; /* Classic brown */
+  color: #F5F5DC; /* Navbar text color */
   border-radius: 12px;
   font-size: 0.7rem;
   font-weight: 500;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+}
+
+.project-goal {
+  font-weight: 600;
+  color: #4E342E; /* Navbar hover color */
+  margin: 0 0 8px 0;
+  font-size: 0.9rem;
 }
 
 .project-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  margin-top: 5px;
+  margin: 8px 0;
 }
 
 .project-tag {
   display: inline-block;
   padding: 2px 6px;
-  background-color: rgba(212, 163, 115, 0.2);
+  background-color: rgba(210, 180, 140, 0.3); /* Pulse effect color */
   border-radius: 10px;
   font-size: 0.7rem;
-  color: #7a3f00;
+  color: #5D4037; /* Navbar background */
+  border: 1px solid #D2B48C; /* Navbar accent */
 }
 
-/* Link styling */
-a {
-  color: #8b4513;
+.view-details-link {
+  display: block;
+  color: #8B4513; /* Classic brown */
   text-decoration: none;
   font-size: 0.9rem;
-  margin-top: 5px;
+  text-align: center;
+  padding: 8px 0;
+  margin-top: auto;
+  border-top: 1px solid #D2B48C; /* Navbar accent */
+  transition: color 0.2s;
 }
 
-a:hover {
+.view-details-link:hover {
+  color: #4E342E; /* Navbar hover */
   text-decoration: underline;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .projects-container {
-    padding: 100px 5% 15px;
-    padding-top: 80px;
-  }
-
-  .upload-button-container {
-    left: 5%;
-  }
-
-  .project-card {
-    max-width: 100%;
+    padding: 80px 15px 15px;
   }
 }
 
 @media (max-width: 480px) {
   .projects-container {
-    padding: 90px 3% 15px;
+    padding: 70px 10px 10px;
   }
-
-  .project-details {
-    gap: 5px;
-  }
-
-  .project-card h2 {
-    font-size: 1rem;
-  }
-
-  .project-card p {
-    font-size: 0.8rem;
+  
+  .project-card {
+    width: 100%;
+    max-width: 350px;
   }
 }

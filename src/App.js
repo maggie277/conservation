@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Register from './components/Register';
 import Login from './components/Login';
@@ -12,19 +11,24 @@ import HelpCenter from './components/HelpCenter';
 import Navbar from './components/Navbar';
 import UploadProject from './components/UploadProject';
 import PrivateRoute from './components/PrivateRoute';
-import Home from './components/Home'; // Import the Home component
+import Onboarding from './components/Onboarding';
+import Home from './components/Home';
 import './App.css';
 
 function App() {
   return (
     <Router>
+      {/* Onboarding pop-up (auto-shows based on user status) */}
+      <Onboarding />
+      
       <Navbar />
       <div className="content">
         <Routes>
-          <Route path="/" element={<Home />} /> {/* Route for Home component */}
+          <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
-          {/* Private Routes (Protected Pages) */}
+          
+          {/* Private Routes */}
           <Route element={<PrivateRoute />}>
             <Route path="/profile" element={<Profile />} />
             <Route path="/projects" element={<Projects />} />

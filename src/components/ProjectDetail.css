@@ -1,0 +1,238 @@
+/* Main container styling */
+.project-detail-container {
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw; /* Changed from min-width:100vh */
+  padding: 100px;
+  background-color: #f9f5f0;
+  background-image: url('../pictures/projects.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  position: relative;
+  margin: 0; /* Ensure no default margins */
+}
+
+
+.project-detail-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(249, 245, 240, 0); /* Added opacity */
+  z-index: 0;
+}
+
+.project-detail-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 800px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
+  padding: 60px;
+  box-shadow: 0 8px 32px rgba(107, 70, 0, 0.15);
+  border: 1px solid rgba(181, 101, 29, 0.2);
+  position: relative;
+}
+
+/* Header styling */
+.project-header {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.project-title {
+  color: #4b2e00;
+  font-size: 2.2rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.project-category {
+  display: inline-block;
+  padding: 5px 12px;
+  background-color: #b5651d;
+  color: white;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  align-self: flex-start;
+}
+
+/* Meta information */
+.project-meta {
+  margin-bottom: 20px;
+}
+
+.project-goal {
+  color: #7a3f00;
+  font-size: 1.1rem;
+}
+
+/* Image styling */
+.project-image-container {
+  margin: 20px 0;
+  text-align: center;
+}
+
+.project-image {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 12px;
+  border: 1px solid #d4a373;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Description styling */
+.project-description {
+  color: #4b2e00;
+  font-size: 1rem;
+  line-height: 1.6;
+  margin: 20px 0;
+  white-space: pre-line;
+}
+
+/* Tags styling */
+.project-tags-container {
+  margin: 25px 0;
+}
+
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.project-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: rgba(212, 163, 115, 0.2);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: #7a3f00;
+}
+
+/* Document link styling */
+.project-document {
+  margin: 20px 0;
+}
+
+.pdf-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #8b4513;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.pdf-link:hover {
+  color: #b5651d;
+  text-decoration: underline;
+}
+
+/* Action buttons */
+.project-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.donate-button {
+  background-color: #b5651d !important;
+  color: white !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.donate-button:hover {
+  background-color: #9a5516 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(181, 101, 29, 0.3) !important;
+}
+
+.back-button {
+  border-color: #b5651d !important;
+  color: #b5651d !important;
+  padding: 12px 24px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.back-button:hover {
+  background-color: rgba(181, 101, 29, 0.1) !important;
+  transform: translateY(-2px);
+}
+
+/* Loading and not found states */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: rgba(249, 245, 240, 0.8);
+}
+
+.not-found-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 20px;
+  background: rgba(249, 245, 240, 0.8);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .project-detail-container {
+    padding: 80px 5% 30px;
+  }
+  
+  .project-detail-content {
+    padding: 30px 20px;
+  }
+  
+  .project-title {
+    font-size: 1.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-detail-container {
+    padding: 70px 3% 20px;
+  }
+  
+  .project-detail-content {
+    padding: 25px 15px;
+  }
+  
+  .project-title {
+    font-size: 1.5rem;
+  }
+
+  .project-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .donate-button,
+  .back-button {
+    width: 100%;
+  }
+}
