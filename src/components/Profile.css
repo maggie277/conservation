@@ -8,7 +8,6 @@
   --gray: #666666;
 }
 
-/* Base Styles */
 .profile-container {
   display: flex;
   flex-direction: column;
@@ -18,6 +17,7 @@
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  position: relative;
 }
 
 .profile-container::before {
@@ -37,197 +37,98 @@
   padding: 40px;
   box-shadow: 0 8px 32px rgba(46, 139, 87, 0.15);
   border: 1px solid var(--sand);
-  max-width: 800px;
+  max-width: 1000px;
   width: 100%;
-  margin: 0 auto 40px;
+  margin: 0 auto;
   position: relative;
   z-index: 1;
 }
 
-.profile-card h2 {
-  color: var(--green-dark);
+.profile-header {
   text-align: center;
-  margin-bottom: 30px;
-  font-size: 2rem;
-  position: relative;
+  margin-bottom: 20px;
 }
 
-.profile-card h2::after {
-  content: '';
-  display: block;
-  width: 80px;
-  height: 4px;
-  background-color: var(--green);
-  margin: 16px auto 0;
-  border-radius: 2px;
-}
-
-.profile-info p {
-  margin-bottom: 15px;
-  color: var(--black);
-  line-height: 1.6;
-}
-
-.profile-info strong {
-  color: var(--green-dark);
-}
-
-/* Form Styles */
-.profile-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: var(--green-dark);
-}
-
-.form-group input,
-.form-group textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid var(--sand);
+.profile-section {
+  background-color: rgba(245, 222, 179, 0.2);
+  padding: 20px;
   border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.3s;
+  margin: 20px 0;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--green);
+.profile-details {
+  margin: 25px 0;
 }
 
-.form-group textarea {
-  min-height: 120px;
-  resize: vertical;
+.profile-details p {
+  margin-bottom: 10px;
 }
 
-.error {
-  color: #E53935;
-  font-size: 0.85rem;
-  margin-top: 5px;
-}
-
-/* Projects Section */
-.projects-section {
-  max-width: 1200px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.projects-section h3 {
-  color: var(--white);
-  text-align: center;
-  margin-bottom: 30px;
-  font-size: 1.8rem;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-}
-
-.projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 25px;
-}
-
-.no-projects {
-  text-align: center;
-  background-color: rgba(255, 255, 255, 0.95);
-  padding: 30px;
-  border-radius: 12px;
+.edit-form {
   max-width: 600px;
   margin: 0 auto;
 }
 
-.no-projects p {
-  color: var(--black);
+.form-group {
   margin-bottom: 20px;
 }
 
-.create-project-btn {
-  display: inline-block;
-  padding: 12px 24px;
-  background-color: var(--green);
-  color: var(--white);
-  text-decoration: none;
-  border-radius: 8px;
-  font-weight: 500;
-  transition: all 0.3s;
+.form-actions {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
 }
 
-.create-project-btn:hover {
-  background-color: var(--green-dark);
-  transform: translateY(-2px);
-}
-
-/* Button Styles */
 .profile-actions {
   display: flex;
   gap: 15px;
   margin-top: 30px;
 }
 
-.edit-btn, .signout-btn {
-  padding: 12px 24px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-  flex: 1;
+.projects-section {
+  margin-top: 30px;
 }
 
-.edit-btn {
-  background-color: var(--green);
-  color: var(--white);
-}
-
-.edit-btn:hover {
-  background-color: var(--green-dark);
-  transform: translateY(-2px);
-}
-
-.signout-btn {
-  background-color: #E53935;
-  color: var(--white);
-}
-
-.signout-btn:hover {
-  background-color: #C62828;
-  transform: translateY(-2px);
-}
-
-.form-actions {
-  display: flex;
-  gap: 15px;
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 25px;
   margin-top: 20px;
 }
 
-.save-btn, .cancel-btn {
+.no-projects {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 70vh;
+}
+
+/* Button Styles */
+.edit-btn, .save-btn, .create-project-btn {
+  background-color: var(--green);
+  color: var(--white);
   padding: 12px 24px;
   border: none;
   border-radius: 8px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s;
-  flex: 1;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
 }
 
-.save-btn {
-  background-color: var(--green);
-  color: var(--white);
-}
-
-.save-btn:hover {
+.edit-btn:hover, .save-btn:hover, .create-project-btn:hover {
   background-color: var(--green-dark);
   transform: translateY(-2px);
 }
@@ -235,6 +136,12 @@
 .cancel-btn {
   background-color: var(--sand);
   color: var(--green-dark);
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
 .cancel-btn:hover {
@@ -242,12 +149,34 @@
   transform: translateY(-2px);
 }
 
-/* Loading State */
-.loading-spinner {
-  text-align: center;
-  padding: 50px;
-  color: var(--green-dark);
-  font-size: 1.2rem;
+.signout-btn {
+  background-color: #E53935;
+  color: var(--white);
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.signout-btn:hover {
+  background-color: #C62828;
+  transform: translateY(-2px);
+}
+
+/* Tab Styles */
+.MuiTabs-indicator {
+  background-color: var(--green) !important;
+}
+
+.MuiTab-root {
+  color: var(--gray) !important;
+  font-weight: 500 !important;
+}
+
+.MuiTab-root.Mui-selected {
+  color: var(--green-dark) !important;
 }
 
 /* Responsive Design */
@@ -278,7 +207,7 @@
     padding: 25px 15px;
   }
   
-  .profile-card h2 {
+  .profile-header h3 {
     font-size: 1.5rem;
   }
 }

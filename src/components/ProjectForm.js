@@ -1,182 +1,170 @@
 import React, { useState } from 'react';
-import { db } from '../firebaseConfig';
-import { collection, addDoc } from 'firebase/firestore';
-import { Button, TextField } from '@mui/material';
-import './ProjectForm.css';
+import { useCreateProject } from '../hooks/useCreateProject';
+import { USER_TYPES, PROJECT_CATEGORIES, CONSERVATION_PRACTICES } from '../constants';
+import { useAuth } from '../context/AuthContext';
 
-const ProjectForm = ({ currentUser }) => {
+const ProjectForm = () => {
+  const { currentUser } = useAuth();
   const [project, setProject] = useState({
     title: '',
     description: '',
-    goal: '',
-    imageUrl: '',
     category: '',
-    tags: []
+    tags: [],
+    sustainabilityMetrics: {
+      waterSaved: '',
+      carbonSequestration: '',
+      biodiversityImpact: ''
+    },
+    landSize: '',
+    conservationPractices: []
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { createProject, loading, error } = useCreateProject(currentUser?.type);
 
   const handleChange = (e) => {
-    setProject({ ...project, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setProject(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleTagToggle = (tag) => {
+  const handleSustainabilityChange = (e) => {
+    const { name, value } = e.target;
     setProject(prev => ({
       ...prev,
-      tags: prev.tags.includes(tag)
-        ? prev.tags.filter(t => t !== tag)
-        : [...prev.tags, tag]
+      sustainabilityMetrics: {
+        ...prev.sustainabilityMetrics,
+        [name]: value
+      }
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError('');
-
     try {
-      if (!project.title || !project.description || !project.goal) {
-        throw new Error('Please fill all required fields');
-      }
-
-      await addDoc(collection(db, "projects"), {
-        ...project,
-        userId: currentUser.uid,
-        createdAt: new Date(),
-        fundingGoal: project.goal,
-        status: 'active'
-      });
-
-      // Reset form
-      setProject({
-        title: '',
-        description: '',
-        goal: '',
-        imageUrl: '',
-        category: '',
-        tags: []
-      });
-      
-      alert('Farm project created successfully!');
+      await createProject(project);
+      // Redirect or show success message
     } catch (err) {
-      console.error("Error uploading project:", err);
-      setError(err.message || 'Failed to create project');
-    } finally {
-      setLoading(false);
+      console.error('Project creation failed:', err);
     }
   };
 
-  const CATEGORIES = [
-    'Crop Farming', 
-    'Livestock', 
-    'Agroforestry',
-    'Water Conservation',
-    'Soil Restoration'
-  ];
-
-  const TAGS = [
-    'Smallholder', 
-    'Women-led', 
-    'Organic', 
-    'Drought-resistant',
-    'Community Project'
-  ];
+  const getAvailableCategories = () => {
+    switch (currentUser?.type) {
+      case USER_TYPES.NGO:
+        return [
+          PROJECT_CATEGORIES.SUSTAINABLE_AGRICULTURE,
+          PROJECT_CATEGORIES.LAND_CONSERVATION,
+          PROJECT_CATEGORIES.WATER_CONSERVATION
+        ];
+      case USER_TYPES.FARMER:
+      case USER_TYPES.COOPERATIVE:
+        return Object.values(PROJECT_CATEGORIES);
+      case USER_TYPES.EXPERT:
+        return [
+          PROJECT_CATEGORIES.SOIL_RESTORATION,
+          PROJECT_CATEGORIES.REGENERATIVE_AGRICULTURE
+        ];
+      default:
+        return [];
+    }
+  };
 
   return (
-    <div className="project-form-container">
-      <h2>Create New Farm Project</h2>
-      {error && <div className="error-message">{error}</div>}
-
-      <form onSubmit={handleSubmit}>
-        <TextField
+    <form onSubmit={handleSubmit}>
+      <h2>Create New {currentUser?.type === USER_TYPES.NGO ? 'Conservation' : 'Agricultural'} Project</h2>
+      
+      <div>
+        <label>Project Title</label>
+        <input
+          type="text"
           name="title"
-          label="Project Title"
           value={project.title}
           onChange={handleChange}
-          fullWidth
-          margin="normal"
           required
         />
-        
-        <TextField
+      </div>
+
+      <div>
+        <label>Description</label>
+        <textarea
           name="description"
-          label="Project Description"
           value={project.description}
           onChange={handleChange}
-          fullWidth
-          multiline
-          rows={4}
-          margin="normal"
           required
         />
-        
-        <TextField
-          name="goal"
-          label="Funding Goal (ZMW)"
-          type="number"
-          value={project.goal}
+      </div>
+
+      <div>
+        <label>Category</label>
+        <select
+          name="category"
+          value={project.category}
           onChange={handleChange}
-          fullWidth
-          margin="normal"
           required
-        />
+        >
+          <option value="">Select a category</option>
+          {getAvailableCategories().map(category => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
+      </div>
 
-        <div className="form-section">
-          <label>Category</label>
-          <select
-            name="category"
-            value={project.category}
-            onChange={handleChange}
-            className="form-select"
-            required
-          >
-            <option value="">Select a category</option>
-            {CATEGORIES.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-        </div>
+      {/* Show sustainability fields for conservation projects */}
+      {[
+        PROJECT_CATEGORIES.SUSTAINABLE_AGRICULTURE,
+        PROJECT_CATEGORIES.LAND_CONSERVATION
+      ].includes(project.category) && (
+        <div className="sustainability-fields">
+          <h3>Sustainability Metrics</h3>
+          
+          <div>
+            <label>Water Saved/Year</label>
+            <input
+              type="text"
+              name="waterSaved"
+              value={project.sustainabilityMetrics.waterSaved}
+              onChange={handleSustainabilityChange}
+              placeholder="e.g., 5000 liters/year"
+            />
+          </div>
 
-        <div className="form-section">
-          <label>Tags</label>
-          <div className="tags-container">
-            {TAGS.map(tag => (
-              <label key={tag} className="tag-label">
+          <div>
+            <label>Land Size (hectares)</label>
+            <input
+              type="text"
+              name="landSize"
+              value={project.landSize}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div>
+            <label>Conservation Practices</label>
+            {CONSERVATION_PRACTICES.map(practice => (
+              <div key={practice}>
                 <input
                   type="checkbox"
-                  checked={project.tags.includes(tag)}
-                  onChange={() => handleTagToggle(tag)}
+                  id={practice}
+                  checked={project.conservationPractices.includes(practice)}
+                  onChange={() => {
+                    setProject(prev => ({
+                      ...prev,
+                      conservationPractices: prev.conservationPractices.includes(practice)
+                        ? prev.conservationPractices.filter(p => p !== practice)
+                        : [...prev.conservationPractices, practice]
+                    }));
+                  }}
                 />
-                {tag}
-              </label>
+                <label htmlFor={practice}>{practice}</label>
+              </div>
             ))}
           </div>
         </div>
+      )}
 
-        <div className="form-section">
-          <label>Image URL</label>
-          <TextField
-            name="imageUrl"
-            value={project.imageUrl}
-            onChange={handleChange}
-            fullWidth
-            margin="normal"
-            placeholder="https://example.com/image.jpg"
-          />
-        </div>
-
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          disabled={loading}
-          fullWidth
-          style={{ marginTop: '20px' }}
-        >
-          {loading ? 'Creating Project...' : 'Create Farm Project'}
-        </Button>
-      </form>
-    </div>
+      {error && <div className="error">{error}</div>}
+      <button type="submit" disabled={loading}>
+        {loading ? 'Creating...' : 'Create Project'}
+      </button>
+    </form>
   );
 };
 

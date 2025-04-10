@@ -1,88 +1,109 @@
 import React, { useEffect, useState } from "react";
-import { collection, query, where, getDocs, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { 
+  doc, 
+  getDoc, 
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  deleteDoc
+} from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { 
+  Button, 
+  TextField, 
+  Typography, 
+  Card, 
+  CardContent,
+  Divider,
+  Tabs,
+  Tab,
+  Box,
+  CircularProgress
+} from '@mui/material';
 import ProjectCard from "../components/ProjectCard";
 import "./Profile.css";
 
 const Profile = () => {
-  const [user, setUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [email, setEmail] = useState("");
-  const [type, setType] = useState("farmer"); // Changed from individual to farmer
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [age, setAge] = useState("");
-  const [nrcPassport, setNrcPassport] = useState("");
-  const [country, setCountry] = useState("Zambia"); // Default to Zambia
-  const [address, setAddress] = useState("");
+  const [activeTab, setActiveTab] = useState(0);
   const [projects, setProjects] = useState([]);
-  const [contributions, setContributions] = useState("");
-  const [cooperativeName, setCooperativeName] = useState(""); // Changed from organization
-  const [cooperativeAddress, setCooperativeAddress] = useState("");
-  const [cooperativePhone, setCooperativePhone] = useState("");
-  const [cooperativeWebsite, setCooperativeWebsite] = useState("");
-  const [missionStatement, setMissionStatement] = useState("");
-  const [cooperativeId, setCooperativeId] = useState(""); // Changed from companyId
-  const [errors, setErrors] = useState({});
-  const [editingProjectId, setEditingProjectId] = useState(null);
-  const [editedProject, setEditedProject] = useState({
-    title: "",
-    description: "",
-    category: "",
-    fundingGoal: "",
-    imageUrl: ""
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    displayName: '',
+    bio: '',
+    location: '',
+    website: ''
   });
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    const fetchUserData = async (uid) => {
-      try {
-        const q = query(collection(db, "users"), where("uid", "==", uid));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-          const docSnapshot = querySnapshot.docs[0];
-          const docData = docSnapshot.data();
-          setUserData({ ...docData, id: docSnapshot.id });
-          setEmail(docData.email);
-          setType(docData.type || "farmer");
-          setFirstName(docData.firstName || "");
-          setLastName(docData.lastName || "");
-          setAge(docData.age || "");
-          setNrcPassport(docData.nrcPassport || "");
-          setCountry(docData.country || "Zambia");
-          setAddress(docData.address || "");
-          setContributions(docData.contributions || "");
-          setCooperativeName(docData.cooperativeName || "");
-          setCooperativeAddress(docData.cooperativeAddress || "");
-          setCooperativePhone(docData.cooperativePhone || "");
-          setCooperativeWebsite(docData.cooperativeWebsite || "");
-          setMissionStatement(docData.missionStatement || "");
-          setCooperativeId(docData.cooperativeId || "");
-
-          const projectsQuery = query(collection(db, "projects"), where("userId", "==", uid));
-          const projectsSnapshot = await getDocs(projectsQuery);
-          const projectsData = projectsSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
-          setProjects(projectsData);
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        setCurrentUser(user);
+        await fetchUserData(user.uid);
+      } else {
+        setCurrentUser(null);
+        setUserData(null);
       }
-    };
-
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        fetchUserData(currentUser.uid);
-      }
+      setLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
+
+  const fetchUserData = async (uid) => {
+    try {
+      const userDoc = await getDoc(doc(db, 'users', uid));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        setUserData(data);
+        setFormData({
+          displayName: data.displayName || '',
+          bio: data.bio || '',
+          location: data.location || '',
+          website: data.website || ''
+        });
+
+        if (['farmer', 'cooperative'].includes(data.type)) {
+          const projectsQuery = query(
+            collection(db, 'projects'),
+            where('userId', '==', uid)
+          );
+          const snapshot = await getDocs(projectsQuery);
+          setProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.displayName) newErrors.displayName = "Display name is required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSaveProfile = async () => {
+    if (!validateForm()) return;
+    
+    try {
+      await updateDoc(doc(db, 'users', currentUser.uid), {
+        ...formData,
+        profileComplete: true,
+        updatedAt: new Date().toISOString()
+      });
+      setIsEditing(false);
+      await fetchUserData(currentUser.uid);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -92,243 +113,269 @@ const Profile = () => {
     }
   };
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (type === "farmer") {
-      if (!firstName) newErrors.firstName = "First Name is required";
-      if (!lastName) newErrors.lastName = "Last Name is required";
-      if (!nrcPassport) newErrors.nrcPassport = "NRC is required";
-    } else if (type === "cooperative") {
-      if (!cooperativeName) newErrors.cooperativeName = "Cooperative Name is required";
-      if (!cooperativeAddress) newErrors.cooperativeAddress = "Cooperative Address is required";
-      if (!cooperativePhone) newErrors.cooperativePhone = "Phone number is required";
-      if (!missionStatement) newErrors.missionStatement = "Mission Statement is required";
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
-    try {
-      const userRef = doc(db, "users", userData.id);
-      await updateDoc(userRef, {
-        type,
-        firstName,
-        lastName,
-        age,
-        nrcPassport,
-        country,
-        address,
-        contributions,
-        cooperativeName,
-        cooperativeAddress,
-        cooperativePhone,
-        cooperativeWebsite,
-        missionStatement,
-        cooperativeId
-      });
-      setIsEditing(false);
-      setUserData((prevData) => ({
-        ...prevData,
-        type,
-        firstName,
-        lastName,
-        age,
-        nrcPassport,
-        country,
-        address,
-        contributions,
-        cooperativeName,
-        cooperativeAddress,
-        cooperativePhone,
-        cooperativeWebsite,
-        missionStatement,
-        cooperativeId
-      }));
-    } catch (error) {
-      console.error("Error updating user data:", error);
-    }
-  };
-
   const handleDeleteProject = async (projectId) => {
-    try {
-      await deleteDoc(doc(db, "projects", projectId));
-      setProjects(prevProjects => prevProjects.filter(project => project.id !== projectId));
-    } catch (error) {
-      console.error("Error deleting project:", error);
+    if (window.confirm("Are you sure you want to delete this project?")) {
+      try {
+        await deleteDoc(doc(db, 'projects', projectId));
+        setProjects(prev => prev.filter(p => p.id !== projectId));
+      } catch (error) {
+        console.error("Error deleting project:", error);
+      }
     }
   };
 
-  const handleEditProject = (project) => {
-    setEditingProjectId(project.id);
-    setEditedProject({
-      title: project.title,
-      description: project.description,
-      category: project.category,
-      fundingGoal: project.fundingGoal,
-      imageUrl: project.imageUrl || ""
-    });
-  };
+  const renderProfileContent = () => {
+    if (!userData) return null;
 
-  const handleSaveProjectEdit = async (projectId) => {
-    try {
-      await updateDoc(doc(db, "projects", projectId), editedProject);
-      setProjects(projects.map(project => 
-        project.id === projectId ? { ...project, ...editedProject } : project
-      ));
-      setEditingProjectId(null);
-    } catch (error) {
-      console.error("Error updating project:", error);
+    switch(userData.type) {
+      case 'farmer':
+        return (
+          <div className="profile-section">
+            <Typography variant="h6" color="textPrimary">Farmer Details</Typography>
+            <Typography>
+              <strong>NRC:</strong> {userData.nrcPassport || 'Not provided'}
+            </Typography>
+            <Typography>
+              <strong>Farm Location:</strong> {userData.address || 'Not specified'}
+            </Typography>
+          </div>
+        );
+      case 'cooperative':
+        return (
+          <div className="profile-section">
+            <Typography variant="h6" color="textPrimary">Cooperative Details</Typography>
+            <Typography>
+              <strong>ID:</strong> {userData.cooperativeId || 'Not registered'}
+            </Typography>
+            <Typography>
+              <strong>Address:</strong> {userData.cooperativeAddress || 'Not specified'}
+            </Typography>
+            {userData.missionStatement && (
+              <Typography>
+                <strong>Mission:</strong> {userData.missionStatement}
+              </Typography>
+            )}
+          </div>
+        );
+      case 'donor':
+        return (
+          <div className="profile-section">
+            <Typography variant="h6" color="textPrimary">Donor Profile</Typography>
+            <Typography>
+              Thank you for supporting Zambian agriculture!
+            </Typography>
+          </div>
+        );
+      default:
+        return (
+          <div className="profile-section">
+            <Typography variant="h6" color="textPrimary">User Profile</Typography>
+            <Typography>
+              Welcome to our agricultural platform!
+            </Typography>
+          </div>
+        );
     }
   };
 
-  const handleCancelEdit = () => {
-    setEditingProjectId(null);
-  };
+  if (loading) {
+    return (
+      <div className="loading-spinner">
+        <CircularProgress size={60} style={{ color: 'var(--green)' }} />
+        <Typography variant="h6" style={{ marginTop: 20 }}>Loading your profile...</Typography>
+      </div>
+    );
+  }
 
-  if (!userData) return <div className="loading-spinner">Loading farm profile...</div>;
+  if (!userData) {
+    return (
+      <div className="no-profile">
+        <Typography variant="h5">No profile data found</Typography>
+      </div>
+    );
+  }
 
   return (
     <div className="profile-container">
       <div className="profile-card">
-        <h2>My Farm Profile</h2>
-        
         {isEditing ? (
-          <form onSubmit={handleEditSubmit} className="profile-form">
-            {type === "farmer" ? (
-              <>
-                <div className="form-group">
-                  <label>First Name*</label>
-                  <input type="text" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                  {errors.firstName && <span className="error">{errors.firstName}</span>}
-                </div>
-                
-                <div className="form-group">
-                  <label>Last Name*</label>
-                  <input type="text" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                  {errors.lastName && <span className="error">{errors.lastName}</span>}
-                </div>
-                
-                <div className="form-group">
-                  <label>NRC Number*</label>
-                  <input type="text" value={nrcPassport} onChange={(e) => setNrcPassport(e.target.value)} 
-                    placeholder="e.g. 123456/78/9" />
-                  {errors.nrcPassport && <span className="error">{errors.nrcPassport}</span>}
-                </div>
-                
-                <div className="form-group">
-                  <label>Location</label>
-                  <input type="text" value={address} onChange={(e) => setAddress(e.target.value)} 
-                    placeholder="Farm location in Zambia" />
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="form-group">
-                  <label>Cooperative Name*</label>
-                  <input type="text" value={cooperativeName} onChange={(e) => setCooperativeName(e.target.value)} />
-                  {errors.cooperativeName && <span className="error">{errors.cooperativeName}</span>}
-                </div>
-                
-                <div className="form-group">
-                  <label>Cooperative ID</label>
-                  <input type="text" value={cooperativeId} readOnly />
-                </div>
-                
-                <div className="form-group">
-                  <label>Address*</label>
-                  <input type="text" value={cooperativeAddress} onChange={(e) => setCooperativeAddress(e.target.value)} />
-                  {errors.cooperativeAddress && <span className="error">{errors.cooperativeAddress}</span>}
-                </div>
-                
-                <div className="form-group">
-                  <label>Phone*</label>
-                  <input type="text" value={cooperativePhone} onChange={(e) => setCooperativePhone(e.target.value)} 
-                    placeholder="e.g. +260..." />
-                  {errors.cooperativePhone && <span className="error">{errors.cooperativePhone}</span>}
-                </div>
-                
-                <div className="form-group">
-                  <label>Mission Statement*</label>
-                  <textarea value={missionStatement} onChange={(e) => setMissionStatement(e.target.value)} />
-                  {errors.missionStatement && <span className="error">{errors.missionStatement}</span>}
-                </div>
-              </>
-            )}
+          <div className="edit-form">
+            <Typography variant="h4" gutterBottom style={{ color: 'var(--green-dark)' }}>
+              Edit Profile
+            </Typography>
+            
+            <div className="form-group">
+              <TextField
+                label="Display Name*"
+                value={formData.displayName}
+                onChange={(e) => setFormData({...formData, displayName: e.target.value})}
+                fullWidth
+                margin="normal"
+                error={!!errors.displayName}
+                helperText={errors.displayName}
+              />
+            </div>
+            
+            <div className="form-group">
+              <TextField
+                label="Bio"
+                value={formData.bio}
+                onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                multiline
+                rows={4}
+                fullWidth
+                margin="normal"
+              />
+            </div>
+            
+            <div className="form-group">
+              <TextField
+                label="Location"
+                value={formData.location}
+                onChange={(e) => setFormData({...formData, location: e.target.value})}
+                fullWidth
+                margin="normal"
+              />
+            </div>
+            
+            <div className="form-group">
+              <TextField
+                label="Website"
+                value={formData.website}
+                onChange={(e) => setFormData({...formData, website: e.target.value})}
+                fullWidth
+                margin="normal"
+              />
+            </div>
             
             <div className="form-actions">
-              <button type="submit" className="save-btn">Save Changes</button>
-              <button type="button" className="cancel-btn" onClick={() => setIsEditing(false)}>
+              <Button 
+                variant="contained" 
+                className="save-btn"
+                onClick={handleSaveProfile}
+              >
+                Save Changes
+              </Button>
+              <Button 
+                variant="outlined"
+                className="cancel-btn"
+                onClick={() => setIsEditing(false)}
+              >
                 Cancel
-              </button>
+              </Button>
             </div>
-          </form>
+          </div>
         ) : (
           <>
-            <div className="profile-info">
-              <p><strong>Email:</strong> {email}</p>
-              <p><strong>Account Type:</strong> {type === "farmer" ? "Individual Farmer" : "Farming Cooperative"}</p>
-              
-              {type === "farmer" ? (
-                <>
-                  <p><strong>Name:</strong> {firstName} {lastName}</p>
-                  {nrcPassport && <p><strong>NRC:</strong> {nrcPassport}</p>}
-                  {address && <p><strong>Farm Location:</strong> {address}, Zambia</p>}
-                </>
-              ) : (
-                <>
-                  <p><strong>Cooperative:</strong> {cooperativeName}</p>
-                  {cooperativeId && <p><strong>Cooperative ID:</strong> {cooperativeId}</p>}
-                  {cooperativeAddress && <p><strong>Address:</strong> {cooperativeAddress}</p>}
-                  {cooperativePhone && <p><strong>Phone:</strong> {cooperativePhone}</p>}
-                  {missionStatement && <p><strong>Mission:</strong> {missionStatement}</p>}
-                </>
-              )}
+            <div className="profile-header">
+              <Typography variant="h3" style={{ color: 'var(--green-dark)' }}>
+                {formData.displayName || userData.email}
+              </Typography>
+              <Typography variant="subtitle1" style={{ color: 'var(--gray)' }}>
+                {userData.type === 'farmer' ? 'Farmer' : 
+                 userData.type === 'cooperative' ? 'Agricultural Cooperative' :
+                 userData.type === 'donor' ? 'Donor' : 'User'}
+              </Typography>
             </div>
             
-            <div className="profile-actions">
-              <button onClick={() => setIsEditing(true)} className="edit-btn">
-                Edit Profile
-              </button>
-              <button onClick={handleSignOut} className="signout-btn">
-                Sign Out
-              </button>
-            </div>
+            <Divider style={{ margin: '20px 0', backgroundColor: 'var(--sand)' }} />
+            
+            <Tabs 
+              value={activeTab} 
+              onChange={(e, newValue) => setActiveTab(newValue)}
+              indicatorColor="primary"
+              textColor="primary"
+            >
+              <Tab label="Profile" />
+              {['farmer', 'cooperative'].includes(userData.type) && (
+                <Tab label="My Projects" />
+              )}
+            </Tabs>
+            
+            <Box mt={3}>
+              {activeTab === 0 ? (
+                <>
+                  {formData.bio && (
+                    <Typography variant="body1" paragraph style={{ color: 'var(--black)' }}>
+                      {formData.bio}
+                    </Typography>
+                  )}
+                  
+                  {renderProfileContent()}
+                  
+                  <div className="profile-details">
+                    {formData.location && (
+                      <Typography>
+                        <strong style={{ color: 'var(--green-dark)' }}>Location:</strong> {formData.location}
+                      </Typography>
+                    )}
+                    {formData.website && (
+                      <Typography>
+                        <strong style={{ color: 'var(--green-dark)' }}>Website:</strong> 
+                        <a 
+                          href={formData.website.startsWith('http') ? formData.website : `https://${formData.website}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          style={{ color: 'var(--green)', marginLeft: 8 }}
+                        >
+                          {formData.website}
+                        </a>
+                      </Typography>
+                    )}
+                  </div>
+                  
+                  <div className="profile-actions">
+                    <Button 
+                      variant="contained"
+                      className="edit-btn"
+                      onClick={() => setIsEditing(true)}
+                    >
+                      Edit Profile
+                    </Button>
+                    <Button 
+                      variant="outlined"
+                      className="signout-btn"
+                      onClick={handleSignOut}
+                    >
+                      Sign Out
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="projects-section">
+                  <Typography variant="h5" style={{ color: 'var(--white)', marginBottom: 20 }}>
+                    My Agricultural Projects
+                  </Typography>
+                  
+                  {projects.length > 0 ? (
+                    <div className="projects-grid">
+                      {projects.map((project) => (
+                        <ProjectCard
+                          key={project.id}
+                          project={project}
+                          onDelete={() => handleDeleteProject(project.id)}
+                          showActions={true}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="no-projects">
+                      <Typography variant="body1" style={{ color: 'var(--black)', marginBottom: 20 }}>
+                        You haven't created any projects yet.
+                      </Typography>
+                      <Button 
+                        variant="contained" 
+                        className="create-project-btn"
+                        href="/projects/upload-project"
+                      >
+                        Create Your First Project
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </Box>
           </>
-        )}
-      </div>
-
-      <div className="projects-section">
-        <h3>My Farming Projects</h3>
-        
-        {projects.length > 0 ? (
-          <div className="projects-grid">
-            {projects.map((project) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                isEditing={editingProjectId === project.id}
-                editedProject={editedProject}
-                setEditedProject={setEditedProject}
-                handleEditProject={handleEditProject}
-                handleSaveProjectEdit={handleSaveProjectEdit}
-                handleCancelEdit={handleCancelEdit}
-                handleDeleteProject={handleDeleteProject}
-                isProfileView={true}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="no-projects">
-            <p>You haven't created any farming projects yet.</p>
-            <a href="/projects/upload-project" className="create-project-btn">
-              Create Your First Project
-            </a>
-          </div>
         )}
       </div>
     </div>

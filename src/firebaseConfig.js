@@ -1,6 +1,11 @@
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { 
+  getFirestore, 
+  doc, 
+  getDoc  // Add these imports
+} from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBzIGrUOr7ax5_YPxGP1_JqW9E15VsKSa8",
@@ -15,5 +20,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
-export { db, auth };
+// Utility function for user type validation
+const getUserType = async (uid) => {
+  const userDoc = await getDoc(doc(db, 'users', uid)); // Now these are defined
+  return userDoc.exists() ? userDoc.data().type : null;
+};
+
+export { db, auth, storage, getUserType, doc, getDoc }; // Export the new imports

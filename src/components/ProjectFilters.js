@@ -1,22 +1,35 @@
 import React, { useState } from 'react';
 import './ProjectFilters.css';
 
-// Constants aligned with UploadProject
+// Updated constants aligned with UploadProject
 const CATEGORIES = [
   'All',
   'Crop Farming', 
   'Livestock', 
   'Agroforestry',
   'Water Conservation',
-  'Soil Restoration'
+  'Soil Restoration',
+  'Sustainable Agriculture',
+  'Land Conservation',
+  'Conservation Farming',
+  'Regenerative Agriculture'
 ];
 
 const TAGS = [
-  'Smallholder', 
-  'Women-led', 
-  'Organic', 
+  'Smallholder',
+  'Large-scale',
+  'Women-led',
+  'Youth-led',
+  'Community-led',
+  'Organic',
+  'Permaculture',
+  'Conservation Agriculture',
   'Drought-resistant',
-  'Community Project'
+  'Climate-smart',
+  'Erosion-control',
+  'Community Project',
+  'Research Project',
+  'Educational Project'
 ];
 
 const ProjectFilters = ({ onFilterChange }) => {

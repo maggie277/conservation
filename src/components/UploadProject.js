@@ -3,24 +3,37 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { db, auth } from '../firebaseConfig';
 import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
-import { Button, TextField, CircularProgress } from '@mui/material';
+import { Button, TextField, CircularProgress, Checkbox, FormControlLabel } from '@mui/material';
 import './UploadProject.css';
 
-// Constants for categories and tags (aligned with ProjectFilters)
+// Updated constants for categories and tags
 const CATEGORIES = [
   'Crop Farming', 
   'Livestock', 
   'Agroforestry',
   'Water Conservation',
-  'Soil Restoration'
+  'Soil Restoration',
+  'Sustainable Agriculture',
+  'Land Conservation',
+  'Conservation Farming',
+  'Regenerative Agriculture'
 ];
 
 const TAGS = [
-  'Smallholder', 
-  'Women-led', 
-  'Organic', 
+  'Smallholder',
+  'Large-scale',
+  'Women-led',
+  'Youth-led',
+  'Community-led',
+  'Organic',
+  'Permaculture',
+  'Conservation Agriculture',
   'Drought-resistant',
-  'Community Project'
+  'Climate-smart',
+  'Erosion-control',
+  'Community Project',
+  'Research Project',
+  'Educational Project'
 ];
 
 const UploadProject = () => {
@@ -31,7 +44,14 @@ const UploadProject = () => {
     imageUrl: '',
     pdfUrl: '',
     category: '',
-    tags: []
+    tags: [],
+    sustainabilityMetrics: {
+      waterSaved: '',
+      carbonSequestration: '',
+      biodiversityImpact: ''
+    },
+    landSize: '',
+    conservationPractices: []
   });
 
   const [uploading, setUploading] = useState(false);
@@ -40,6 +60,16 @@ const UploadProject = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const CONSERVATION_PRACTICES = [
+    'Terracing',
+    'Cover Cropping',
+    'Crop Rotation',
+    'Agroforestry',
+    'Reduced Tillage',
+    'Composting',
+    'Water Harvesting'
+  ];
 
   const mandatoryFields = {
     farmer: ['firstName', 'lastName', 'nrcPassport'],
@@ -81,12 +111,31 @@ const UploadProject = () => {
     setProject({ ...project, [e.target.name]: e.target.value });
   };
 
+  const handleSustainabilityChange = (e) => {
+    setProject({
+      ...project,
+      sustainabilityMetrics: {
+        ...project.sustainabilityMetrics,
+        [e.target.name]: e.target.value
+      }
+    });
+  };
+
   const handleTagChange = (tag) => {
     setProject(prev => ({
       ...prev,
       tags: prev.tags.includes(tag)
         ? prev.tags.filter(t => t !== tag)
         : [...prev.tags, tag]
+    }));
+  };
+
+  const handlePracticeChange = (practice) => {
+    setProject(prev => ({
+      ...prev,
+      conservationPractices: prev.conservationPractices.includes(practice)
+        ? prev.conservationPractices.filter(p => p !== practice)
+        : [...prev.conservationPractices, practice]
     }));
   };
 
@@ -196,7 +245,7 @@ const UploadProject = () => {
         return;
       }
 
-      await addDoc(collection(db, 'projects'), {
+      const projectData = {
         title: project.title,
         description: project.description,
         goal: project.goal,
@@ -207,8 +256,24 @@ const UploadProject = () => {
         category: project.category,
         tags: project.tags,
         status: 'active'
-      });
+      };
 
+      // Only add sustainability fields if they exist
+      if (project.sustainabilityMetrics.waterSaved || 
+          project.sustainabilityMetrics.carbonSequestration || 
+          project.sustainabilityMetrics.biodiversityImpact) {
+        projectData.sustainabilityMetrics = project.sustainabilityMetrics;
+      }
+
+      if (project.landSize) {
+        projectData.landSize = project.landSize;
+      }
+
+      if (project.conservationPractices.length > 0) {
+        projectData.conservationPractices = project.conservationPractices;
+      }
+
+      await addDoc(collection(db, 'projects'), projectData);
       navigate('/projects');
     } catch (err) {
       console.error('Error uploading project', err);
@@ -314,6 +379,75 @@ const UploadProject = () => {
               ))}
             </div>
           </div>
+
+          {(project.category === 'Sustainable Agriculture' || 
+            project.category === 'Land Conservation' ||
+            project.category === 'Conservation Farming' ||
+            project.category === 'Regenerative Agriculture') && (
+            <>
+              <div className="form-section">
+                <h4>Sustainability Metrics</h4>
+                <TextField
+                  name="waterSaved"
+                  label="Estimated Water Saved/Year"
+                  value={project.sustainabilityMetrics.waterSaved}
+                  onChange={handleSustainabilityChange}
+                  fullWidth
+                  className="project-input"
+                  placeholder="e.g. 5000 liters/year"
+                />
+                <TextField
+                  name="carbonSequestration"
+                  label="Estimated Carbon Sequestration"
+                  value={project.sustainabilityMetrics.carbonSequestration}
+                  onChange={handleSustainabilityChange}
+                  fullWidth
+                  className="project-input"
+                  placeholder="e.g. 2 tons CO2/year"
+                />
+                <TextField
+                  name="biodiversityImpact"
+                  label="Biodiversity Impact"
+                  value={project.sustainabilityMetrics.biodiversityImpact}
+                  onChange={handleSustainabilityChange}
+                  fullWidth
+                  className="project-input"
+                  placeholder="e.g. Increased pollinator presence"
+                />
+              </div>
+
+              <div className="form-section">
+                <h4>Land Size (Optional)</h4>
+                <TextField
+                  name="landSize"
+                  label="Total Land Area"
+                  value={project.landSize}
+                  onChange={handleChange}
+                  fullWidth
+                  className="project-input"
+                  placeholder="e.g. 5 hectares"
+                />
+              </div>
+
+              <div className="form-section">
+                <h4>Conservation Practices (Select all that apply)</h4>
+                <div className="practices-container">
+                  {CONSERVATION_PRACTICES.map(practice => (
+                    <FormControlLabel
+                      key={practice}
+                      control={
+                        <Checkbox
+                          checked={project.conservationPractices.includes(practice)}
+                          onChange={() => handlePracticeChange(practice)}
+                        />
+                      }
+                      label={practice}
+                    />
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="upload-section">
             <h3 className="upload-section-header">Project Image</h3>
