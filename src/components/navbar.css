@@ -1,5 +1,13 @@
+:root {
+  --green: #2E8B57;
+  --green-hover: #1F6F47;
+  --sand: #F5DEB3;
+  --white: #FFFFFF;
+  --black: #333333;
+}
+
 .navbar {
-  background-color: #5D4037;
+  background-color: var(--green);
   height: 80px;
   display: flex;
   justify-content: center;
@@ -21,11 +29,11 @@
 }
 
 .navbar-logo {
-  color: #F5F5DC;
+  color: var(--white);
   justify-self: start;
   cursor: pointer;
   text-decoration: none;
-  font-size: 2rem;
+  font-size: 1.8rem;
   display: flex;
   align-items: center;
   font-weight: bold;
@@ -46,7 +54,7 @@
 }
 
 .nav-links {
-  color: #F5F5DC;
+  color: var(--white);
   text-decoration: none;
   padding: 0.5rem 1rem;
   height: 100%;
@@ -57,28 +65,60 @@
 }
 
 .nav-links:hover {
-  background-color: #4E342E;
-  border-bottom: 4px solid #D2B48C;
+  background-color: var(--green-hover);
+  border-bottom: 4px solid var(--sand);
 }
 
-/* Highlight animation for onboarding */
-@keyframes brown-pulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(210, 180, 140, 0.7);
-  }
-  70% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 10px rgba(210, 180, 140, 0);
-  }
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(210, 180, 140, 0);
-  }
+.nav-links.active {
+  background-color: var(--green-hover);
+  border-bottom: 4px solid var(--sand);
 }
 
-.nav-links.highlighted {
-  animation: brown-pulse 1.5s infinite;
-  z-index: 1401;
-  background-color: #6D4C41;
+.menu-icon {
+  display: none;
+  color: var(--white);
+}
+
+@media screen and (max-width: 960px) {
+  .nav-menu {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 90vh;
+    position: absolute;
+    top: 80px;
+    left: -100%;
+    opacity: 1;
+    transition: all 0.5s ease;
+    background-color: var(--green);
+  }
+
+  .nav-menu.active {
+    left: 0;
+    opacity: 1;
+    transition: all 0.5s ease;
+    z-index: 1;
+  }
+
+  .nav-item {
+    height: auto;
+    padding: 1rem 0;
+  }
+
+  .nav-links {
+    text-align: center;
+    padding: 1.5rem;
+    width: 100%;
+    display: table;
+  }
+
+  .menu-icon {
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(-100%, 60%);
+    font-size: 1.8rem;
+    cursor: pointer;
+  }
 }

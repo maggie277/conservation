@@ -1,28 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc } from 'firebase/firestore';
-import { Button, CircularProgress, Box, Typography } from '@mui/material';
+import { doc, onSnapshot, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { Button, CircularProgress, Box, Typography, Avatar } from '@mui/material';
 import DescriptionIcon from '@mui/icons-material/Description';
+import PersonIcon from '@mui/icons-material/Person';
+import BusinessIcon from '@mui/icons-material/Business';
 import './ProjectDetail.css';
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
   const [project, setProject] = useState(null);
+  const [creator, setCreator] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [creatorLoading, setCreatorLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchProject = async () => {
-      try {
-        const docRef = doc(db, 'projects', projectId);
-        const docSnap = await getDoc(docRef);
+  const fetchCreatorData = async (userId) => {
+    setCreatorLoading(true);
+    try {
+      const creatorRef = doc(db, 'users', userId);
+      const creatorSnap = await getDoc(creatorRef);
+      
+      if (creatorSnap.exists()) {
+        setCreator({ id: creatorSnap.id, ...creatorSnap.data() });
+        return;
+      }
 
-        if (docSnap.exists()) {
-          setProject({ ...docSnap.data(), id: docSnap.id });
-        } else {
-          console.log('No such document!');
+      const q = query(
+        collection(db, 'users'),
+        where('uid', '==', userId)
+      );
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        const creatorDoc = querySnapshot.docs[0];
+        setCreator({ id: creatorDoc.id, ...creatorDoc.data() });
+      }
+    } catch (error) {
+      console.error('Error fetching creator:', error);
+    } finally {
+      setCreatorLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchProjectData = async () => {
+      try {
+        const projectRef = doc(db, 'projects', projectId);
+        const projectSnap = await getDoc(projectRef);
+
+        if (!projectSnap.exists()) {
           navigate('/projects');
+          return;
+        }
+
+        const projectData = {
+          ...projectSnap.data(),
+          id: projectSnap.id,
+          fundingGoal: projectSnap.data().fundingGoal || projectSnap.data().goal || '0',
+          createdAt: projectSnap.data().createdAt || new Date()
+        };
+        setProject(projectData);
+
+        if (projectData.userId) {
+          await fetchCreatorData(projectData.userId);
         }
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -31,7 +73,20 @@ const ProjectDetail = () => {
       }
     };
 
-    fetchProject();
+    fetchProjectData();
+
+    const unsubscribe = onSnapshot(doc(db, 'projects', projectId), (doc) => {
+      if (doc.exists()) {
+        setProject({
+          ...doc.data(),
+          id: doc.id,
+          fundingGoal: doc.data().fundingGoal || doc.data().goal || '0',
+          createdAt: doc.data().createdAt || new Date()
+        });
+      }
+    });
+
+    return () => unsubscribe();
   }, [projectId, navigate]);
 
   const handleDonate = () => {
@@ -42,6 +97,7 @@ const ProjectDetail = () => {
     return (
       <Box className="loading-container">
         <CircularProgress />
+        <Typography variant="body1">Loading farm project...</Typography>
       </Box>
     );
   }
@@ -49,9 +105,13 @@ const ProjectDetail = () => {
   if (!project) {
     return (
       <Box className="not-found-container">
-        <Typography variant="h5">Project not found</Typography>
-        <Button variant="contained" onClick={() => navigate('/projects')}>
-          Back to Projects
+        <Typography variant="h5">Farm project not found</Typography>
+        <Button 
+          variant="contained" 
+          onClick={() => navigate('/projects')}
+          className="back-button"
+        >
+          Back to Farm Projects
         </Button>
       </Box>
     );
@@ -64,15 +124,59 @@ const ProjectDetail = () => {
           <Typography variant="h2" className="project-title">
             {project.title}
           </Typography>
-          
           {project.category && (
             <span className="project-category">{project.category}</span>
           )}
         </div>
 
+        {creatorLoading ? (
+          <div className="creator-loading">Loading farmer information...</div>
+        ) : creator ? (
+          <div className="creator-section">
+            <div className="creator-header">
+              <Avatar 
+                src={creator.photoURL} 
+                className="creator-avatar"
+                alt={creator.type === 'cooperative' ? 
+                  (creator.organizationName || 'Cooperative') : 
+                  (creator.displayName || 'Farmer')}
+              >
+                {creator.type === 'cooperative' ? <BusinessIcon /> : <PersonIcon />}
+              </Avatar>
+              <div>
+                <Typography variant="h6" className="creator-name">
+                  {creator.type === 'cooperative' 
+                    ? (creator.organizationName || 'Farming Cooperative')
+                    : (creator.displayName || 'Farmer')}
+                </Typography>
+                {creator.location && (
+                  <Typography variant="body2" className="creator-location">
+                    {creator.location}
+                  </Typography>
+                )}
+              </div>
+            </div>
+
+            {creator.type === 'cooperative' && creator.missionStatement && (
+              <Typography variant="body2" className="creator-mission">
+                <strong>Our Mission:</strong> {creator.missionStatement}
+              </Typography>
+            )}
+          </div>
+        ) : (
+          <div className="creator-not-found">
+            <Typography variant="body2">
+              Farmer information not available
+            </Typography>
+          </div>
+        )}
+
         <div className="project-meta">
           <Typography variant="body1" className="project-goal">
-            Funding Goal: <strong>{project.goal}</strong>
+            <strong>Funding Goal:</strong> ZMW {project.fundingGoal}
+          </Typography>
+          <Typography variant="body2" className="project-date">
+            <strong>Posted on:</strong> {project.createdAt.toDate().toLocaleDateString()}
           </Typography>
         </div>
 
@@ -82,17 +186,25 @@ const ProjectDetail = () => {
               src={project.imageUrl} 
               alt={project.title} 
               className="project-image"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '';
+                e.target.parentNode.classList.add('image-error');
+              }}
             />
           </div>
         )}
 
-        <Typography variant="body1" className="project-description">
-          {project.description}
-        </Typography>
+        <div className="project-description-section">
+          <Typography variant="h6">Project Details</Typography>
+          <Typography variant="body1" className="project-description">
+            {project.description}
+          </Typography>
+        </div>
 
         {project.tags && project.tags.length > 0 && (
           <div className="project-tags-container">
-            <Typography variant="h6">Tags:</Typography>
+            <Typography variant="h6">Project Tags</Typography>
             <div className="project-tags">
               {project.tags.map(tag => (
                 <span key={tag} className="project-tag">{tag}</span>
@@ -109,7 +221,7 @@ const ProjectDetail = () => {
               rel="noopener noreferrer"
               className="pdf-link"
             >
-              <DescriptionIcon /> View Project Document
+              <DescriptionIcon /> View Project Proposal
             </a>
           </div>
         )}
@@ -120,14 +232,14 @@ const ProjectDetail = () => {
             className="donate-button"
             onClick={handleDonate}
           >
-            Donate to this Project
+            Support This Farm
           </Button>
           <Button 
             variant="outlined" 
             className="back-button"
             onClick={() => navigate('/projects')}
           >
-            Back to Projects
+            View All Projects
           </Button>
         </div>
       </div>

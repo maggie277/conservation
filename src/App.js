@@ -13,7 +13,10 @@ import UploadProject from './components/UploadProject';
 import PrivateRoute from './components/PrivateRoute';
 import Onboarding from './components/Onboarding';
 import Home from './components/Home';
+import About from './components/About';
 import './App.css';
+
+
 
 function App() {
   return (
@@ -38,6 +41,7 @@ function App() {
             <Route path="/receipt/:projectId" element={<Receipt />} />
             <Route path="/help-center" element={<HelpCenter />} />
             <Route path="/projects/upload-project" element={<UploadProject />} />
+            <Route path="/about" element={<About />} />
           </Route>
         </Routes>
       </div>

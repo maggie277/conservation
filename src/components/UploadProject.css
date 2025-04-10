@@ -1,18 +1,24 @@
+:root {
+  --green: #2E8B57;
+  --green-light: #3AA76D;
+  --green-dark: #1F6F47;
+  --sand: #F5DEB3;
+  --white: #FFFFFF;
+  --black: #333333;
+}
+
 /* Main container styling */
 .upload-project-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  min-width: 100vw;
-  background-image: url('../pictures/helpcenter.jpg');
+  padding: 100px 20px 50px;
+  background-image: url('../pictures/details.jpg');
   background-size: cover;
   background-position: center;
-  background-repeat: no-repeat;
   background-attachment: fixed;
   position: relative;
-  padding: 100px 5% 50px;
-  box-sizing: border-box;
 }
 
 .upload-project-container::before {
@@ -22,7 +28,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(245, 245, 220, 0 ); /* F5F5DC with transparency */
+  background-color: rgba(46, 139, 87, 0.1);
   z-index: 0;
 }
 
@@ -31,16 +37,16 @@
   z-index: 1;
   width: 100%;
   max-width: 800px;
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: rgba(255, 255, 255, 0.97);
   border-radius: 16px;
   padding: 40px;
-  box-shadow: 0 8px 32px rgba(93, 64, 55, 0.15);
-  border: 1px solid #8B4513;
+  box-shadow: 0 8px 32px rgba(46, 139, 87, 0.15);
+  border: 1px solid var(--sand);
 }
 
 /* Header styling */
 .upload-project-header {
-  color: #5D4037;
+  color: var(--green-dark);
   margin-bottom: 32px;
   text-align: center;
   font-size: 2.2rem;
@@ -53,7 +59,7 @@
   display: block;
   width: 80px;
   height: 4px;
-  background-color: #8B4513;
+  background-color: var(--green);
   margin: 16px auto 0;
   border-radius: 2px;
 }
@@ -71,20 +77,20 @@
 }
 
 .project-input .MuiOutlinedInput-notchedOutline {
-  border-color: #D2B48C;
+  border-color: var(--sand);
 }
 
 .project-input .Mui-focused .MuiOutlinedInput-notchedOutline {
-  border-color: #8B4513;
+  border-color: var(--green);
   border-width: 2px;
 }
 
 .project-input .MuiInputLabel-root {
-  color: #5D4037;
+  color: var(--green-dark);
 }
 
 .project-input .MuiInputLabel-root.Mui-focused {
-  color: #8B4513;
+  color: var(--green);
 }
 
 /* Form sections */
@@ -94,12 +100,12 @@
 
 .category-select {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   border-radius: 8px;
-  border: 1px solid #D2B48C;
+  border: 1px solid var(--sand);
   background-color: white;
   font-size: 1rem;
-  color: #5D4037;
+  color: var(--green-dark);
 }
 
 .tags-container {
@@ -114,21 +120,21 @@
   align-items: center;
   gap: 5px;
   padding: 8px 12px;
-  background-color: rgba(210, 180, 140, 0.2);
+  background-color: rgba(46, 139, 87, 0.1);
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.2s;
   font-size: 0.9rem;
-  color: #5D4037;
+  color: var(--green-dark);
 }
 
 .tag-label:hover {
-  background-color: rgba(210, 180, 140, 0.3);
+  background-color: rgba(46, 139, 87, 0.2);
 }
 
 .tag-label input {
   margin: 0;
-  accent-color: #8B4513;
+  accent-color: var(--green);
 }
 
 /* Upload sections styling */
@@ -136,24 +142,24 @@
   background-color: rgba(255, 255, 255, 0.9);
   border-radius: 12px;
   padding: 20px;
-  border: 1px dashed #D2B48C;
+  border: 1px dashed var(--sand);
   transition: all 0.3s ease;
 }
 
 .upload-section:hover {
-  border-color: #8B4513;
+  border-color: var(--green);
   background-color: rgba(255, 255, 255, 0.95);
 }
 
 .upload-section-header {
-  color: #5D4037;
+  color: var(--green-dark);
   margin-bottom: 12px;
   font-size: 1.1rem;
   font-weight: 500;
 }
 
 .upload-section-description {
-  color: #5D4037;
+  color: var(--green-dark);
   margin-bottom: 16px;
   font-size: 0.9rem;
   opacity: 0.8;
@@ -162,8 +168,8 @@
 /* Button styling */
 .upload-button,
 .submit-button {
-  background-color: #8B4513 !important;
-  color: #F5F5DC !important;
+  background-color: var(--green) !important;
+  color: var(--white) !important;
   padding: 12px 24px !important;
   border-radius: 8px !important;
   font-weight: 500 !important;
@@ -173,14 +179,14 @@
 
 .upload-button:hover,
 .submit-button:hover {
-  background-color: #6D4C41 !important;
+  background-color: var(--green-dark) !important;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3) !important;
 }
 
 .upload-button:disabled,
 .submit-button:disabled {
-  background-color: #D2B48C !important;
+  background-color: var(--sand) !important;
 }
 
 /* Preview styling */
@@ -196,12 +202,12 @@
   max-width: 100%;
   max-height: 300px;
   border-radius: 8px;
-  border: 1px solid #D2B48C;
-  box-shadow: 0 2px 8px rgba(93, 64, 55, 0.1);
+  border: 1px solid var(--sand);
+  box-shadow: 0 2px 8px rgba(46, 139, 87, 0.1);
 }
 
 .pdf-link {
-  color: #8B4513;
+  color: var(--green);
   text-decoration: none;
   font-weight: 500;
   display: inline-flex;
@@ -211,18 +217,18 @@
 }
 
 .pdf-link:hover {
-  color: #6D4C41;
+  color: var(--green-dark);
   text-decoration: underline;
 }
 
 /* Error message styling */
 .error-message {
-  color: #8B4513;
-  background-color: rgba(139, 69, 19, 0.1);
+  color: #E53935;
+  background-color: rgba(229, 57, 53, 0.1);
   padding: 12px;
   border-radius: 8px;
   margin-bottom: 16px;
-  border-left: 4px solid #8B4513;
+  border-left: 4px solid #E53935;
 }
 
 /* Loading styling */
@@ -242,15 +248,15 @@
   justify-content: center;
   min-height: 100vh;
   padding: 20px;
-  background: rgba(245, 245, 220, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   text-align: center;
-  color: #5D4037;
+  color: var(--green-dark);
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .upload-project-container {
-    padding: 80px 5% 30px;
+    padding: 80px 20px 30px;
   }
   
   .upload-project-content {
@@ -264,7 +270,7 @@
 
 @media (max-width: 480px) {
   .upload-project-container {
-    padding: 70px 3% 20px;
+    padding: 70px 15px 20px;
   }
   
   .upload-project-content {

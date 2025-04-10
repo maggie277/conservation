@@ -13,7 +13,7 @@ body, html {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: url('../pictures/helpcenter.jpg') no-repeat center center fixed;
+  background: url('../pictures/projects.jpg') no-repeat center center fixed;
   background-size: cover;
   padding: 20px;
 }

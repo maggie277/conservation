@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import './ProjectFilters.css';
 
-const CATEGORIES = ['All', 'Farming', 'Wildlife', 'Forestry', 'Water Conservation', 'Climate Change'];
+// Constants aligned with UploadProject
+const CATEGORIES = [
+  'All',
+  'Crop Farming', 
+  'Livestock', 
+  'Agroforestry',
+  'Water Conservation',
+  'Soil Restoration'
+];
+
 const TAGS = [
-  'Sustainable Agriculture', 'Organic Farming', 'Wildlife Protection',
-  'Reforestation', 'Soil Conservation', 'Water Management'
+  'Smallholder', 
+  'Women-led', 
+  'Organic', 
+  'Drought-resistant',
+  'Community Project'
 ];
 
 const ProjectFilters = ({ onFilterChange }) => {
@@ -37,7 +49,7 @@ const ProjectFilters = ({ onFilterChange }) => {
   return (
     <div className="filters-container">
       <div className="filter-section">
-        <h3>Filter by Category</h3>
+        <h3>Filter by Farming Type</h3>
         <div className="category-filters">
           {CATEGORIES.map(category => (
             <button
@@ -45,14 +57,14 @@ const ProjectFilters = ({ onFilterChange }) => {
               className={`category-filter ${activeCategory === category ? 'active' : ''}`}
               onClick={() => handleCategoryChange(category)}
             >
-              {category}
+              {category === 'All' ? 'All Farming Projects' : category}
             </button>
           ))}
         </div>
       </div>
 
       <div className="filter-section">
-        <h3>Filter by Tags</h3>
+        <h3>Filter by Project Features</h3>
         <div className="tag-filters">
           {TAGS.map(tag => (
             <button

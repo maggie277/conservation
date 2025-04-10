@@ -1,21 +1,21 @@
 import React from "react";
-import Loading from "react-loading";
+import { CircularProgress } from '@mui/material';
+import './Loader.css';
 
-const Loader = ({loading}) => {
+const Loader = ({ loading }) => {
   return (
-    <div style={styles.loaderContainer}>
-      <Loading type="spin" color="#3498db" height={50} width={50} />
+    <div className="loader-container">
+      <CircularProgress 
+        size={60}
+        thickness={4}
+        sx={{
+          color: '#2E8B57',
+          animationDuration: '800ms'
+        }}
+      />
+      <p className="loader-text">Loading farm data...</p>
     </div>
   );
-};
-
-const styles = {
-  loaderContainer: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh", // Full screen height
-  },
 };
 
 export default Loader;

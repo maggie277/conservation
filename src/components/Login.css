@@ -1,66 +1,75 @@
-/* src/components/Login.css */
 :root {
-  --brown: #6B3D0C; /* Darker Brown */
-  --brown-hover: #4B2F07; /* Even Darker Brown for hover */
+  --green: #2E8B57;
+  --green-hover: #1F6F47;
+  --sand: #F5DEB3;
 }
 
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background-color: #f4f4f4;
+.login-page {
+  position: relative;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center;
+}
+
+.background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  opacity: 0.85;
 }
 
 .form-container {
-  background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent background */
-  padding: 30px; /* Increased padding */
-  border-radius: 10px; /* More rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Slightly more pronounced shadow */
-  max-width: 400px;
-  margin: 20px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(46, 139, 87, 0.2);
+  max-width: 450px;
+  width: 90%;
 }
 
-input {
-  font-size: 16px;
-  color: #333333; /* Dark Gray */
+.form-container h2 {
+  color: var(--green);
+  text-align: center;
+  margin-bottom: 25px;
+  font-size: 1.8rem;
 }
 
-input[type="password"] {
-  font-family: 'Courier New', Courier, monospace; /* Monospace font for password */
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"] {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border: 1px solid #ccc;
+.error-message {
+  color: #D32F2F;
+  text-align: center;
+  margin-top: 15px;
+  padding: 10px;
+  background-color: rgba(255, 0, 0, 0.05);
   border-radius: 4px;
-  box-sizing: border-box;
 }
 
-input::placeholder {
-  color: #888888; /* Lighter gray for placeholder */
-  opacity: 1; /* Ensure the placeholder is visible */
+.signup-link {
+  text-align: center;
+  margin-top: 20px;
+  color: #555;
 }
 
-.MuiFormControl-root {
-  margin: 10px 0; /* Ensure spacing between fields */
+.signup-link a {
+  color: var(--green);
+  text-decoration: none;
+  font-weight: bold;
 }
 
-p {
-  color: var(--brown); /* Use variable for consistent color */
+.signup-link a:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 600px) {
   .form-container {
-    padding: 20px;
-    width: 90%;
+    padding: 25px;
+  }
+  
+  .form-container h2 {
+    font-size: 1.5rem;
   }
 }

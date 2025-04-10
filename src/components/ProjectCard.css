@@ -1,58 +1,270 @@
-/* Project Card Styling */
+:root {
+  --green: #2E8B57;
+  --green-light: #3AA76D;
+  --green-dark: #1F6F47;
+  --sand: #F5DEB3;
+  --white: #FFFFFF;
+  --black: #333333;
+  --gray: #666666;
+}
+
+/* Base Styles */
 .project-card {
-    background-color: #d4c4b2a1;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    margin-bottom: 20px;
-    text-align: left;
+  width: 95%;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--white);
+  box-shadow: 0 4px 15px rgba(46, 139, 87, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-height: 500px;
+  border: 1px solid var(--sand);
+  transition: all 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(46, 139, 87, 0.2);
+}
+
+/* Image */
+.project-image-container {
+  width: 100%;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.project-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.project-card:hover .project-image {
+  transform: scale(1.05);
+}
+
+/* Content */
+.project-content {
+  flex-grow: 1;
+  margin-bottom: 20px;
+}
+
+.project-title {
+  font-size: 1.5rem;
+  color: var(--green-dark);
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.project-description {
+  margin-bottom: 20px;
+  color: var(--gray);
+  line-height: 1.6;
+}
+
+.project-description p {
+  line-height: 1.6;
+  color: var(--gray);
+  margin-bottom: 10px;
+}
+
+.toggle-description {
+  background: none;
+  border: none;
+  color: var(--green);
+  cursor: pointer;
+  font-weight: bold;
+  padding: 0;
+  margin-left: 5px;
+}
+
+.toggle-description:hover {
+  text-decoration: underline;
+}
+
+.project-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+  align-items: center;
+}
+
+.project-category {
+  background: var(--green);
+  color: var(--white);
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.project-goal {
+  font-weight: bold;
+  color: var(--green-dark);
+  font-size: 1.1rem;
+}
+
+/* Footer & Actions */
+.project-footer {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(46, 139, 87, 0.1);
+}
+
+.profile-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.share-btn, .edit-btn, .delete-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  font-size: 0.9rem;
+}
+
+.share-btn {
+  background: var(--green);
+  color: var(--white);
+}
+
+.share-btn:hover {
+  background: var(--green-light);
+}
+
+.edit-btn {
+  background: var(--sand);
+  color: var(--green-dark);
+  border: 1px solid var(--sand);
+}
+
+.edit-btn:hover {
+  background: #e8d4a8;
+}
+
+.delete-btn {
+  background: #E53935;
+  color: white;
+  border: 1px solid #C62828;
+}
+
+.delete-btn:hover {
+  background: #c62828;
+}
+
+/* Full-width share button in regular view */
+.share-btn.full-width {
+  width: 100%;
+  justify-content: center;
+  padding: 12px;
+}
+
+/* Edit Form */
+.edit-form {
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: var(--gray);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--sand);
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.save-btn, .cancel-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.save-btn {
+  background: var(--green);
+  color: white;
+}
+
+.save-btn:hover {
+  background: var(--green-dark);
+}
+
+.cancel-btn {
+  background: #f5f5f5;
+  color: var(--gray);
+  border: 1px solid #ddd;
+}
+
+.cancel-btn:hover {
+  background: #e0e0e0;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .project-card {
+    padding: 15px;
+    min-height: 450px;
   }
   
   .project-image {
-    width: 100px;
-    height: 100px;
-    border-radius: 10px;
-    object-fit: cover;
-    margin-bottom: 15px;
+    height: 150px;
   }
   
-  .project-card h4 {
-    font-size: 20px;
-    color: #000000;
-    margin-bottom: 10px;
+  .form-row {
+    flex-direction: column;
+    gap: 15px;
   }
   
-  .project-card p {
-    font-size: 16px;
-    color: #000000;
-    margin-bottom: 10px;
+  .profile-actions {
+    flex-wrap: wrap;
   }
   
-  /* Social Share Buttons */
-  .social-share-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 15px;
+  .profile-actions button {
+    flex: 1;
+    min-width: 100px;
+    justify-content: center;
   }
-  
-  .social-share-buttons .react-share__ShareButton:hover {
-    opacity: 0.8;
-    transform: scale(1.1);
-    transition: all 0.3s ease;
-  }
-  
-  /* Delete Button */
-  .delete-button {
-    padding: 10px 20px;
-    background-color: #ff4d4d;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 15px;
-  }
-  
-  .delete-button:hover {
-    background-color: #cc0000;
-  }
+}

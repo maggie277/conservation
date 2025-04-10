@@ -1,6 +1,9 @@
 :root {
-  --brown: #6B3D0C;
-  --brown-hover: #4B2F07;
+  --green: #2E8B57;       /* Earthy green for agriculture */
+  --green-hover: #1F6F47; /* Darker green on hover */
+  --sand: #F5DEB3;        /* Light sand color for accents */
+  --white: #FFFFFF;
+  --black: #000000;
 }
 
 .home-container {
@@ -9,39 +12,104 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  height: 100vh; /* Full viewport height */
-  width: 100vw; /* Full viewport width */
-  background-image: url('../pictures/home-image.jpg');
+  height: 100vh;
+  width: 100vw;
+  background-image: url('../pictures/home.jpg');
   background-repeat: no-repeat;
   background-position: center;
-  background-size: cover; /* Ensures the image covers the entire container */
-  margin: 0; /* Remove any default margin */
-  padding: 0; /* Remove any default padding */
+  background-size: cover;
+  margin: 0;
+  padding: 0;
+  position: relative;
+}
+
+.home-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 0;
 }
 
 .welcome-message {
-  font-size: 2rem;
-  color: white;
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--white);
   margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  z-index: 1;
+  letter-spacing: 1px;
+}
+
+.tagline {
+  font-size: 1.5rem;
+  color: var(--sand);
+  margin-bottom: 40px;
+  max-width: 700px;
+  line-height: 1.5;
+  padding: 0 20px;
+  z-index: 1;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .home-buttons {
   display: flex;
   gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  z-index: 1;
 }
 
 .home-button {
-  padding: 10px 20px;
-  font-size: 1rem;
-  color: white;
-  background-color: var(--brown);
+  padding: 15px 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--white);
+  background-color: var(--green);
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .home-button:hover {
-  background-color: var(--brown-hover);
+  background-color: var(--green-hover);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.home-button.secondary {
+  background-color: transparent;
+  border: 2px solid var(--white);
+  color: var(--white);
+}
+
+.home-button.secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .welcome-message {
+    font-size: 2.2rem;
+  }
+  
+  .tagline {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+  }
+  
+  .home-buttons {
+    flex-direction: column;
+    gap: 15px;
+    width: 80%;
+  }
+  
+  .home-button {
+    width: 100%;
+  }
 }

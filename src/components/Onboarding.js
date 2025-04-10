@@ -3,36 +3,32 @@ import { Dialog, DialogContent, Button, Typography, Box } from '@mui/material';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
 import { onAuthStateChanged } from 'firebase/auth';
+import './Onboarding.css';
 
 const Onboarding = () => {
   const steps = [
     {
-      title: "Welcome to Conservation Hub!",
-      content: "Let's take a quick tour to help you get started with our platform."
+      title: "Welcome to TerraFund Zambia!",
+      content: "Let's help you get started with sustainable farming projects."
     },
     {
-      title: "Navigation",
-      content: "Use the Home button to return to the main page anytime.",
-      highlightElement: 'home-button'
-    },
-    {
-      title: "Browse Projects",
-      content: "Discover conservation efforts in your community here.",
+      title: "Explore Farm Projects",
+      content: "Discover sustainable agriculture initiatives in your community.",
       highlightElement: 'projects-button'
     },
     {
-      title: "Upload Projects",
-      content: "Share your conservation initiatives by clicking here.",
+      title: "Submit Your Project",
+      content: "Share your farming initiative to get community support.",
       highlightElement: 'upload-button'
     },
     {
-      title: "Your Profile",
-      content: "Manage your account and track your contributions here.",
+      title: "My Farm Profile",
+      content: "Manage your account and track your farming projects.",
       highlightElement: 'profile-button'
     },
     {
-      title: "Ready to Go!",
-      content: "You're all set to make a difference in conservation efforts!"
+      title: "Ready to Grow!",
+      content: "You're all set to contribute to Zambia's sustainable agriculture!"
     }
   ];
 
@@ -67,8 +63,8 @@ const Onboarding = () => {
             left: `${rect.left}px`,
             width: `${rect.width}px`,
             height: `${rect.height}px`,
-            backgroundColor: 'rgba(139, 69, 19, 0.2)',
-            border: '2px solid #8B4513',
+            backgroundColor: 'rgba(46, 139, 87, 0.2)',
+            border: '2px solid var(--green)',
             borderRadius: '4px',
             zIndex: 1300,
             pointerEvents: 'none',
@@ -111,32 +107,22 @@ const Onboarding = () => {
       <Dialog 
         open={open} 
         onClose={() => setOpen(false)}
-        sx={{
-          '& .MuiDialog-paper': {
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            margin: 0,
-            maxWidth: '400px',
-            backgroundColor: '#F5F5DC',
-            color: '#5D4037'
-          }
-        }}
+        className="onboarding-dialog"
       >
-        <DialogContent>
-          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+        <DialogContent className="onboarding-content">
+          <Typography variant="h6" className="onboarding-title">
             {steps[currentStep].title}
           </Typography>
-          <Typography variant="body1" sx={{ mb: 3 }}>
+          <Typography variant="body1" className="onboarding-text">
             {steps[currentStep].content}
           </Typography>
           
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box className="onboarding-actions">
             <Button 
               variant="outlined" 
               onClick={handleBack}
               disabled={currentStep === 0}
-              sx={{ color: '#5D4037', borderColor: '#5D4037' }}
+              className="onboarding-back-button"
             >
               Back
             </Button>
@@ -144,27 +130,17 @@ const Onboarding = () => {
             <Button 
               variant="contained" 
               onClick={handleNext}
-              sx={{ 
-                ml: 2,
-                backgroundColor: '#8B4513',
-                '&:hover': { backgroundColor: '#A0522D' }
-              }}
+              className="onboarding-next-button"
             >
               {currentStep === steps.length - 1 ? "Finish" : "Next"}
             </Button>
           </Box>
           
-          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+          <Box className="onboarding-progress">
             {steps.map((_, index) => (
               <div 
                 key={index}
-                style={{
-                  width: '10px',
-                  height: '10px',
-                  borderRadius: '50%',
-                  backgroundColor: index === currentStep ? '#8B4513' : '#D2B48C',
-                  margin: '0 5px'
-                }}
+                className={`progress-dot ${index === currentStep ? 'active' : ''}`}
               />
             ))}
           </Box>

@@ -6,15 +6,21 @@ import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { Button, TextField, CircularProgress } from '@mui/material';
 import './UploadProject.css';
 
-// Constants for categories and tags
+// Constants for categories and tags (aligned with ProjectFilters)
 const CATEGORIES = [
-  'Farming', 'Wildlife', 'Forestry', 
-  'Water Conservation', 'Climate Change'
+  'Crop Farming', 
+  'Livestock', 
+  'Agroforestry',
+  'Water Conservation',
+  'Soil Restoration'
 ];
 
 const TAGS = [
-  'Sustainable Agriculture', 'Organic Farming', 'Wildlife Protection',
-  'Reforestation', 'Soil Conservation', 'Water Management'
+  'Smallholder', 
+  'Women-led', 
+  'Organic', 
+  'Drought-resistant',
+  'Community Project'
 ];
 
 const UploadProject = () => {
@@ -36,8 +42,8 @@ const UploadProject = () => {
   const navigate = useNavigate();
 
   const mandatoryFields = {
-    individual: ['firstName', 'lastName', 'age', 'nrcPassport'],
-    organization: ['organizationName', 'organizationAddress', 'organizationPhone', 'organizationWebsite', 'missionStatement'],
+    farmer: ['firstName', 'lastName', 'nrcPassport'],
+    cooperative: ['cooperativeName', 'cooperativeAddress', 'cooperativePhone', 'missionStatement'],
   };
 
   useEffect(() => {
@@ -50,7 +56,7 @@ const UploadProject = () => {
 
           if (!querySnapshot.empty) {
             const profileData = querySnapshot.docs[0].data();
-            const profileType = profileData.type;
+            const profileType = profileData.type || 'farmer';
             const requiredFields = mandatoryFields[profileType];
 
             const isComplete = requiredFields.every((field) => {
@@ -168,7 +174,7 @@ const UploadProject = () => {
     setError('');
 
     if (!profileComplete) {
-      setError('Please complete all mandatory fields in your profile before uploading a project.');
+      setError('Please complete your profile before uploading a project.');
       navigate('/profile');
       return;
     }
@@ -199,7 +205,8 @@ const UploadProject = () => {
         userId: user.uid,
         createdAt: new Date(),
         category: project.category,
-        tags: project.tags
+        tags: project.tags,
+        status: 'active'
       });
 
       navigate('/projects');
@@ -216,10 +223,14 @@ const UploadProject = () => {
   if (!profileComplete) {
     return (
       <div className="profile-incomplete-container">
-        <h2>Upload a New Project</h2>
-        <p>Please complete all mandatory fields in your profile before uploading a project.</p>
-        <Button variant="contained" onClick={() => navigate('/profile')}>
-          Go to Profile
+        <h2>Upload a New Farming Project</h2>
+        <p>Please complete your profile before uploading a project.</p>
+        <Button 
+          variant="contained" 
+          onClick={() => navigate('/profile')}
+          className="complete-profile-btn"
+        >
+          Complete Your Profile
         </Button>
       </div>
     );
@@ -228,7 +239,7 @@ const UploadProject = () => {
   return (
     <div className="upload-project-container">
       <div className="upload-project-content">
-        <h1 className="upload-project-header">Upload a New Project</h1>
+        <h1 className="upload-project-header">Upload a New Farming Project</h1>
         
         {error && <div className="error-message">{error}</div>}
 
@@ -241,6 +252,7 @@ const UploadProject = () => {
             fullWidth
             required
             className="project-input"
+            placeholder="e.g. Maize Farming Expansion"
           />
           
           <TextField
@@ -253,32 +265,34 @@ const UploadProject = () => {
             rows={4}
             required
             className="project-input"
+            placeholder="Describe your farming project in detail..."
           />
           
           <TextField
             name="goal"
-            label="Funding Goal (e.g., K3000)"
+            label="Funding Goal (ZMW)"
             type="text"
             value={project.goal}
             onChange={(e) => {
               const value = e.target.value;
-              if (/^K?\d*$/.test(value)) {
-                setProject((prev) => ({ ...prev, goal: value.startsWith('K') ? value : `K${value}` }));
+              if (/^ZMW?\d*$/.test(value)) {
+                setProject((prev) => ({ ...prev, goal: value.startsWith('ZMW') ? value : `ZMW${value}` }));
               }
             }}
             required
             className="project-input"
+            placeholder="e.g. ZMW5000"
           />
 
           <div className="form-section">
-            <h4>Category (Required)</h4>
+            <h4>Farming Category (Required)</h4>
             <select 
               value={project.category}
               onChange={(e) => setProject({...project, category: e.target.value})}
               required
               className="category-select"
             >
-              <option value="">Select a category</option>
+              <option value="">Select a farming category</option>
               {CATEGORIES.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
@@ -286,7 +300,7 @@ const UploadProject = () => {
           </div>
 
           <div className="form-section">
-            <h4>Tags (Select all that apply)</h4>
+            <h4>Project Characteristics (Select all that apply)</h4>
             <div className="tags-container">
               {TAGS.map(tag => (
                 <label key={tag} className="tag-label">
@@ -295,7 +309,7 @@ const UploadProject = () => {
                     checked={project.tags.includes(tag)}
                     onChange={() => handleTagChange(tag)}
                   />
-                  {tag}
+                  <span className="tag-text">{tag}</span>
                 </label>
               ))}
             </div>
@@ -304,7 +318,7 @@ const UploadProject = () => {
           <div className="upload-section">
             <h3 className="upload-section-header">Project Image</h3>
             <p className="upload-section-description">
-              Upload a cover image for your project (required)
+              Upload a cover image for your project (required, max 5MB)
             </p>
             <Button 
               variant="contained" 
@@ -312,7 +326,12 @@ const UploadProject = () => {
               className="upload-button"
               disabled={uploading}
             >
-              {uploading ? <CircularProgress size={24} className="upload-spinner" /> : 'Select Image'}
+              {uploading ? (
+                <>
+                  <CircularProgress size={24} className="upload-spinner" />
+                  <span style={{ marginLeft: '8px' }}>Uploading...</span>
+                </>
+              ) : 'Select Image'}
               <input type="file" hidden accept="image/*" onChange={handleFileChange} />
             </Button>
             {project.imageUrl && (
@@ -325,7 +344,7 @@ const UploadProject = () => {
           <div className="upload-section">
             <h3 className="upload-section-header">Project Document (Optional)</h3>
             <p className="upload-section-description">
-              Upload additional documentation (PDF format, max 10MB)
+              Upload additional documentation like business plan (PDF format, max 10MB)
             </p>
             <Button 
               variant="contained" 
@@ -333,7 +352,12 @@ const UploadProject = () => {
               className="upload-button"
               disabled={uploadingPdf}
             >
-              {uploadingPdf ? <CircularProgress size={24} className="upload-spinner" /> : 'Select PDF'}
+              {uploadingPdf ? (
+                <>
+                  <CircularProgress size={24} className="upload-spinner" />
+                  <span style={{ marginLeft: '8px' }}>Uploading...</span>
+                </>
+              ) : 'Select PDF'}
               <input type="file" hidden accept="application/pdf" onChange={handlePdfChange} />
             </Button>
             {project.pdfUrl && (
@@ -351,7 +375,7 @@ const UploadProject = () => {
             className="submit-button"
             disabled={uploading || uploadingPdf || !project.imageUrl || !project.category}
           >
-            {uploading || uploadingPdf ? 'Uploading...' : 'Submit Project'}
+            {uploading || uploadingPdf ? 'Uploading...' : 'Submit Farming Project'}
           </Button>
         </form>
       </div>

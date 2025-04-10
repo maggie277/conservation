@@ -1,105 +1,87 @@
 import React, { useState } from "react";
-import helpcenterImage from '../pictures/helpcenter.jpg'; // Import the background image
+import helpcenterImage from '../pictures/projects.jpg';
+import { Button, Typography, Box, Paper, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import './HelpCenter.css';
 
 const faqs = [
-  { question: "How do I create a project?", answer: "To create a project, go to the 'Upload Project' page, fill in the details, and submit your campaign." },
-  { question: "What are the requirements for a successful campaign?", answer: "A successful campaign has a clear goal, compelling story, high-quality images, and active promotion on social media." },
-  { question: "How do I withdraw funds?", answer: "Once your campaign ends successfully, go to your profile, click 'Withdraw Funds', and follow the instructions." },
-  { question: "Are there any platform fees?", answer: "Yes, we charge a small platform fee of 5% plus payment processing fees on all successful transactions." },
-  { question: "How can I promote my campaign?", answer: "You can share your campaign on social media, collaborate with influencers, and reach out to your community." },
+  { 
+    question: "How do I create a farming project?", 
+    answer: "To create a project, go to 'Submit Project' from your profile, fill in details about your sustainable agriculture initiative, and submit for review." 
+  },
+  { 
+    question: "What makes a successful farming campaign?", 
+    answer: "Successful campaigns have clear goals, demonstrate sustainability impact, include high-quality images of your farm, and show community involvement." 
+  },
+  { 
+    question: "How do I receive funds for my project?", 
+    answer: "Once funded, funds are transferred to your registered mobile money account (Airtel Money or MTN Mobile Money) within 3-5 business days." 
+  },
+  { 
+    question: "Are there any platform fees?", 
+    answer: "We charge a 5% platform fee on successfully funded projects to maintain our services. Payment processing fees may apply." 
+  },
+  { 
+    question: "How can I promote my farming project?", 
+    answer: "Share on WhatsApp groups, community meetings, and local radio stations. We also provide promotional materials for cooperatives." 
+  },
 ];
 
 const HelpCenter = () => {
-  const [activeIndex, setActiveIndex] = useState(null);
+  const [expanded, setExpanded] = useState(null);
 
-  const toggleFAQ = (index) => {
-    console.log("Clicked FAQ index:", index); // Debugging
-    setActiveIndex((prevIndex) => (prevIndex === index ? null : index));
+  const handleChange = (panel) => (event, newExpanded) => {
+    setExpanded(newExpanded ? panel : false);
   };
 
   return (
-    <div
-      style={{
-        backgroundImage: `url(${helpcenterImage})`, // Apply background image
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        minHeight: "100vh", // Ensure it covers the full viewport height
-        width: "100vw", // Ensure it covers the full viewport width
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: "#5D4037", // Semi-transparent white background
-          borderRadius: "8px",
-          padding: "20px",
-          maxWidth: "800px",
-          width: "100%",
-          boxShadow: "#4B2F07 0px 0px 20px",
-          marginTop: "160px", // Moves section lower
-        }}
-      >
-        <h1
-          style={{
-            color: "#5D4037",
-            textAlign: "center",
-            fontSize: "24px",
-            marginBottom: "20px",
-          }}
-        >
-          Help Center
-        </h1>
-        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+    <div className="help-center-container">
+      <Box className="help-center-header">
+        <Typography variant="h3" className="help-center-title">
+          Farming Support Center
+        </Typography>
+        <Typography variant="subtitle1" className="help-center-subtitle">
+          Get help with your sustainable agriculture projects
+        </Typography>
+      </Box>
+
+      <Paper className="faq-container">
+        <Typography variant="h5" className="faq-title">
+          Frequently Asked Questions
+        </Typography>
+        
+        <div className="faq-list">
           {faqs.map((faq, index) => (
-            <div
+            <Accordion 
               key={index}
-              style={{
-                backgroundColor: "#5D4037",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                overflow: "hidden",
-              }}
+              expanded={expanded === `panel${index}`}
+              onChange={handleChange(`panel${index}`)}
+              className="faq-item"
             >
-              <button
-                style={{
-                  width: "100%",
-                  padding: "15px",
-                  textAlign: "left",
-                  border: "none",
-                  backgroundColor: "#f0f0f0",
-                  cursor: "pointer",
-                  fontSize: "18px",
-                  color: "#5D4037",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  transition: "background 0.3s",
-                }}
-                onClick={() => toggleFAQ(index)}
+              <AccordionSummary
+                expandIcon={<ExpandMoreIcon />}
+                className="faq-question"
               >
-                {faq.question}
-                <span>{activeIndex === index ? "▲" : "▼"}</span>
-              </button>
-              {activeIndex === index && (
-                <p
-                  style={{
-                    marginTop: "8px",
-                    padding: "15px",
-                    backgroundColor: "#f9f9f9",
-                    borderTop: "1px solid #ddd",
-                  }}
-                >
-                  {faq.answer}
-                </p>
-              )}
-            </div>
+                <Typography>{faq.question}</Typography>
+              </AccordionSummary>
+              <AccordionDetails className="faq-answer">
+                <Typography>{faq.answer}</Typography>
+              </AccordionDetails>
+            </Accordion>
           ))}
         </div>
-      </div>
+      </Paper>
+
+      <Box className="contact-box">
+        <Typography variant="h6">Need more help?</Typography>
+        <Button 
+          variant="contained" 
+          className="contact-button"
+          onClick={() => window.location.href = 'mailto:support@terrafund.zm'}
+        >
+          Contact Our Farming Support Team
+        </Button>
+      </Box>
     </div>
   );
 };

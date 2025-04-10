@@ -7,37 +7,34 @@ import { verifyOrganization } from '../utils/verifyOrganization';
 import { useNavigate } from 'react-router-dom';
 import { makeStyles } from '@mui/styles';
 import './Register.css';
-import registerBackground from '../pictures/register-image.jpg';
+import registerBackground from '../pictures/home.jpg'; // Updated image
 
 const useStyles = makeStyles({
   root: {
     '& .MuiOutlinedInput-root': {
       '& fieldset': {
-        borderColor: 'var(--brown)',
+        borderColor: 'var(--green)',
       },
       '&:hover fieldset': {
-        borderColor: 'var(--brown-hover)',
+        borderColor: 'var(--green-hover)',
       },
       '&.Mui-focused fieldset': {
-        borderColor: 'var(--brown)',
+        borderColor: 'var(--green)',
       },
     },
-    '& .MuiInputBase-input': {
-      color: '#333333',
-    },
     '& .MuiInputLabel-root': {
-      color: 'var(--brown)',
+      color: 'var(--green)',
     },
     '& .MuiButton-containedPrimary': {
-      backgroundColor: 'var(--brown)',
+      backgroundColor: 'var(--green)',
       '&:hover': {
-        backgroundColor: 'var(--brown-hover)',
+        backgroundColor: 'var(--green-hover)',
       },
     },
     '& .MuiRadio-root': {
-      color: 'var(--brown)',
+      color: 'var(--green)',
       '&.Mui-checked': {
-        color: 'var(--brown)',
+        color: 'var(--green)',
       },
     },
   },
@@ -48,8 +45,8 @@ const Register = () => {
   const [user, setUser] = useState({
     email: '',
     password: '',
-    type: 'individual',
-    companyId: '',
+    type: 'farmer', // Changed from 'individual'
+    cooperativeId: '', // Changed from 'companyId'
   });
 
   const [verificationStatus, setVerificationStatus] = useState(null);
@@ -57,8 +54,8 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'companyId' && user.type === 'organization') {
-      setUser({ ...user, [name]: value.startsWith('ZMW') ? value : `ZMW${value}` });
+    if (name === 'cooperativeId' && user.type === 'cooperative') {
+      setUser({ ...user, [name]: value.startsWith('ZMAG') ? value : `ZMAG${value}` });
     } else {
       setUser({ ...user, [name]: value });
     }
@@ -67,76 +64,54 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // 1. Create auth user
       const userCredential = await createUserWithEmailAndPassword(auth, user.email, user.password);
       const uid = userCredential.user.uid;
 
-      // 2. Prepare base user data
       const userData = {
         uid,
         email: user.email,
         type: user.type,
-        has_seen_onboarding: false, // Critical onboarding flag
+        has_seen_onboarding: false,
         createdAt: new Date().toISOString()
       };
 
-      // 3. Handle organization-specific data
-      if (user.type === 'organization') {
-        const companyId = user.companyId;
-        const result = await verifyOrganization(companyId);
-
+      if (user.type === 'cooperative') {
+        const cooperativeId = user.cooperativeId;
+        const result = await verifyOrganization(cooperativeId);
+        
         if (result.verified) {
-          userData.companyId = companyId;
-          userData.organizationVerified = true;
+          userData.cooperativeId = cooperativeId;
+          userData.verified = true;
         } else {
-          setVerificationStatus(result.message);
+          setVerificationStatus(result.message || "Cooperative verification failed");
           return;
         }
       }
 
-      // 4. Save to Firestore (using UID as document ID)
       await setDoc(doc(db, 'users', uid), userData);
-
-      // 5. Redirect on success
-      setVerificationStatus('Registration successful!');
-      navigate('/projects');
+      setVerificationStatus('Registration successful! Redirecting...');
+      setTimeout(() => navigate(user.type === 'farmer' ? '/create-project' : '/cooperative-dashboard'), 1500);
     } catch (error) {
-      console.error('Registration error:', error);
-      let errorMessage = 'Registration failed. Please try again.';
-      
-      if (error.code) {
-        switch (error.code) {
-          case 'auth/email-already-in-use':
-            errorMessage = 'This email is already associated with an account.';
-            break;
-          case 'auth/invalid-email':
-            errorMessage = 'The email address is not valid.';
-            break;
-          case 'auth/weak-password':
-            errorMessage = 'The password is too weak. Please choose a stronger password.';
-            break;
-          default:
-            errorMessage = error.message;
-        }
-      }
-      setVerificationStatus(errorMessage);
+      setVerificationStatus(error.message.includes('email-already-in-use') 
+        ? 'Email already used by a farming account' 
+        : 'Registration error. Please try again.');
     }
   };
 
   return (
     <div className="register-page">
-      <img src={registerBackground} alt="Background" className="background" />
+      <img src={registerBackground} alt="Zambian farmers in field" className="background" />
       <div className="form-container">
+        <h2>Join TerraFund Zambia</h2>
         <form className={classes.root} onSubmit={handleSubmit}>
           <TextField
             name="email"
             label="Email"
+            type="email"
             value={user.email}
             onChange={handleChange}
             fullWidth
             margin="normal"
-            variant="outlined"
-            InputLabelProps={{ shrink: true }}
             required
           />
           <TextField
@@ -147,8 +122,6 @@ const Register = () => {
             onChange={handleChange}
             fullWidth
             margin="normal"
-            variant="outlined"
-            InputLabelProps={{ shrink: true }}
             required
           />
           <RadioGroup 
@@ -158,52 +131,41 @@ const Register = () => {
             row
           >
             <FormControlLabel 
-              value="individual" 
+              value="farmer" 
               control={<Radio />} 
-              label="Individual" 
+              label="Individual Farmer" 
             />
             <FormControlLabel 
-              value="organization" 
+              value="cooperative" 
               control={<Radio />} 
-              label="Organization" 
+              label="Farming Cooperative" 
             />
           </RadioGroup>
           
-          {user.type === 'organization' && (
+          {user.type === 'cooperative' && (
             <TextField
-              name="companyId"
-              label="Company ID"
-              value={user.companyId}
+              name="cooperativeId"
+              label="Cooperative ID"
+              value={user.cooperativeId}
               onChange={handleChange}
               fullWidth
               margin="normal"
-              variant="outlined"
-              InputLabelProps={{ shrink: true }}
-              error={user.type === 'organization' && !/^ZMW\d{6}$/.test(user.companyId)}
-              helperText={
-                user.type === 'organization' && !/^ZMW\d{6}$/.test(user.companyId)
-                  ? 'Company ID must start with "ZMW" followed by 6 digits.'
-                  : ''
-              }
+              helperText="Format: ZMAG followed by 6 digits"
               required
             />
           )}
           
           <Button 
             type="submit" 
-            color="primary" 
             variant="contained"
             fullWidth
-            style={{ marginTop: '20px' }}
+            style={{ marginTop: '20px', padding: '12px' }}
           >
-            Register
+            Register as {user.type === 'farmer' ? 'Farmer' : 'Cooperative'}
           </Button>
           
           {verificationStatus && (
-            <p style={{ 
-              color: verificationStatus.includes('success') ? 'green' : 'red',
-              marginTop: '10px'
-            }}>
+            <p className={`status-message ${verificationStatus.includes('success') ? 'success' : 'error'}`}>
               {verificationStatus}
             </p>
           )}

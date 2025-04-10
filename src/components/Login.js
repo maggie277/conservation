@@ -3,8 +3,8 @@ import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { Button, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import './Login.css'; 
-import loginBackground from '../pictures/login.jpg'; 
+import './Login.css';
+import loginBackground from '../pictures/signin.jpg';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,40 +16,51 @@ const Login = () => {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/profile'); // Redirect to profile after login
+      navigate('/projects');
     } catch (err) {
-      setError('Invalid email or password. Please try again.');
+      setError('Invalid login. Try again or reset password.');
     }
   };
 
   return (
     <div className="login-page">
-      <img src={loginBackground} alt="Background" className="background" />
+      <img src={loginBackground} alt="Zambian farmland" className="background" />
       <div className="form-container">
+        <h2>Welcome to TerraFund Zambia</h2>
         <form onSubmit={handleSubmit}>
           <TextField
-            name="email"
             label="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
             margin="normal"
-            variant="outlined"
-            InputLabelProps={{ shrink: true }}
+            required
           />
           <TextField
-            name="password"
             label="Password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
             margin="normal"
-            variant="outlined"
-            InputLabelProps={{ shrink: true }}
+            required
           />
-          <Button type="submit" color="primary" variant="contained">Login</Button>
-          {error && <p className="error">{error}</p>}
+          <Button 
+            type="submit" 
+            variant="contained"
+            fullWidth
+            style={{ 
+              backgroundColor: 'var(--green)',
+              padding: '12px',
+              marginTop: '20px'
+            }}
+          >
+            Login
+          </Button>
+          {error && <p className="error-message">{error}</p>}
+          <p className="signup-link">
+            New to TerraFund? <a href="/register">Join as a farmer</a>
+          </p>
         </form>
       </div>
     </div>

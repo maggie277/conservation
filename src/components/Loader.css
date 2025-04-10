@@ -1,0 +1,25 @@
+:root {
+  --green: #2E8B57;
+  --white: #FFFFFF;
+}
+
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: rgba(249, 249, 249, 0.8);
+}
+
+.loader-text {
+  margin-top: 20px;
+  color: var(--green);
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

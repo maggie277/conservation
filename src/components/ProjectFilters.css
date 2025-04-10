@@ -1,94 +1,104 @@
+:root {
+  --green: #2E8B57;
+  --green-light: #3AA76D;
+  --green-dark: #1F6F47;
+  --sand: #F5DEB3;
+  --white: #FFFFFF;
+  --black: #333333;
+}
+
 .filters-container {
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 20px;
   border-radius: 12px;
-  margin-bottom: 20px;
-  border: 1px solid rgba(181, 101, 29, 0.2);
+  margin-bottom: 30px;
+  border: 1px solid var(--sand);
   width: 100%;
   max-width: 1200px;
-  position: relative;
-  z-index: 1;
+  box-shadow: 0 4px 12px rgba(46, 139, 87, 0.1);
 }
 
 .filter-section {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .filter-section h3 {
-  color: #4b2e00;
-  margin-bottom: 10px;
-  font-size: 1rem;
+  color: var(--green-dark);
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .category-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
 .category-filter {
-  padding: 6px 12px;
-  background-color: rgba(212, 163, 115, 0.2);
+  padding: 8px 16px;
+  background-color: rgba(46, 139, 87, 0.1);
   border: none;
-  border-radius: 16px;
+  border-radius: 20px;
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 0.85rem;
-  color: #4b2e00;
+  font-size: 0.9rem;
+  color: var(--green-dark);
 }
 
 .category-filter:hover {
-  background-color: rgba(212, 163, 115, 0.3);
+  background-color: rgba(46, 139, 87, 0.2);
 }
 
 .category-filter.active {
-  background-color: #b5651d;
+  background-color: var(--green);
   color: white;
 }
 
 .tag-filters {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .tag-filter {
-  padding: 5px 10px;
-  background-color: rgba(212, 163, 115, 0.1);
-  border: 1px solid #d4a373;
-  border-radius: 14px;
+  padding: 6px 12px;
+  background-color: rgba(245, 222, 179, 0.3);
+  border: 1px solid var(--sand);
+  border-radius: 16px;
   cursor: pointer;
   transition: all 0.2s;
-  font-size: 0.8rem;
-  color: #4b2e00;
+  font-size: 0.85rem;
+  color: var(--black);
 }
 
 .tag-filter:hover {
-  background-color: rgba(212, 163, 115, 0.2);
+  background-color: rgba(245, 222, 179, 0.5);
 }
 
 .tag-filter.active {
-  background-color: #b5651d;
-  color: white;
-  border-color: #b5651d;
+  background-color: var(--sand);
+  color: var(--black);
+  border-color: var(--green);
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
   .filters-container {
-    padding: 12px;
+    padding: 15px;
   }
 
   .category-filters {
-    gap: 6px;
+    gap: 8px;
   }
 
   .category-filter {
-    padding: 5px 10px;
-    font-size: 0.8rem;
+    padding: 6px 12px;
+    font-size: 0.85rem;
   }
 
   .tag-filter {
-    padding: 4px 8px;
-    font-size: 0.75rem;
+    padding: 5px 10px;
+    font-size: 0.8rem;
   }
 }
