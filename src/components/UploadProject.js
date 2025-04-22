@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { db, auth } from '../firebaseConfig';
-import { collection, addDoc, query, where, getDocs } from 'firebase/firestore';
-import { Button, TextField, CircularProgress, Checkbox, FormControlLabel } from '@mui/material';
+import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
+import { Button, TextField, CircularProgress, Checkbox, FormControlLabel, Alert } from '@mui/material';
 import './UploadProject.css';
 
-// Updated constants for categories and tags
 const CATEGORIES = [
   'Crop Farming', 
   'Livestock', 
@@ -36,6 +35,16 @@ const TAGS = [
   'Educational Project'
 ];
 
+const CONSERVATION_PRACTICES = [
+  'Terracing',
+  'Cover Cropping',
+  'Crop Rotation',
+  'Agroforestry',
+  'Reduced Tillage',
+  'Composting',
+  'Water Harvesting'
+];
+
 const UploadProject = () => {
   const [project, setProject] = useState({
     title: '',
@@ -61,39 +70,36 @@ const UploadProject = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const CONSERVATION_PRACTICES = [
-    'Terracing',
-    'Cover Cropping',
-    'Crop Rotation',
-    'Agroforestry',
-    'Reduced Tillage',
-    'Composting',
-    'Water Harvesting'
-  ];
-
-  const mandatoryFields = {
-    farmer: ['firstName', 'lastName', 'nrcPassport'],
-    cooperative: ['cooperativeName', 'cooperativeAddress', 'cooperativePhone', 'missionStatement'],
-  };
-
   useEffect(() => {
     const checkProfile = async () => {
       const user = auth.currentUser;
       if (user) {
         try {
-          const q = query(collection(db, 'users'), where('uid', '==', user.uid));
-          const querySnapshot = await getDocs(q);
-
-          if (!querySnapshot.empty) {
-            const profileData = querySnapshot.docs[0].data();
+          const userDoc = await getDoc(doc(db, 'users', user.uid));
+          
+          if (userDoc.exists()) {
+            const profileData = userDoc.data();
             const profileType = profileData.type || 'farmer';
-            const requiredFields = mandatoryFields[profileType];
-
-            const isComplete = requiredFields.every((field) => {
+            
+            // Common required fields for all users
+            const requiredCommonFields = ['displayName', 'bio'];
+            
+            // Type-specific required fields
+            const typeSpecificFields = {
+              farmer: ['nrcPassport', 'address'],
+              cooperative: ['cooperativeId', 'cooperativeAddress'],
+              donor: []
+            };
+            
+            // Combine required fields
+            const requiredFields = [...requiredCommonFields, ...(typeSpecificFields[profileType] || [])];
+            
+            // Check if all required fields are filled
+            const isComplete = requiredFields.every(field => {
               const value = profileData[field];
               return value !== null && value !== undefined && value.toString().trim() !== '';
             });
-
+            
             setProfileComplete(isComplete);
           }
         } catch (err) {
@@ -289,7 +295,9 @@ const UploadProject = () => {
     return (
       <div className="profile-incomplete-container">
         <h2>Upload a New Farming Project</h2>
-        <p>Please complete your profile before uploading a project.</p>
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          Please complete your profile before uploading a project
+        </Alert>
         <Button 
           variant="contained" 
           onClick={() => navigate('/profile')}
@@ -306,7 +314,7 @@ const UploadProject = () => {
       <div className="upload-project-content">
         <h1 className="upload-project-header">Upload a New Farming Project</h1>
         
-        {error && <div className="error-message">{error}</div>}
+        {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
         <form className="upload-project-form" onSubmit={handleSubmit}>
           <TextField
