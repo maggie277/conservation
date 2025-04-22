@@ -8,14 +8,16 @@
   },
   "scripts": {
     "start": "node server.js",              
-    "build": "npm run build-frontend",       
+    "build": "npm install --production && cd client && npm install && npm run build",       
     "build-frontend": "react-scripts build", 
     "serve-frontend": "serve -s build -l 3000",
-    "dev": "concurrently \"npm run dev-backend\" \"npm run dev-frontend\"",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
     "dev-backend": "nodemon server.js",
     "dev-frontend": "react-scripts start",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "server": "nodemon server.js",
+    "client": "cd client && npm start"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
