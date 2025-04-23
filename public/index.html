@@ -2,34 +2,58 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <!-- Primary Meta Tags -->
+    <title>Terrafund Zambia | [Your Value Proposition]</title>
+    <meta name="description" content="[15-20 word description of your services, target audience, and location in Zambia. Example: 'Terrafund provides agricultural financing and soil management solutions for Zambian farmers. Boost your crop yields with our innovative funding programs.']"/>
+    
+    <!-- Open Graph / Facebook / Twitter Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://terrafund-zambia.onrender.com/" />
+    <meta property="og:title" content="Terrafund Zambia | [Your Value Proposition]" />
+    <meta property="og:description" content="[Similar to meta description but more conversational]" />
+    <meta property="og:image" content="%PUBLIC_URL%/social-preview.jpg" />
+    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Terrafund Zambia | [Your Value Proposition]" />
+    <meta name="twitter:description" content="[Twitter-optimized description]" />
+    <meta name="twitter:image" content="%PUBLIC_URL%/social-preview.jpg" />
+
+    <!-- Technical Tags -->
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://terrafund-zambia.onrender.com/" />
+    
+    <!-- Schema.org Markup -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Terrafund Zambia",
+      "url": "https://terrafund-zambia.onrender.com",
+      "logo": "%PUBLIC_URL%/logo192.png",
+      "sameAs": [
+        "https://facebook.com/yourpage",
+        "https://linkedin.com/company/yourprofile"
+      ]
+    }
+    </script>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <h1>Welcome to Terrafund Zambia</h1>
+      <p>We provide [brief description of services] to Zambian [target audience].</p>
+      <p>Please enable JavaScript to use our website, or contact us at:</p>
+      <ul>
+        <li>Phone: [Your Phone Number]</li>
+        <li>Email: <a href="mailto:your@email.com">your@email.com</a></li>
+      </ul>
+    </noscript>
     <div id="root"></div>
-    <!-- Add Flutterwave Inline Script -->
     <script src="https://checkout.flutterwave.com/v3.js"></script>
   </body>
 </html>
