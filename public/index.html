@@ -2,58 +2,132 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <!-- Primary Meta Tags -->
-    <title>Terrafund Zambia | [Your Value Proposition]</title>
-    <meta name="description" content="[15-20 word description of your services, target audience, and location in Zambia. Example: 'Terrafund provides agricultural financing and soil management solutions for Zambian farmers. Boost your crop yields with our innovative funding programs.']"/>
     
-    <!-- Open Graph / Facebook / Twitter Meta Tags -->
+    <!-- Primary Meta Tags -->
+    <title>TerraFund Zambia | Crowdfunding for Sustainable Farms and Healthy Land</title>
+    <meta name="description" content="Support Zambian farmers through direct crowdfunding. Fund sustainable agriculture projects and track your impact in real-time. 100% goes to farmers."/>
+    
+    <!-- Open Graph / Social Media Tags -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://terrafund-zambia.onrender.com/" />
-    <meta property="og:title" content="Terrafund Zambia | [Your Value Proposition]" />
-    <meta property="og:description" content="[Similar to meta description but more conversational]" />
-    <meta property="og:image" content="%PUBLIC_URL%/social-preview.jpg" />
+    <meta property="og:title" content="TerraFund Zambia | Grow Sustainability Through Crowdfunding" />
+    <meta property="og:description" content="Connect directly with Zambian farmers. Fund soil regeneration, organic farming, and sustainable agriculture projects." />
+    <meta property="og:image" content="https://terrafund-zambia.onrender.com/social-preview.jpg" />
     
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Terrafund Zambia | [Your Value Proposition]" />
-    <meta name="twitter:description" content="[Twitter-optimized description]" />
-    <meta name="twitter:image" content="%PUBLIC_URL%/social-preview.jpg" />
+    <meta name="twitter:title" content="Fund a Zambian Farmer's Sustainable Future" />
+    <meta name="twitter:description" content="See your donation grow - from seed to harvest to healthy land" />
+    <meta name="twitter:image" content="https://terrafund-zambia.onrender.com/social-preview.jpg" />
 
     <!-- Technical Tags -->
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <meta name="theme-color" content="#1e5631" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://terrafund-zambia.onrender.com/" />
     
-    <!-- Schema.org Markup -->
+    <!-- Crowdfunding Schema Markup -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Terrafund Zambia",
+      "@type": "CrowdfundingPlatform",
+      "name": "TerraFund Zambia",
+      "description": "Direct crowdfunding platform for sustainable agriculture projects in Zambia",
       "url": "https://terrafund-zambia.onrender.com",
-      "logo": "%PUBLIC_URL%/logo192.png",
-      "sameAs": [
-        "https://facebook.com/yourpage",
-        "https://linkedin.com/company/yourprofile"
-      ]
+      "operatingArea": {
+        "@type": "Country",
+        "name": "Zambia"
+      },
+      "fundingCampaigns": [{
+        "@type": "FundingAgency",
+        "name": "Sustainable Farm Initiatives",
+        "description": "Projects focused on regenerative agriculture and land health"
+      }]
     }
+    </script>
+
+    <!-- Social Preview Generator -->
+    <script>
+      if(window.location.search.includes('gen-preview')) {
+        document.body.innerHTML = `
+          <div style="
+            width:1200px;height:630px;
+            background:linear-gradient(135deg,#1e5631 0%,#4AA96C 100%);
+            color:white;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            align-items:center;
+            text-align:center;
+            padding:40px;
+            font-family:Arial,sans-serif">
+            <h1 style="font-size:72px;margin-bottom:10px;text-shadow:2px 2px 4px rgba(0,0,0,0.3)">TerraFund Zambia</h1>
+            <p style="font-size:48px;margin:0;font-weight:bold">Crowdfunding for</p>
+            <p style="font-size:48px;margin:0;font-weight:bold">Sustainable Farms</p>
+            <p style="font-size:36px;margin-top:30px">🌱 Healthy Land 🌱 Direct Impact</p>
+          </div>
+        `;
+      }
     </script>
   </head>
   <body>
     <noscript>
-      <h1>Welcome to Terrafund Zambia</h1>
-      <p>We provide [brief description of services] to Zambian [target audience].</p>
-      <p>Please enable JavaScript to use our website, or contact us at:</p>
-      <ul>
-        <li>Phone: [Your Phone Number]</li>
-        <li>Email: <a href="mailto:your@email.com">your@email.com</a></li>
-      </ul>
+      <div style="padding:20px;max-width:800px;margin:0 auto;font-family:Arial;line-height:1.6">
+        <h1 style="color:#1e5631;border-bottom:2px solid #4AA96C;padding-bottom:10px;text-align:center">
+          TerraFund Zambia Crowdfunding
+        </h1>
+        
+        <h3 style="color:#2a7221;">Current Sustainability Projects:</h3>
+        
+        <div style="background:#f5f9f5;padding:15px;border-radius:8px;margin-bottom:20px;border-left:5px solid #4AA96C">
+          <h4 style="margin-top:0;color:#1e5631">Regenerative Farming Training</h4>
+          <div style="background:#e0e0e0;height:20px;border-radius:10px;margin:10px 0">
+            <div style="background:#4AA96C;width:68%;height:100%;border-radius:10px"></div>
+          </div>
+          <p><strong>$1,360 raised</strong> of $2,000 goal</p>
+          <p>Training 20 farmers in soil regeneration techniques</p>
+          <p style="font-size:0.9em">📍 Copperbelt Province</p>
+        </div>
+
+        <div style="background:#f5f9f5;padding:15px;border-radius:8px;margin-bottom:20px;border-left:5px solid #4AA96C">
+          <h4 style="margin-top:0;color:#1e5631">Organic Seed Bank</h4>
+          <div style="background:#e0e0e0;height:20px;border-radius:10px;margin:10px 0">
+            <div style="background:#4AA96C;width:35%;height:100%;border-radius:10px"></div>
+          </div>
+          <p><strong>$700 raised</strong> of $2,000 goal</p>
+          <p>Creating a community seed bank with 15 drought-resistant varieties</p>
+          <p style="font-size:0.9em">📍 Southern Province</p>
+        </div>
+
+        <div style="margin-top:30px;background:#1e5631;padding:15px;border-radius:8px;text-align:center">
+          <a href="mailto:fund@terrafund-zambia.com" style="color:white;text-decoration:none;font-weight:bold;font-size:1.1em">
+            🌱 Donate via Email 🌱
+          </a>
+        </div>
+        
+        <div style="margin-top:20px;text-align:center;font-size:0.9em;color:#555">
+          <p>100% of funds go directly to farmers</p>
+          <p>Transparent impact reporting</p>
+        </div>
+      </div>
     </noscript>
+
     <div id="root"></div>
     <script src="https://checkout.flutterwave.com/v3.js"></script>
+    
+    <!-- Simple Analytics -->
+    <script>
+      if(window.location.hostname === 'terrafund-zambia.onrender.com') {
+        window.sa_event = window.sa_event || function(){};
+        (function(){
+          var script = document.createElement('script');
+          script.src = 'https://scripts.simpleanalyticscdn.com/latest.js';
+          script.async = true;
+          document.head.appendChild(script);
+        })();
+      }
+    </script>
   </body>
 </html>
