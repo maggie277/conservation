@@ -1,6 +1,7 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "TerraFund ZM",
+  "name": "TerraFund Zambia - Sustainable Farm Crowdfunding",
+  "description": "Direct funding for Zambian farmers practicing regenerative agriculture",
   "icons": [
     {
       "src": "favicon.ico",
@@ -10,16 +11,61 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "splash-logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "monochrome"
     }
   ],
-  "start_url": ".",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#1e5631",
+  "background_color": "#f5f9f5",
+  "orientation": "portrait",
+  "categories": ["finance", "environment", "agriculture"],
+  "screenshots": [
+    {
+      "src": "social-preview.jpg",
+      "type": "image/jpeg",
+      "sizes": "1200x630"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://terrafund-zambia.onrender.com/manifest.json"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Fund a Farmer",
+      "short_name": "Donate",
+      "description": "Support a sustainable agriculture project",
+      "url": "/donate",
+      "icons": [{ "src": "icons/donate.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Our Projects",
+      "short_name": "Projects",
+      "description": "See active farming initiatives",
+      "url": "/projects",
+      "icons": [{ "src": "icons/projects.png", "sizes": "192x192" }]
+    }
+  ],
+  "serviceworker": {
+    "src": "service-worker.js",
+    "scope": "/",
+    "type": "module"
+  }
 }
