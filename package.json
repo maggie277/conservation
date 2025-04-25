@@ -7,7 +7,7 @@
     "npm": ">=9.x"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "node backend/server.js",
     "build": "react-scripts build",
     "serve": "node backend/server.js",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
