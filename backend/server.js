@@ -5,7 +5,7 @@ const path = require('path');
 
 const app = express();
 const isDev = process.env.NODE_ENV !== 'production';
-const PORT = isDev ? 4001 : 4000;
+const PORT = isDev ? 4001 : 10000;
 
 // Middleware
 app.use(express.json());
