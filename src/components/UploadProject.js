@@ -3,7 +3,15 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { db, auth } from '../firebaseConfig';
 import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
-import { Button, TextField, CircularProgress, Checkbox, FormControlLabel, Alert } from '@mui/material';
+import { 
+  Button, 
+  TextField, 
+  CircularProgress, 
+  Checkbox, 
+  FormControlLabel, 
+  Alert,
+  InputAdornment
+} from '@mui/material';
 import './UploadProject.css';
 
 const CATEGORIES = [
@@ -81,20 +89,16 @@ const UploadProject = () => {
             const profileData = userDoc.data();
             const profileType = profileData.type || 'farmer';
             
-            // Common required fields for all users
             const requiredCommonFields = ['displayName', 'bio'];
             
-            // Type-specific required fields
             const typeSpecificFields = {
               farmer: ['nrcPassport', 'address'],
               cooperative: ['cooperativeId', 'cooperativeAddress'],
               donor: []
             };
             
-            // Combine required fields
             const requiredFields = [...requiredCommonFields, ...(typeSpecificFields[profileType] || [])];
             
-            // Check if all required fields are filled
             const isComplete = requiredFields.every(field => {
               const value = profileData[field];
               return value !== null && value !== undefined && value.toString().trim() !== '';
@@ -264,7 +268,6 @@ const UploadProject = () => {
         status: 'active'
       };
 
-      // Only add sustainability fields if they exist
       if (project.sustainabilityMetrics.waterSaved || 
           project.sustainabilityMetrics.carbonSequestration || 
           project.sustainabilityMetrics.biodiversityImpact) {
@@ -343,18 +346,25 @@ const UploadProject = () => {
           
           <TextField
             name="goal"
-            label="Funding Goal (ZMW)"
-            type="text"
-            value={project.goal}
+            label="Funding Goal"
+            type="number"
+            value={project.goal.replace('ZMW', '')}
             onChange={(e) => {
               const value = e.target.value;
-              if (/^ZMW?\d*$/.test(value)) {
-                setProject((prev) => ({ ...prev, goal: value.startsWith('ZMW') ? value : `ZMW${value}` }));
+              if (/^\d*$/.test(value)) {
+                setProject(prev => ({ ...prev, goal: `ZMW${value}` }));
               }
             }}
             required
             className="project-input"
-            placeholder="e.g. ZMW5000"
+            placeholder="e.g. 5000"
+            inputProps={{
+              inputMode: 'numeric',
+              pattern: '[0-9]*'
+            }}
+            InputProps={{
+              startAdornment: <InputAdornment position="start">ZMW</InputAdornment>,
+            }}
           />
 
           <div className="form-section">
