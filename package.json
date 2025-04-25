@@ -7,16 +7,14 @@
     "npm": ">=9.x"
   },
   "scripts": {
-    "start": "node backend/server.js",
+    "start": "react-scripts start",
     "build": "react-scripts build",
-    "serve-frontend": "serve -s build -l 3000",
+    "serve": "node backend/server.js",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "dev-backend": "nodemon server.js",
-    "dev-frontend": "react-scripts start",
+    "server": "nodemon backend/server.js --watch backend",
+    "client": "react-scripts start",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "server": "node backend/server.js",
-    "client": "react-scripts start"
+    "eject": "react-scripts eject"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
