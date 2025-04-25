@@ -4,6 +4,13 @@ import Spinner from "./Spinner";
 import { validateEmail, validatePhone, validateAmount } from "./validationUtils";
 import './Donate.css';
 
+// Environment detection
+const isLocalhost = () => {
+  return window.location.hostname === 'localhost' || 
+         window.location.hostname === '127.0.0.1';
+};
+
+// Payment API functions (unchanged)
 const handlePaymentRequest = async (paymentData) => {
   try {
     const response = await axios.post("http://localhost:4000/process-payment", paymentData);
@@ -25,6 +32,7 @@ const checkPaymentStatus = async (referenceNo) => {
 };
 
 const Donate = () => {
+  // All existing state
   const [formData, setFormData] = useState({
     amount: "",
     email: "",
@@ -42,6 +50,7 @@ const Donate = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [redirectUrl, setRedirectUrl] = useState("");
 
+  // Existing validation effects
   useEffect(() => {
     if (formData.phone && !validatePhone(formData.phone)) {
       setErrors(prev => ({...prev, phone: "Please enter a valid Zambian phone number (e.g., 0961234567)"}));
@@ -68,6 +77,14 @@ const Donate = () => {
   };
 
   const handlePayment = async () => {
+    if (!isLocalhost()) {
+      setMessage({
+        type: "info",
+        text: "Online donations coming soon! For now, please contact us at donations@terrafund-zambia.com"
+      });
+      return;
+    }
+
     let isValid = true;
     const newErrors = {...errors};
 
@@ -109,7 +126,6 @@ const Donate = () => {
       };
 
       const response = await handlePaymentRequest(paymentData);
-      console.log("✅ Payment Initiation Response:", response);
 
       if (response.response?.response_code === "120" || response.response_code === "120") {
         setMessage({ type: "info", text: "Payment initiated. Waiting for confirmation..." });
@@ -135,7 +151,7 @@ const Donate = () => {
         });
       }
     } catch (error) {
-      console.error("🚨 Payment Error:", error);
+      console.error("Payment Error:", error);
       setIsLoading(false);
       let errorMessage = "Payment Error. Please check your details.";
       if (error.response?.data?.message) {
@@ -159,11 +175,8 @@ const Donate = () => {
       }
 
       attempts++;
-      console.log(`🔍 Checking payment status (Attempt ${attempts})...`);
-
       try {
         const statusResponse = await checkPaymentStatus(referenceNo);
-        console.log("📢 Payment Status Response:", statusResponse);
 
         if (statusResponse.status === "success") {
           clearInterval(interval);
@@ -193,7 +206,7 @@ const Donate = () => {
           setMessage({ type: "error", text: "Payment Failed. Please try again." });
         }
       } catch (error) {
-        console.error("🚨 Status Check Error:", error);
+        console.error("Status Check Error:", error);
         clearInterval(interval);
         setIsLoading(false);
         setShowPaymentModal(false);
@@ -216,6 +229,24 @@ const Donate = () => {
     setShowPaymentModal(false);
   };
 
+  // Production view
+  if (!isLocalhost()) {
+    return (
+      <div className="donate-page">
+        <div className="donate-container">
+          <h2>Support Zambian Farmers</h2>
+          <div className="coming-soon-message">
+            <h3>Online Donations Coming Soon</h3>
+            <p>We're currently finalizing our secure payment system.</p>
+            <p>For now, please contact us at:</p>
+            <p className="contact-email">donations@terrafund-zambia.com</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Development view (unchanged)
   return (
     <div className="donate-page">
       <div className="donate-container">
