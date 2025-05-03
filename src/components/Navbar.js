@@ -22,6 +22,9 @@ const Navbar = () => {
             <Link to="/projects" className="nav-links">Farm Projects</Link>
           </li>
           <li className="nav-item">
+            <Link to="/farmers-forum" className="nav-links">Farmers Forum</Link>
+          </li>
+          <li className="nav-item">
             <Link to="/projects/upload-project" className="nav-links">Submit Project</Link>
           </li>
           <li className="nav-item">

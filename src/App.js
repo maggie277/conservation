@@ -13,10 +13,9 @@ import UploadProject from './components/UploadProject';
 import PrivateRoute from './components/PrivateRoute';
 import Onboarding from './components/Onboarding';
 import Home from './components/Home';
+import Forum from './components/Forum';
 import About from './components/About';
 import './App.css';
-
-
 
 function App() {
   return (
@@ -30,6 +29,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/farmers-forum" element={<Forum />} /> {/* Add this line */}
           
           {/* Private Routes */}
           <Route element={<PrivateRoute />}>
