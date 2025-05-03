@@ -4,6 +4,9 @@ import Spinner from "./Spinner";
 import { validateEmail, validatePhone, validateAmount } from "./validationUtils";
 import './Donate.css';
 
+// Check if running on localhost
+const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
 const handlePaymentRequest = async (paymentData) => {
   try {
     const response = await axios.post("http://localhost:4000/process-payment", paymentData);
@@ -216,6 +219,24 @@ const Donate = () => {
     setShowPaymentModal(false);
   };
 
+  // Show coming soon message if not on localhost
+  if (!isLocalhost) {
+    return (
+      <div className="donate-page">
+        <div className="donate-container">
+          <div className="coming-soon-message">
+            <h3>Coming Soon!</h3>
+            <p>Our donation platform is currently under development and will be available soon.</p>
+            <p>In the meantime, if you'd like to support our work or have any questions, please contact us at:</p>
+            <div className="contact-email">info@yourorganization.org</div>
+            <p>Thank you for your interest and support!</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render payment form if on localhost
   return (
     <div className="donate-page">
       <div className="donate-container">
