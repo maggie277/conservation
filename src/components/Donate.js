@@ -9,7 +9,7 @@ const isLocalhost = window.location.hostname === 'localhost' || window.location.
 
 const handlePaymentRequest = async (paymentData) => {
   try {
-    const response = await axios.post("http://localhost:4000/process-payment", paymentData);
+    const response = await axios.post("http://localhost:4001/process-payment", paymentData);
     return response.data;
   } catch (error) {
     throw error;
@@ -18,7 +18,7 @@ const handlePaymentRequest = async (paymentData) => {
 
 const checkPaymentStatus = async (referenceNo) => {
   try {
-    const response = await axios.post("http://localhost:4000/check-payment-status", {
+    const response = await axios.post("http://localhost:4001/check-payment-status", {
       reference_no: referenceNo,
     });
     return response.data;
