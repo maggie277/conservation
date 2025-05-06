@@ -4,13 +4,12 @@ import './ProjectCard.css';
 const ProjectCard = ({ 
   project = {},
   handleDeleteProject = () => {},
+  isProfileView = false,
   isEditing = false,
   editedProject = {},
   setEditedProject = () => {},
-  handleEditProject = () => {},
   handleSaveProjectEdit = () => {},
   handleCancelEdit = () => {},
-  isProfileView = false
 }) => {
   const [showFullDescription, setShowFullDescription] = useState(false);
 
@@ -21,7 +20,7 @@ const ProjectCard = ({
     description = "No description available",
     category = "Uncategorized",
     fundingGoal = 0,
-    imageUrl = "https://via.placeholder.com/600x400?text=Project+Image"
+    imageUrl = "https://via.placeholder.com/300x200?text=Project+Image"
   } = project;
 
   // Safely get edited project data with defaults
@@ -56,7 +55,6 @@ const ProjectCard = ({
     }));
   };
 
-  // Safe number formatting with fallback
   const formatFundingGoal = (amount) => {
     const num = Number(amount);
     if (isNaN(num)) return "0";
@@ -101,7 +99,7 @@ const ProjectCard = ({
             </div>
             
             <div className="form-group">
-              <label>Funding Goal (ZMW):</label>
+              <label>Goal (ZMW):</label>
               <input
                 type="number"
                 name="fundingGoal"
@@ -150,7 +148,7 @@ const ProjectCard = ({
               className="project-image"
               onError={(e) => {
                 e.target.onerror = null; 
-                e.target.src = 'https://via.placeholder.com/600x400?text=Image+Not+Available';
+                e.target.src = 'https://via.placeholder.com/300x200?text=Image+Not+Available';
               }}
             />
           </div>
@@ -160,8 +158,8 @@ const ProjectCard = ({
             
             <div className="project-description">
               <p>
-                {showFullDescription ? description : `${description.substring(0, 100)}${description.length > 100 ? '...' : ''}`}
-                {description.length > 100 && (
+                {showFullDescription ? description : `${description.substring(0, 80)}${description.length > 80 ? '...' : ''}`}
+                {description.length > 80 && (
                   <button 
                     onClick={() => setShowFullDescription(!showFullDescription)}
                     className="toggle-description"
@@ -190,7 +188,7 @@ const ProjectCard = ({
                 </button>
                 <button
                   className="edit-btn"
-                  onClick={() => handleEditProject(project)}
+                  onClick={() => setEditedProject(project)}
                 >
                   Edit
                 </button>

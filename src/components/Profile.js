@@ -28,7 +28,7 @@ import "./Profile.css";
 const Profile = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userData, setUserData] = useState(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +43,7 @@ const Profile = () => {
     cooperativeAddress: ''
   });
   const [errors, setErrors] = useState({});
+  const [editingProject, setEditingProject] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -76,16 +77,24 @@ const Profile = () => {
         });
 
         if (['farmer', 'cooperative'].includes(data.type)) {
-          const projectsQuery = query(
-            collection(db, 'projects'),
-            where('userId', '==', uid)
-          );
-          const snapshot = await getDocs(projectsQuery);
-          setProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+          await fetchUserProjects(uid);
         }
       }
     } catch (error) {
       console.error("Error fetching user data:", error);
+    }
+  };
+
+  const fetchUserProjects = async (uid) => {
+    try {
+      const projectsQuery = query(
+        collection(db, 'projects'),
+        where('userId', '==', uid)
+      );
+      const snapshot = await getDocs(projectsQuery);
+      setProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    } catch (error) {
+      console.error("Error fetching projects:", error);
     }
   };
 
@@ -147,7 +156,7 @@ const Profile = () => {
         profileComplete: isProfileComplete(),
         updatedAt: new Date().toISOString()
       });
-      setIsEditing(false);
+      setIsEditingProfile(false);
       await fetchUserData(currentUser.uid);
     } catch (error) {
       console.error("Error updating profile:", error);
@@ -171,6 +180,24 @@ const Profile = () => {
         console.error("Error deleting project:", error);
       }
     }
+  };
+
+  const handleEditProject = (project) => {
+    setEditingProject(project);
+  };
+
+  const handleSaveProjectEdit = async (projectId) => {
+    try {
+      await updateDoc(doc(db, 'projects', projectId), editingProject);
+      setEditingProject(null);
+      await fetchUserProjects(currentUser.uid);
+    } catch (error) {
+      console.error("Error updating project:", error);
+    }
+  };
+
+  const handleCancelProjectEdit = () => {
+    setEditingProject(null);
   };
 
   const renderProfileContent = () => {
@@ -250,7 +277,7 @@ const Profile = () => {
   return (
     <div className="profile-container">
       <div className="profile-card">
-        {isEditing ? (
+        {isEditingProfile ? (
           <div className="edit-form">
             <Typography variant="h4" gutterBottom style={{ color: 'var(--green-dark)' }}>
               Edit Profile
@@ -373,7 +400,7 @@ const Profile = () => {
               <Button 
                 variant="outlined"
                 className="cancel-btn"
-                onClick={() => setIsEditing(false)}
+                onClick={() => setIsEditingProfile(false)}
               >
                 Cancel
               </Button>
@@ -448,7 +475,7 @@ const Profile = () => {
                     <Button 
                       variant="contained"
                       className="edit-btn"
-                      onClick={() => setIsEditing(true)}
+                      onClick={() => setIsEditingProfile(true)}
                     >
                       Edit Profile
                     </Button>
@@ -463,7 +490,7 @@ const Profile = () => {
                 </>
               ) : (
                 <div className="projects-section">
-                  <Typography variant="h5" style={{ color: 'var(--white)', marginBottom: 20 }}>
+                  <Typography variant="h5" style={{ color: 'var(--green-dark)', marginBottom: 20 }}>
                     My Agricultural Projects
                   </Typography>
                   
@@ -473,8 +500,14 @@ const Profile = () => {
                         <ProjectCard
                           key={project.id}
                           project={project}
-                          onDelete={() => handleDeleteProject(project.id)}
-                          showActions={true}
+                          isProfileView={true}
+                          handleDeleteProject={handleDeleteProject}
+                          handleEditProject={handleEditProject}
+                          isEditing={editingProject?.id === project.id}
+                          editedProject={editingProject?.id === project.id ? editingProject : {}}
+                          setEditedProject={setEditingProject}
+                          handleSaveProjectEdit={handleSaveProjectEdit}
+                          handleCancelEdit={handleCancelProjectEdit}
                         />
                       ))}
                     </div>
