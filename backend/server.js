@@ -2,7 +2,6 @@ const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
 const path = require('path');
-const mongoose = require('mongoose');
 
 const app = express();
 const isDev = process.env.NODE_ENV !== 'production';
@@ -12,24 +11,7 @@ const PORT = isDev ? 4001 : 10000;
 app.use(express.json());
 app.use(cors());
 
-// Database Connection
-mongoose.connect('mongodb://localhost:27017/conservation-platform', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-
-// Forum Post Schema
-const postSchema = new mongoose.Schema({
-  title: String,
-  content: String,
-  author: String,
-  category: String,
-  createdAt: { type: Date, default: Date.now }
-});
-
-const Post = mongoose.model('Post', postSchema);
-
-// Zynle API Configuration
+// Zynle API Configuration - Hardcoded values
 const ZYNLE_SANDBOX_URL = "https://sandbox.zynlepay.com/zynlepay/jsonapi";
 const MERCHANT_ID = "MEC00443";
 const API_ID = "1cc203c6-21b6-4a56-9c8c-d23169937efd";
@@ -42,37 +24,12 @@ const getNetworkProvider = (phone) => {
   return null;
 };
 
-// ===== Forum API Endpoints =====
-app.get('/api/forum/posts', async (req, res) => {
-  try {
-    const posts = await Post.find().sort({ createdAt: -1 });
-    res.json(posts);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-app.post('/api/forum/posts', async (req, res) => {
-  const post = new Post({
-    title: req.body.title,
-    content: req.body.content,
-    author: req.body.author,
-    category: req.body.category
-  });
-
-  try {
-    const newPost = await post.save();
-    res.status(201).json(newPost);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// ===== Payment API Endpoints =====
+// API Endpoints
 app.post("/process-payment", async (req, res) => {
   try {
     const { amount, email, phone, payment_method, first_name, last_name, address, city, state, zip_code, country } = req.body;
     
+    // Validate required fields
     if (!amount || !email || !phone || !payment_method) {
       return res.status(400).json({ message: "Missing required fields" });
     }
@@ -195,11 +152,11 @@ const server = app.listen(PORT, () => {
   if (isDev) {
     console.log(`🔗 Frontend: http://localhost:3000`);
     console.log(`🔗 Backend API: http://localhost:${PORT}`);
-    console.log(`🔗 Forum API: http://localhost:${PORT}/api/forum/posts`);
   }
   console.log(`${'='.repeat(40)}\n`);
 });
 
+// Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('\nShutting down server gracefully...');
   server.close(() => {
