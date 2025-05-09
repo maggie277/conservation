@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import helpcenterImage from '../pictures/projects.jpg';
 import { Button, Typography, Box, Paper, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import TidioChat from './TidioChat';
 import './HelpCenter.css';
 
 const faqs = [
@@ -36,6 +37,7 @@ const HelpCenter = () => {
 
   return (
     <div className="help-center-container">
+      <TidioChat />
       <Box className="help-center-header">
         <Typography variant="h3" className="help-center-title">
           Farming Support Center
