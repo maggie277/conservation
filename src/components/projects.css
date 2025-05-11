@@ -1,3 +1,10 @@
+html, body {
+  overflow-x: hidden; /* Prevents horizontal scrolling */
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 :root {
   --green: #2E8B57;
   --green-light: #3AA76D;
@@ -12,13 +19,28 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  width: 100%;
+  width: 100vw;
+  overflow-x: hidden; 
   padding: 100px 20px 40px;
   background-color: #f9f9f9;
   background-image: url('../pictures/projects.jpg');
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
+  position: relative;
+}
+.projects-page::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('../pictures/projects.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
 }
 
 .projects-header {
@@ -50,6 +72,7 @@
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
+  padding-right:100%;
 }
 
 .project-card {
@@ -222,11 +245,12 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Tablet View */
 @media (max-width: 768px) {
   .projects-page {
-    padding: 80px 15px 20px;
-    background-attachment: scroll;
+    padding: 60px 15px 20px;
+    /* Ensure no horizontal scrolling */
+    max-width: 100%;
+    overflow-x: hidden;
   }
   
   .projects-header {
@@ -243,17 +267,19 @@
   }
   
   .projects-grid {
-    gap: 15px;
+    /* Prevent grid from causing overflow */
     max-width: 100%;
+    padding: 0 10px;
   }
   
-  .project-card {
-    height: auto;
-    min-height: 200px;
+  .project-card { /* Remove fixed height */
+    height:auto; /* Minimum height */
+    flex-direction: column;
+    min-height: 180px
   }
   
   .project-image-container {
-    height: 150px;
+     height: 120px; /* Reduced height for image */
   }
   
   .project-content {
@@ -275,7 +301,6 @@
   }
 }
 
-/* Mobile View */
 @media (max-width: 480px) {
   .projects-page {
     padding: 70px 10px 15px;
@@ -294,7 +319,7 @@
   }
   
   .project-meta {
-    flex-direction: row;
+    flex-direction: row; /* Keep side-by-side on mobile */
     flex-wrap: wrap;
     gap: 8px;
     margin-bottom: 10px;
@@ -313,4 +338,6 @@
     font-size: 0.7rem;
     padding: 3px 8px;
   }
+
+  
 }
