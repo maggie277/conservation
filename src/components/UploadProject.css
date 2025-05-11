@@ -23,13 +23,16 @@
 
 .upload-project-container::before {
   content: '';
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(46, 139, 87, 0.1);
-  z-index: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('../pictures/details.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
 }
 
 .upload-project-content {

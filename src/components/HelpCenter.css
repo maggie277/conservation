@@ -18,6 +18,21 @@
   align-items: center;
 }
 
+.help-center-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('../pictures/projects.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+
 .help-center-header {
   text-align: center;
   margin-bottom: 40px;
