@@ -269,8 +269,8 @@ html, body {
   
   .projects-grid {
     /* Prevent grid from causing overflow */
-    max-width: 78%;
-    padding: 0px;
+    max-width: 80%;
+    padding:10px -5px 20px;
   }
   
   .project-card { /* Remove fixed height */
