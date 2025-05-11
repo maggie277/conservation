@@ -251,9 +251,17 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="loading-spinner">
-        <CircularProgress size={60} style={{ color: 'var(--green)' }} />
-        <Typography variant="h6" style={{ marginTop: 20 }}>Loading your profile...</Typography>
+      <div className="loader-overlay">
+        <div className="loader-content">
+          <CircularProgress 
+            size={60}
+            thickness={4}
+            sx={{ color: 'var(--green)' }}
+          />
+          <Typography variant="h6" className="loader-text">
+            Loading your profile...
+          </Typography>
+        </div>
       </div>
     );
   }

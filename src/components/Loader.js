@@ -3,6 +3,8 @@ import { CircularProgress } from '@mui/material';
 import './Loader.css';
 
 const Loader = ({ loading }) => {
+  if (!loading) return null;
+
   return (
     <div className="loader-container">
       <CircularProgress 
@@ -10,7 +12,7 @@ const Loader = ({ loading }) => {
         thickness={4}
         sx={{
           color: '#2E8B57',
-          animationDuration: '800ms'
+          animationDuration: '800ms',
         }}
       />
       <p className="loader-text">Loading farm data...</p>
