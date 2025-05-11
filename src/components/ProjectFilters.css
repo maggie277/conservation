@@ -9,11 +9,11 @@
 
 .filters-container {
   background-color: rgba(255, 255, 255, 0.95);
-  padding: 20px;
+  padding: 10px;
   border-radius: 12px;
   margin-bottom: 30px;
   border: 1px solid var(--sand);
-  width: 100%;
+  width: 95%;
   max-width: 1200px;
   box-shadow: 0 4px 12px rgba(46, 139, 87, 0.1);
 }
@@ -85,6 +85,7 @@
 
 @media (max-width: 768px) {
   .filters-container {
+    width: 92%;
     padding: 15px;
   }
 
