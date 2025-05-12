@@ -10,15 +10,20 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+    
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/projects');
     } catch (err) {
       setError('Invalid login. Try again or reset password.');
+      setIsLoading(false);
     }
   };
 
@@ -30,11 +35,13 @@ const Login = () => {
         <form onSubmit={handleSubmit}>
           <TextField
             label="Email"
+            type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
             margin="normal"
             required
+            autoComplete="email"
           />
           <TextField
             label="Password"
@@ -44,18 +51,21 @@ const Login = () => {
             fullWidth
             margin="normal"
             required
+            autoComplete="current-password"
           />
           <Button 
             type="submit" 
             variant="contained"
             fullWidth
+            disabled={isLoading}
             style={{ 
               backgroundColor: 'var(--green)',
               padding: '12px',
-              marginTop: '20px'
+              marginTop: '20px',
+              color: 'white'
             }}
           >
-            Login
+            {isLoading ? 'Logging in...' : 'Login'}
           </Button>
           {error && <p className="error-message">{error}</p>}
           <p className="signup-link">
