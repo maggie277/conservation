@@ -13,6 +13,8 @@ import UploadProject from './components/UploadProject';
 import PrivateRoute from './components/PrivateRoute';
 import Onboarding from './components/Onboarding';
 import Home from './components/Home';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import Forum from './components/Forum';
 import About from './components/About';
 import './App.css';
@@ -40,6 +42,8 @@ function App() {
             <Route path="/payment/:projectId" element={<Payment />} />
             <Route path="/receipt/:projectId" element={<Receipt />} />
             <Route path="/help-center" element={<HelpCenter />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} /> 
             <Route path="/projects/upload-project" element={<UploadProject />} />
             <Route path="/about" element={<About />} />
           </Route>

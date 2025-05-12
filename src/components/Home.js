@@ -21,7 +21,7 @@ const Home = () => {
           className="home-button" 
           onClick={() => window.location.href='/login'}
         >
-          Support a Project
+          Login
         </button>
         <button
           className="home-button secondary"

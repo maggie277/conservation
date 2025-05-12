@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { auth } from '../firebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { Button, TextField } from '@mui/material';
+import { Button, TextField, Typography, Link, Box } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { styled } from '@mui/material/styles';
 import './Login.css';
 import loginBackground from '../pictures/signin.jpg';
 
@@ -22,16 +23,44 @@ const Login = () => {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/projects');
     } catch (err) {
-      setError('Invalid login. Try again or reset password.');
+      let errorMessage = 'Invalid login. Try again or reset password.';
+      
+      // More specific error messages
+      switch (err.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'Please enter a valid email address.';
+          break;
+        case 'auth/user-disabled':
+          errorMessage = 'This account has been disabled.';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'No account found with this email.';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Incorrect password. Please try again.';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Too many attempts. Please try again later.';
+          break;
+      }
+      
+      setError(errorMessage);
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="login-page">
+    <Box className="login-page">
       <img src={loginBackground} alt="Zambian farmland" className="background" />
-      <div className="form-container">
-        <h2>Welcome to TerraFund Zambia</h2>
+      <Box className="form-container">
+        <Typography variant="h4" component="h2" gutterBottom sx={{ 
+          color: 'var(--green)',
+          textAlign: 'center',
+          fontWeight: 600
+        }}>
+          Welcome to TerraFund Zambia
+        </Typography>
+        
         <form onSubmit={handleSubmit}>
           <TextField
             label="Email"
@@ -42,7 +71,9 @@ const Login = () => {
             margin="normal"
             required
             autoComplete="email"
+            sx={{ mb: 2 }}
           />
+          
           <TextField
             label="Password"
             type="password"
@@ -52,28 +83,79 @@ const Login = () => {
             margin="normal"
             required
             autoComplete="current-password"
+            sx={{ mb: 1 }}
           />
+          
+          <Box sx={{ textAlign: 'right', mb: 2 }}>
+            <Link 
+              href="/forgot-password" 
+              sx={{ 
+                color: 'var(--green)',
+                textDecoration: 'none',
+                fontSize: '0.875rem',
+                '&:hover': {
+                  textDecoration: 'underline',
+                }
+              }}
+            >
+              Forgot password?
+            </Link>
+          </Box>
+          
           <Button 
             type="submit" 
             variant="contained"
             fullWidth
             disabled={isLoading}
-            style={{ 
+            sx={{ 
               backgroundColor: 'var(--green)',
+              color: 'white',
               padding: '12px',
-              marginTop: '20px',
-              color: 'white'
+              marginTop: '10px',
+              '&:hover': {
+                backgroundColor: 'var(--green-dark)',
+              },
+              '&:disabled': {
+                backgroundColor: 'var(--green-light)',
+              }
             }}
           >
             {isLoading ? 'Logging in...' : 'Login'}
           </Button>
-          {error && <p className="error-message">{error}</p>}
-          <p className="signup-link">
-            New to TerraFund? <a href="/register">Join as a farmer</a>
-          </p>
+          
+          {error && (
+            <Typography color="error" sx={{ 
+              textAlign: 'center',
+              mt: 2,
+              fontSize: '0.875rem'
+            }}>
+              {error}
+            </Typography>
+          )}
+          
+          <Typography variant="body2" sx={{ 
+            textAlign: 'center',
+            mt: 3,
+            color: 'var(--gray)'
+          }}>
+            New to TerraFund?{' '}
+            <Link 
+              href="/register" 
+              sx={{ 
+                color: 'var(--green)',
+                textDecoration: 'none',
+                fontWeight: 600,
+                '&:hover': {
+                  textDecoration: 'underline',
+                }
+              }}
+            >
+              Join as a farmer
+            </Link>
+          </Typography>
         </form>
-      </div>
-    </div>
+      </Box>
+    </Box>
   );
 };
 
