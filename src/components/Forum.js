@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
 import { db, auth } from '../firebaseConfig';
 import { 
   collection,
@@ -9,7 +8,10 @@ import {
   addDoc,
   serverTimestamp,
   deleteDoc,
-  doc
+  doc,
+  updateDoc,
+  getDoc,
+  runTransaction
 } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import './Forum.css';
@@ -21,7 +23,11 @@ const Forum = () => {
     content: '',
     category: 'General'
   });
+  const [replyContents, setReplyContents] = useState({});
+  const [showReplies, setShowReplies] = useState({});
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
   const [user] = useAuthState(auth);
+  const forumContentRef = useRef(null);
   
   const categories = [
     'All',
@@ -42,15 +48,29 @@ const Forum = () => {
   useEffect(() => {
     const q = query(collection(db, 'forumPosts'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setPosts(snapshot.docs.map(doc => ({
+      const postsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate()
-      })));
+        createdAt: doc.data().createdAt?.toDate(),
+        replies: doc.data().replies?.map(reply => ({
+          ...reply,
+          createdAt: reply.createdAt?.toDate?.() || new Date() // Fallback to current date
+        })) || []
+      }));
+      setPosts(postsData);
+      
+      const initialStates = postsData.reduce((acc, post) => {
+        acc.replyContents[post.id] = '';
+        acc.showReplies[post.id] = false;
+        return acc;
+      }, { replyContents: {}, showReplies: {} });
+      
+      setReplyContents(initialStates.replyContents);
+      setShowReplies(initialStates.showReplies);
     });
-    return () => unsubscribe();
+    return unsubscribe;
   }, []);
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newPost.title.trim() || !newPost.content.trim()) return;
@@ -62,22 +82,101 @@ const Forum = () => {
         userId: user?.uid,
         createdAt: serverTimestamp(),
         likes: 0,
-        comments: 0
+        replies: []
       });
       setNewPost({ title: '', content: '', category: 'General' });
     } catch (error) {
-      console.error("Error adding post: ", error);
+      console.error("Error adding post:", error);
+      alert("Failed to create post. Please try again.");
     }
   };
-  
+
   const handleDelete = async (postId) => {
     if (!window.confirm("Delete this post permanently?")) return;
-    
     try {
       await deleteDoc(doc(db, 'forumPosts', postId));
     } catch (error) {
-      console.error("Error deleting post: ", error);
+      console.error("Error deleting post:", error);
+      alert("You don't have permission to delete this post.");
     }
+  };
+
+  const handleReplySubmit = async (postId) => {
+    const content = replyContents[postId]?.trim();
+    if (!content || !user) return;
+
+    setIsSubmittingReply(true);
+    const tempReplyId = Date.now().toString();
+
+    try {
+      const postRef = doc(db, 'forumPosts', postId);
+      
+      // Optimistic update with client-side timestamp
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { 
+              ...post, 
+              replies: [
+                ...post.replies, 
+                {
+                  id: tempReplyId,
+                  content,
+                  author: user.displayName || 'Anonymous',
+                  userId: user.uid,
+                  createdAt: new Date()
+                }
+              ]
+            }
+          : post
+      ));
+
+      // Transaction-based update for data consistency
+      await runTransaction(db, async (transaction) => {
+        const postDoc = await transaction.get(postRef);
+        if (!postDoc.exists()) {
+          throw new Error("Post does not exist");
+        }
+        
+        const currentReplies = postDoc.data().replies || [];
+        
+        transaction.update(postRef, {
+          replies: [...currentReplies, {
+            content,
+            author: user.displayName || 'Anonymous',
+            userId: user.uid
+          }],
+          lastUpdated: serverTimestamp() // Track update time separately
+        });
+      });
+
+      setReplyContents(prev => ({ ...prev, [postId]: '' }));
+      setShowReplies(prev => ({ ...prev, [postId]: true }));
+    } catch (error) {
+      console.error("Error adding reply:", error);
+      // Revert optimistic update
+      setPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { 
+              ...post, 
+              replies: post.replies.filter(reply => reply.id !== tempReplyId)
+            }
+          : post
+      ));
+      alert(`Failed to post reply: ${error.message}`);
+    } finally {
+      setIsSubmittingReply(false);
+    }
+  };
+
+  const handleReplyKeyDown = (e, postId) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleReplySubmit(postId);
+    }
+  };
+
+  const toggleReplies = (postId) => {
+    setShowReplies(prev => ({ ...prev, [postId]: !prev[postId] }));
   };
 
   const filteredPosts = selectedCategory === 'All' 
@@ -91,28 +190,18 @@ const Forum = () => {
         <p>Discuss sustainable farming practices with the community</p>
       </div>
 
-      <div className="forum-content">
-        {/* Sidebar */}
-        <div className="forum-sidebar">
-          <div className="sidebar-section">
-            <h3>Categories</h3>
-            <ul className="category-list">
-              {categories.map((cat) => (
-                <li 
-                  key={cat}
-                  className={selectedCategory === cat ? 'active' : ''}
-                  onClick={() => setSelectedCategory(cat)}
-                >
-                  {cat}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Main Content */}
+      <div className="forum-content" ref={forumContentRef}>
         <div className="forum-main">
-          {/* Posts List */}
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="category-selector"
+          >
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+          
           <div className="posts-container">
             {filteredPosts.length > 0 ? (
               filteredPosts.map((post) => (
@@ -125,6 +214,7 @@ const Forum = () => {
                     </span>
                   </div>
                   <p className="post-content">{post.content}</p>
+                  
                   <div className="post-actions">
                     {user?.uid === post.userId && (
                       <button 
@@ -134,9 +224,53 @@ const Forum = () => {
                         Delete
                       </button>
                     )}
-                    <Link to={`/forum/${post.id}`} className="view-btn">
-                      View Discussion
-                    </Link>
+                  </div>
+                  
+                  <div className="reply-section">
+                    <button 
+                      onClick={() => toggleReplies(post.id)}
+                      className="toggle-replies-btn"
+                    >
+                      {post.replies.length ? `${post.replies.length} replies` : 'No replies yet'}
+                    </button>
+                    
+                    {showReplies[post.id] && post.replies.length > 0 && (
+                      <div className="replies-list">
+                        {post.replies.map((reply) => (
+                          <div key={reply.id || reply.createdAt?.toString()} className="reply-item">
+                            <div className="reply-header">
+                              <span className="reply-author">{reply.author}</span>
+                              <span className="reply-time">
+                                {reply.createdAt?.toLocaleString() || 'Just now'}
+                              </span>
+                            </div>
+                            <div className="reply-content">{reply.content}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    
+                    {user && (
+                      <div className="reply-input-container">
+                        <textarea
+                          className="reply-input"
+                          placeholder="Write a reply..."
+                          value={replyContents[post.id] || ''}
+                          onChange={(e) => setReplyContents(prev => ({
+                            ...prev,
+                            [post.id]: e.target.value
+                          }))}
+                          onKeyDown={(e) => handleReplyKeyDown(e, post.id)}
+                        />
+                        <button 
+                          onClick={() => handleReplySubmit(post.id)}
+                          className="reply-btn"
+                          disabled={!replyContents[post.id]?.trim() || isSubmittingReply}
+                        >
+                          {isSubmittingReply ? 'Posting...' : 'Reply'}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
@@ -149,7 +283,6 @@ const Forum = () => {
         </div>
       </div>
 
-      {/* Fixed New Post Form at Bottom */}
       {user && (
         <div className="new-post-container">
           <form onSubmit={handleSubmit} className="post-form">
@@ -160,10 +293,12 @@ const Forum = () => {
                 value={newPost.title}
                 onChange={(e) => setNewPost({...newPost, title: e.target.value})}
                 required
+                maxLength={100}
               />
               <select
                 value={newPost.category}
                 onChange={(e) => setNewPost({...newPost, category: e.target.value})}
+                required
               >
                 {categories.slice(1).map((cat) => (
                   <option key={cat} value={cat}>{cat}</option>
@@ -176,9 +311,15 @@ const Forum = () => {
                 value={newPost.content}
                 onChange={(e) => setNewPost({...newPost, content: e.target.value})}
                 required
+                rows={3}
+                maxLength={2000}
               />
-              <button type="submit" className="submit-btn">
-                <i className="fas fa-paper-plane"></i>
+              <button 
+                type="submit" 
+                className="submit-btn"
+                disabled={!newPost.title.trim() || !newPost.content.trim()}
+              >
+                Post
               </button>
             </div>
           </form>

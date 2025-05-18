@@ -2,7 +2,17 @@ import { initializeApp } from 'firebase/app';
 import { 
   getFirestore, 
   doc, 
-  getDoc  // Add these imports
+  getDoc,
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  serverTimestamp,
+  deleteDoc,
+  updateDoc,
+  arrayUnion,
+  runTransaction
 } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
@@ -24,8 +34,26 @@ const storage = getStorage(app);
 
 // Utility function for user type validation
 const getUserType = async (uid) => {
-  const userDoc = await getDoc(doc(db, 'users', uid)); // Now these are defined
+  const userDoc = await getDoc(doc(db, 'users', uid));
   return userDoc.exists() ? userDoc.data().type : null;
 };
 
-export { db, auth, storage, getUserType, doc, getDoc }; // Export the new imports
+export { 
+  db, 
+  auth, 
+  storage, 
+  getUserType,
+  // Export all Firestore functions you need
+  doc, 
+  getDoc,
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  addDoc,
+  serverTimestamp,
+  deleteDoc,
+  updateDoc,
+  arrayUnion,
+  runTransaction
+};

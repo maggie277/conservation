@@ -11,7 +11,7 @@ const Register = () => {
   const [user, setUser] = useState({
     email: '',
     password: '',
-    type: 'general', // Default to general user
+    type: 'farmer', // Default to farmer
     organizationId: ''
   });
 
@@ -52,6 +52,10 @@ const Register = () => {
 
       // Add type-specific fields
       if (user.type === 'cooperative') {
+        if (!user.organizationId) {
+          setErrors(prev => ({ ...prev, organizationId: 'Cooperative ID is required' }));
+          return;
+        }
         userData.cooperative = {
           id: user.organizationId,
           verified: false
@@ -59,6 +63,10 @@ const Register = () => {
       } else if (user.type === 'donor') {
         userData.donor = {
           interests: []
+        };
+      } else if (user.type === 'farmer') {
+        userData.farmer = {
+          cooperativeId: null
         };
       }
 
@@ -118,7 +126,6 @@ const Register = () => {
               onChange={handleChange}
               row
             >
-              <FormControlLabel value="general" control={<Radio />} label="General User" />
               <FormControlLabel value="farmer" control={<Radio />} label="Farmer" />
               <FormControlLabel value="cooperative" control={<Radio />} label="Cooperative" />
               <FormControlLabel value="donor" control={<Radio />} label="Donor/Investor" />
@@ -131,9 +138,12 @@ const Register = () => {
               label="Cooperative ID"
               value={user.organizationId}
               onChange={handleChange}
+              error={!!errors.organizationId}
+              helperText={errors.organizationId}
               fullWidth
               margin="normal"
               placeholder="ZMAG123456"
+              required
             />
           )}
 
