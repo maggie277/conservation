@@ -9,25 +9,23 @@ import {
   serverTimestamp,
   deleteDoc,
   doc,
-  updateDoc,
-  getDoc,
-  runTransaction
+  where
 } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import './Forum.css';
 
 const Forum = () => {
   const [posts, setPosts] = useState([]);
+  const [replies, setReplies] = useState({}); // { postId: [replies] }
   const [newPost, setNewPost] = useState({
     title: '',
     content: '',
     category: 'General'
   });
-  const [replyContents, setReplyContents] = useState({});
+  const [newReply, setNewReply] = useState({});
   const [showReplies, setShowReplies] = useState({});
-  const [isSubmittingReply, setIsSubmittingReply] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [user] = useAuthState(auth);
-  const forumContentRef = useRef(null);
   
   const categories = [
     'All',
@@ -44,134 +42,115 @@ const Forum = () => {
   ];
   
   const [selectedCategory, setSelectedCategory] = useState('All');
-  
+
   useEffect(() => {
-    const q = query(collection(db, 'forumPosts'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    // Load posts
+    const postsQuery = query(collection(db, 'forumPosts'), orderBy('createdAt', 'desc'));
+    const unsubscribePosts = onSnapshot(postsQuery, (snapshot) => {
       const postsData = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        replies: doc.data().replies?.map(reply => ({
-          ...reply,
-          createdAt: reply.createdAt?.toDate?.() || new Date() // Fallback to current date
-        })) || []
+        createdAt: doc.data().createdAt?.toDate()
       }));
       setPosts(postsData);
-      
-      const initialStates = postsData.reduce((acc, post) => {
-        acc.replyContents[post.id] = '';
-        acc.showReplies[post.id] = false;
-        return acc;
-      }, { replyContents: {}, showReplies: {} });
-      
-      setReplyContents(initialStates.replyContents);
-      setShowReplies(initialStates.showReplies);
     });
-    return unsubscribe;
+
+    // Load replies
+    const repliesQuery = query(collection(db, 'forumReplies'), orderBy('createdAt', 'asc'));
+    const unsubscribeReplies = onSnapshot(repliesQuery, (snapshot) => {
+      const repliesData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate()
+      }));
+
+      // Group replies by postId
+      const repliesByPost = {};
+      repliesData.forEach(reply => {
+        if (!repliesByPost[reply.postId]) {
+          repliesByPost[reply.postId] = [];
+        }
+        repliesByPost[reply.postId].push(reply);
+      });
+      setReplies(repliesByPost);
+    });
+
+    return () => {
+      unsubscribePosts();
+      unsubscribeReplies();
+    };
   }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmitPost = async (e) => {
     e.preventDefault();
     if (!newPost.title.trim() || !newPost.content.trim()) return;
     
+    setIsSubmitting(true);
     try {
       await addDoc(collection(db, 'forumPosts'), {
         ...newPost,
         author: user?.displayName || 'Anonymous',
         userId: user?.uid,
         createdAt: serverTimestamp(),
-        likes: 0,
-        replies: []
+        likes: 0
       });
       setNewPost({ title: '', content: '', category: 'General' });
     } catch (error) {
       console.error("Error adding post:", error);
       alert("Failed to create post. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDelete = async (postId) => {
-    if (!window.confirm("Delete this post permanently?")) return;
+  const handleSubmitReply = async (postId) => {
+    const content = newReply[postId]?.trim();
+    if (!content || !user) return;
+
+    setIsSubmitting(true);
     try {
-      await deleteDoc(doc(db, 'forumPosts', postId));
+      await addDoc(collection(db, 'forumReplies'), {
+        postId,
+        content,
+        author: user.displayName || 'Anonymous',
+        userId: user.uid,
+        createdAt: serverTimestamp()
+      });
+      setNewReply(prev => ({ ...prev, [postId]: '' }));
+    } catch (error) {
+      console.error("Error adding reply:", error);
+      alert("Failed to post reply. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm("Delete this post and all its replies?")) return;
+    try {
+      // First delete all replies
+      const postReplies = replies[postId] || [];
+      const deletePromises = postReplies.map(reply => 
+        deleteDoc(doc(db, 'forumReplies', reply.id))
+      );
+      
+      await Promise.all([
+        ...deletePromises,
+        deleteDoc(doc(db, 'forumPosts', postId))
+      ]);
     } catch (error) {
       console.error("Error deleting post:", error);
       alert("You don't have permission to delete this post.");
     }
   };
 
-  const handleReplySubmit = async (postId) => {
-    const content = replyContents[postId]?.trim();
-    if (!content || !user) return;
-
-    setIsSubmittingReply(true);
-    const tempReplyId = Date.now().toString();
-
+  const handleDeleteReply = async (replyId) => {
+    if (!window.confirm("Delete this reply?")) return;
     try {
-      const postRef = doc(db, 'forumPosts', postId);
-      
-      // Optimistic update with client-side timestamp
-      setPosts(prev => prev.map(post => 
-        post.id === postId 
-          ? { 
-              ...post, 
-              replies: [
-                ...post.replies, 
-                {
-                  id: tempReplyId,
-                  content,
-                  author: user.displayName || 'Anonymous',
-                  userId: user.uid,
-                  createdAt: new Date()
-                }
-              ]
-            }
-          : post
-      ));
-
-      // Transaction-based update for data consistency
-      await runTransaction(db, async (transaction) => {
-        const postDoc = await transaction.get(postRef);
-        if (!postDoc.exists()) {
-          throw new Error("Post does not exist");
-        }
-        
-        const currentReplies = postDoc.data().replies || [];
-        
-        transaction.update(postRef, {
-          replies: [...currentReplies, {
-            content,
-            author: user.displayName || 'Anonymous',
-            userId: user.uid
-          }],
-          lastUpdated: serverTimestamp() // Track update time separately
-        });
-      });
-
-      setReplyContents(prev => ({ ...prev, [postId]: '' }));
-      setShowReplies(prev => ({ ...prev, [postId]: true }));
+      await deleteDoc(doc(db, 'forumReplies', replyId));
     } catch (error) {
-      console.error("Error adding reply:", error);
-      // Revert optimistic update
-      setPosts(prev => prev.map(post => 
-        post.id === postId 
-          ? { 
-              ...post, 
-              replies: post.replies.filter(reply => reply.id !== tempReplyId)
-            }
-          : post
-      ));
-      alert(`Failed to post reply: ${error.message}`);
-    } finally {
-      setIsSubmittingReply(false);
-    }
-  };
-
-  const handleReplyKeyDown = (e, postId) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleReplySubmit(postId);
+      console.error("Error deleting reply:", error);
+      alert("You don't have permission to delete this reply.");
     }
   };
 
@@ -190,7 +169,7 @@ const Forum = () => {
         <p>Discuss sustainable farming practices with the community</p>
       </div>
 
-      <div className="forum-content" ref={forumContentRef}>
+      <div className="forum-content">
         <div className="forum-main">
           <select
             value={selectedCategory}
@@ -218,10 +197,10 @@ const Forum = () => {
                   <div className="post-actions">
                     {user?.uid === post.userId && (
                       <button 
-                        onClick={() => handleDelete(post.id)}
+                        onClick={() => handleDeletePost(post.id)}
                         className="delete-btn"
                       >
-                        Delete
+                        Delete Post
                       </button>
                     )}
                   </div>
@@ -231,44 +210,54 @@ const Forum = () => {
                       onClick={() => toggleReplies(post.id)}
                       className="toggle-replies-btn"
                     >
-                      {post.replies.length ? `${post.replies.length} replies` : 'No replies yet'}
+                      {(replies[post.id]?.length || 0)} replies
+                      {showReplies[post.id] ? ' ▲' : ' ▼'}
                     </button>
                     
-                    {showReplies[post.id] && post.replies.length > 0 && (
-                      <div className="replies-list">
-                        {post.replies.map((reply) => (
-                          <div key={reply.id || reply.createdAt?.toString()} className="reply-item">
-                            <div className="reply-header">
-                              <span className="reply-author">{reply.author}</span>
-                              <span className="reply-time">
-                                {reply.createdAt?.toLocaleString() || 'Just now'}
-                              </span>
-                            </div>
-                            <div className="reply-content">{reply.content}</div>
+                    {showReplies[post.id] && (
+                      <div className="replies-container">
+                        {user && (
+                          <div className="reply-input-container">
+                            <textarea
+                              className="reply-input"
+                              placeholder="Write a reply..."
+                              value={newReply[post.id] || ''}
+                              onChange={(e) => setNewReply(prev => ({
+                                ...prev,
+                                [post.id]: e.target.value
+                              }))}
+                            />
+                            <button 
+                              onClick={() => handleSubmitReply(post.id)}
+                              className="reply-btn"
+                              disabled={!newReply[post.id]?.trim() || isSubmitting}
+                            >
+                              {isSubmitting ? 'Posting...' : 'Reply'}
+                            </button>
                           </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {user && (
-                      <div className="reply-input-container">
-                        <textarea
-                          className="reply-input"
-                          placeholder="Write a reply..."
-                          value={replyContents[post.id] || ''}
-                          onChange={(e) => setReplyContents(prev => ({
-                            ...prev,
-                            [post.id]: e.target.value
-                          }))}
-                          onKeyDown={(e) => handleReplyKeyDown(e, post.id)}
-                        />
-                        <button 
-                          onClick={() => handleReplySubmit(post.id)}
-                          className="reply-btn"
-                          disabled={!replyContents[post.id]?.trim() || isSubmittingReply}
-                        >
-                          {isSubmittingReply ? 'Posting...' : 'Reply'}
-                        </button>
+                        )}
+                        
+                        <div className="replies-list">
+                          {replies[post.id]?.map((reply) => (
+                            <div key={reply.id} className="reply-item">
+                              <div className="reply-header">
+                                <span className="reply-author">{reply.author}</span>
+                                <span className="reply-time">
+                                  {reply.createdAt?.toLocaleString()}
+                                </span>
+                                {user?.uid === reply.userId && (
+                                  <button 
+                                    onClick={() => handleDeleteReply(reply.id)}
+                                    className="delete-reply-btn"
+                                  >
+                                    Delete
+                                  </button>
+                                )}
+                              </div>
+                              <div className="reply-content">{reply.content}</div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -285,7 +274,7 @@ const Forum = () => {
 
       {user && (
         <div className="new-post-container">
-          <form onSubmit={handleSubmit} className="post-form">
+          <form onSubmit={handleSubmitPost} className="post-form">
             <div className="form-row">
               <input
                 type="text"
@@ -317,9 +306,9 @@ const Forum = () => {
               <button 
                 type="submit" 
                 className="submit-btn"
-                disabled={!newPost.title.trim() || !newPost.content.trim()}
+                disabled={!newPost.title.trim() || !newPost.content.trim() || isSubmitting}
               >
-                Post
+                {isSubmitting ? 'Posting...' : 'Post'}
               </button>
             </div>
           </form>
