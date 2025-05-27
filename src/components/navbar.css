@@ -146,6 +146,20 @@
     background-color: var(--green-hover);
     border-bottom: none;
   }
+  .nav-links.active {
+  background-color: var(--green-dark);
+  border-bottom: 4px solid var(--sand);
+  font-weight: bold;
+}
+
+/* For mobile dropdown, override if needed */
+@media screen and (max-width: 960px) {
+  .nav-links.active {
+    background-color: var(--green-dark);
+    border-bottom: none;
+    font-weight: bold;
+  }
+}
 
   .menu-icon {
     display: block;

@@ -7,83 +7,32 @@
   --black: #333333;
 }
 
-.onboarding-dialog .MuiDialog-paper {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  margin: 0;
-  max-width: 400px;
-  background-color: var(--white);
-  color: var(--black);
-  border-radius: 12px;
-  border: 1px solid var(--sand);
-  box-shadow: 0 8px 24px rgba(46, 139, 87, 0.2);
+.onboarding-highlight-box {
+  border: 3px solid var(--green);
+  border-radius: 8px;
+  z-index: 1400;
+  pointer-events: none;
+  animation: pulse 1.5s infinite;
+  box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
 }
 
-.onboarding-content {
-  padding: 25px !important;
-}
-
-.onboarding-title {
-  color: var(--green-dark);
-  font-weight: 600 !important;
-  margin-bottom: 15px !important;
-}
-
-.onboarding-text {
-  color: var(--black);
-  margin-bottom: 25px !important;
-  line-height: 1.6 !important;
-}
-
-.onboarding-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.onboarding-back-button {
-  color: var(--green-dark) !important;
-  border-color: var(--green-dark) !important;
-}
-
-.onboarding-next-button {
-  background-color: var(--green) !important;
-  color: var(--white) !important;
-}
-
-.onboarding-next-button:hover {
-  background-color: var(--green-dark) !important;
-}
-
-.onboarding-progress {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 25px;
-}
-
-.progress-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: var(--sand);
-  transition: all 0.3s ease;
-}
-
-.progress-dot.active {
-  background-color: var(--green);
-  transform: scale(1.2);
-}
-
-@media (max-width: 480px) {
-  .onboarding-dialog .MuiDialog-paper {
-    max-width: 90%;
-    bottom: 10px;
-    right: 10px;
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(46, 139, 87, 0.4);
   }
-  
-  .onboarding-title {
-    font-size: 1.2rem !important;
+  70% {
+    box-shadow: 0 0 0 10px rgba(46, 139, 87, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(46, 139, 87, 0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
   }
 }

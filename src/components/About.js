@@ -1,6 +1,6 @@
 import React from 'react';
 import './About.css';
-import aboutImage from '../pictures/about.jpg'; // Zambian farm/community image
+import aboutImage from '../pictures/about.jpg'; 
 import { Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
