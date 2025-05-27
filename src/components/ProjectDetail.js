@@ -2,11 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
 import { useParams, useNavigate } from 'react-router-dom';
 import { doc, onSnapshot, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
-import { Button, CircularProgress, Box, Typography, Avatar } from '@mui/material';
+import { Button, CircularProgress, Box, Typography, Avatar, Chip } from '@mui/material';
 import DescriptionIcon from '@mui/icons-material/Description';
 import PersonIcon from '@mui/icons-material/Person';
 import BusinessIcon from '@mui/icons-material/Business';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
+import NatureIcon from '@mui/icons-material/Nature';
+import GrassIcon from '@mui/icons-material/Grass'; // Alternative to EcoIcon
 import './ProjectDetail.css';
+
+// Define sustainable categories constant
+const SUSTAINABLE_CATEGORIES = [
+  'Sustainable Agriculture',
+  'Land Conservation',
+  'Conservation Farming',
+  'Regenerative Agriculture'
+];
 
 const ProjectDetail = () => {
   const { projectId } = useParams();
@@ -59,7 +70,9 @@ const ProjectDetail = () => {
           ...projectSnap.data(),
           id: projectSnap.id,
           fundingGoal: projectSnap.data().fundingGoal || projectSnap.data().goal || '0',
-          createdAt: projectSnap.data().createdAt || new Date()
+          createdAt: projectSnap.data().createdAt?.toDate() || new Date(),
+          sustainabilityMetrics: projectSnap.data().sustainabilityMetrics || null,
+          conservationPractices: projectSnap.data().conservationPractices || []
         };
         setProject(projectData);
 
@@ -81,7 +94,9 @@ const ProjectDetail = () => {
           ...doc.data(),
           id: doc.id,
           fundingGoal: doc.data().fundingGoal || doc.data().goal || '0',
-          createdAt: doc.data().createdAt || new Date()
+          createdAt: doc.data().createdAt?.toDate() || new Date(),
+          sustainabilityMetrics: doc.data().sustainabilityMetrics || null,
+          conservationPractices: doc.data().conservationPractices || []
         });
       }
     });
@@ -176,7 +191,7 @@ const ProjectDetail = () => {
             <strong>Funding Goal:</strong> ZMW {project.fundingGoal}
           </Typography>
           <Typography variant="body2" className="project-date">
-            <strong>Posted on:</strong> {project.createdAt.toDate().toLocaleDateString()}
+            <strong>Posted on:</strong> {project.createdAt.toLocaleDateString()}
           </Typography>
         </div>
 
@@ -201,6 +216,60 @@ const ProjectDetail = () => {
             {project.description}
           </Typography>
         </div>
+
+        {/* Sustainability Metrics Section */}
+        {SUSTAINABLE_CATEGORIES.includes(project.category) && project.sustainabilityMetrics && (
+          <div className="sustainability-section">
+            <Typography variant="h6">Sustainability Impact</Typography>
+            <div className="metrics-grid">
+              {project.sustainabilityMetrics.waterSaved && (
+                <div className="metric-item">
+                  <WaterDropIcon className="metric-icon" />
+                  <div className="metric-text">
+                    <Typography variant="subtitle2" className="metric-label">Water Saved</Typography>
+                    <Typography variant="body2" className="metric-value">{project.sustainabilityMetrics.waterSaved}</Typography>
+                  </div>
+                </div>
+              )}
+              {project.sustainabilityMetrics.carbonSequestration && (
+                <div className="metric-item">
+                  <NatureIcon className="metric-icon" />
+                  <div className="metric-text">
+                    <Typography variant="subtitle2" className="metric-label">Carbon Sequestered</Typography>
+                    <Typography variant="body2" className="metric-value">{project.sustainabilityMetrics.carbonSequestration}</Typography>
+                  </div>
+                </div>
+              )}
+              {project.sustainabilityMetrics.biodiversityImpact && (
+                <div className="metric-item">
+                  <GrassIcon className="metric-icon" />
+                  <div className="metric-text">
+                    <Typography variant="subtitle2" className="metric-label">Biodiversity Impact</Typography>
+                    <Typography variant="body2" className="metric-value">{project.sustainabilityMetrics.biodiversityImpact}</Typography>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Conservation Practices Section */}
+        {project.conservationPractices && project.conservationPractices.length > 0 && (
+          <div className="practices-section">
+            <Typography variant="h6">Conservation Practices</Typography>
+            <div className="practices-list">
+              {project.conservationPractices.map((practice, index) => (
+                <Chip 
+                  key={index}
+                  label={practice}
+                  className="practice-chip"
+                  variant="outlined"
+                  color="primary"
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {project.tags && project.tags.length > 0 && (
           <div className="project-tags-container">

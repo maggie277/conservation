@@ -10,8 +10,10 @@ import {
   Checkbox, 
   FormControlLabel, 
   Alert,
-  InputAdornment
+  InputAdornment,
+  Tooltip
 } from '@mui/material';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import './UploadProject.css';
 
 const CATEGORIES = [
@@ -20,6 +22,13 @@ const CATEGORIES = [
   'Agroforestry',
   'Water Conservation',
   'Soil Restoration',
+  'Sustainable Agriculture',
+  'Land Conservation',
+  'Conservation Farming',
+  'Regenerative Agriculture'
+];
+
+const SUSTAINABLE_CATEGORIES = [
   'Sustainable Agriculture',
   'Land Conservation',
   'Conservation Farming',
@@ -248,6 +257,14 @@ const UploadProject = () => {
       return;
     }
 
+    if (SUSTAINABLE_CATEGORIES.includes(project.category)) {
+      if (!project.sustainabilityMetrics.waterSaved || 
+          !project.sustainabilityMetrics.carbonSequestration) {
+        setError('Please fill all required sustainability metrics');
+        return;
+      }
+    }
+
     try {
       const user = auth.currentUser;
       if (!user) {
@@ -346,13 +363,13 @@ const UploadProject = () => {
           
           <TextField
             name="goal"
-            label="Funding Goal"
+            label="Funding Goal (ZMW)"
             type="number"
-            value={project.goal.replace('ZMW', '')}
+            value={project.goal}
             onChange={(e) => {
               const value = e.target.value;
               if (/^\d*$/.test(value)) {
-                setProject(prev => ({ ...prev, goal: `ZMW${value}` }));
+                setProject(prev => ({ ...prev, goal: value }));
               }
             }}
             required
@@ -398,52 +415,71 @@ const UploadProject = () => {
             </div>
           </div>
 
-          {(project.category === 'Sustainable Agriculture' || 
-            project.category === 'Land Conservation' ||
-            project.category === 'Conservation Farming' ||
-            project.category === 'Regenerative Agriculture') && (
+          {SUSTAINABLE_CATEGORIES.includes(project.category) && (
             <>
               <div className="form-section">
                 <h4>Sustainability Metrics</h4>
-                <TextField
-                  name="waterSaved"
-                  label="Estimated Water Saved/Year"
-                  value={project.sustainabilityMetrics.waterSaved}
-                  onChange={handleSustainabilityChange}
-                  fullWidth
-                  className="project-input"
-                  placeholder="e.g. 5000 liters/year"
-                />
-                <TextField
-                  name="carbonSequestration"
-                  label="Estimated Carbon Sequestration"
-                  value={project.sustainabilityMetrics.carbonSequestration}
-                  onChange={handleSustainabilityChange}
-                  fullWidth
-                  className="project-input"
-                  placeholder="e.g. 2 tons CO2/year"
-                />
-                <TextField
-                  name="biodiversityImpact"
-                  label="Biodiversity Impact"
-                  value={project.sustainabilityMetrics.biodiversityImpact}
-                  onChange={handleSustainabilityChange}
-                  fullWidth
-                  className="project-input"
-                  placeholder="e.g. Increased pollinator presence"
-                />
+                <div className="metrics-grid">
+                  <TextField
+                    name="waterSaved"
+                    label="Estimated Water Saved (liters/year)"
+                    value={project.sustainabilityMetrics.waterSaved}
+                    onChange={handleSustainabilityChange}
+                    fullWidth
+                    required
+                    className="project-input"
+                    placeholder="e.g. 5000"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Tooltip title="Estimate annual water savings compared to conventional methods">
+                            <HelpOutlineIcon color="action" />
+                          </Tooltip>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    name="carbonSequestration"
+                    label="Estimated Carbon Sequestration (tons CO2/year)"
+                    value={project.sustainabilityMetrics.carbonSequestration}
+                    onChange={handleSustainabilityChange}
+                    fullWidth
+                    required
+                    className="project-input"
+                    placeholder="e.g. 2"
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Tooltip title="Estimate annual carbon sequestration potential">
+                            <HelpOutlineIcon color="action" />
+                          </Tooltip>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  <TextField
+                    name="biodiversityImpact"
+                    label="Biodiversity Impact"
+                    value={project.sustainabilityMetrics.biodiversityImpact}
+                    onChange={handleSustainabilityChange}
+                    fullWidth
+                    className="project-input"
+                    placeholder="e.g. Increased pollinator presence"
+                  />
+                </div>
               </div>
 
               <div className="form-section">
                 <h4>Land Size (Optional)</h4>
                 <TextField
                   name="landSize"
-                  label="Total Land Area"
+                  label="Total Land Area (hectares)"
                   value={project.landSize}
                   onChange={handleChange}
                   fullWidth
                   className="project-input"
-                  placeholder="e.g. 5 hectares"
+                  placeholder="e.g. 5"
                 />
               </div>
 
