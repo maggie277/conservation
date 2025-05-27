@@ -43,7 +43,8 @@ const Onboarding = () => {
     },
     {
       title: "Ready to Grow!",
-      content: "You're all set to contribute to Zambia's sustainable agriculture!"
+      content: "You're all set to contribute to Zambia's sustainable agriculture!",
+      isFinalStep: true
     }
   ];
 
@@ -52,6 +53,7 @@ const Onboarding = () => {
   const [userId, setUserId] = useState(null);
   const [highlightStyle, setHighlightStyle] = useState({});
   const [isMobileView, setIsMobileView] = useState(window.innerWidth <= 768);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
@@ -104,7 +106,8 @@ const Onboarding = () => {
         zIndex: 1400,
         pointerEvents: 'none',
         animation: 'pulse 1.5s infinite',
-        boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)'
+        boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
+        transition: 'all 0.3s ease-out'
       });
     } else {
       setHighlightStyle({ display: 'none' });
@@ -112,6 +115,9 @@ const Onboarding = () => {
   }, [currentStep, open, isMobileView]);
 
   const handleNext = async () => {
+    if (isAnimating) return;
+    
+    setIsAnimating(true);
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -120,52 +126,120 @@ const Onboarding = () => {
       });
       setOpen(false);
     }
+    setTimeout(() => setIsAnimating(false), 300);
   };
 
   const handleBack = () => {
-    if (currentStep > 0) setCurrentStep(currentStep - 1);
+    if (isAnimating || currentStep === 0) return;
+    
+    setIsAnimating(true);
+    setCurrentStep(currentStep - 1);
+    setTimeout(() => setIsAnimating(false), 300);
   };
 
   return (
     <>
       <div style={highlightStyle} className="onboarding-highlight-box" />
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogContent className="onboarding-content">
-          <Box display="flex" alignItems="center">
-            <Typography variant="h6" style={{ flexGrow: 1 }}>
+      <Dialog 
+        open={open} 
+        onClose={() => setOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: '12px',
+            overflow: 'hidden',
+            transform: isAnimating ? 'scale(0.98)' : 'scale(1)',
+            transition: 'transform 0.3s ease'
+          }
+        }}
+      >
+        <DialogContent className={`onboarding-content ${isAnimating ? 'content-shake' : ''}`}>
+          <Box display="flex" alignItems="center" mb={2}>
+            <Typography variant="h6" style={{ flexGrow: 1, fontWeight: 600 }}>
               {steps[currentStep].title}
             </Typography>
             {steps[currentStep].showHelpIcon && (
-              <IconButton sx={{ color: 'var(--green)', animation: 'bounce 2s infinite' }}>
+              <IconButton 
+                sx={{ 
+                  color: 'var(--green)', 
+                  animation: 'bounce 2s infinite',
+                  '&:hover': {
+                    transform: 'scale(1.1)',
+                    transition: 'transform 0.2s'
+                  }
+                }}
+              >
                 <HelpOutlineIcon fontSize="large" />
               </IconButton>
             )}
           </Box>
 
-          <Typography variant="body1" sx={{ marginBottom: '10px' }}>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              marginBottom: '10px',
+              opacity: isAnimating ? 0.7 : 1,
+              transition: 'opacity 0.3s'
+            }}
+          >
             {steps[currentStep].content}
           </Typography>
 
           {steps[currentStep].helpText && (
-            <Box sx={{
-              backgroundColor: 'rgba(46, 139, 87, 0.1)',
-              padding: '12px',
-              borderLeft: '4px solid var(--green)',
-              borderRadius: '6px',
-              marginBottom: '15px'
-            }}>
+            <Box 
+              sx={{
+                backgroundColor: 'rgba(46, 139, 87, 0.1)',
+                padding: '12px',
+                borderLeft: '4px solid var(--green)',
+                borderRadius: '6px',
+                marginBottom: '15px',
+                transform: isAnimating ? 'translateX(5px)' : 'translateX(0)',
+                transition: 'transform 0.3s, background-color 0.2s',
+                '&:hover': {
+                  backgroundColor: 'rgba(46, 139, 87, 0.15)'
+                }
+              }}
+            >
               <Typography variant="body2">
                 👉 <strong>Where to click:</strong> {steps[currentStep].helpText}
               </Typography>
             </Box>
           )}
 
-          <Box display="flex" justifyContent="space-between" mt={2}>
-            <Button onClick={handleBack} disabled={currentStep === 0} variant="outlined">
+          <Box display="flex" justifyContent="space-between" mt={3}>
+            <Button 
+              onClick={handleBack} 
+              disabled={currentStep === 0} 
+              variant="outlined"
+              sx={{
+                minWidth: '100px',
+                '&:hover': {
+                  backgroundColor: 'rgba(46, 139, 87, 0.08)',
+                  transform: currentStep !== 0 ? 'translateX(-3px)' : 'none',
+                },
+                transition: 'all 0.2s',
+                borderColor: 'var(--green)',
+                color: 'var(--green)'
+              }}
+            >
               Back
             </Button>
-            <Button onClick={handleNext} variant="contained" style={{ backgroundColor: 'var(--green)' }}>
-              {currentStep === steps.length - 1 ? "Finish" : "Next"}
+            <Button 
+              onClick={handleNext} 
+              variant="contained" 
+              sx={{ 
+                backgroundColor: 'var(--green)',
+                minWidth: '100px',
+                '&:hover': {
+                  backgroundColor: 'var(--green-dark)',
+                  transform: steps[currentStep].isFinalStep ? 'scale(1.05)' : 'translateX(3px)',
+                  boxShadow: steps[currentStep].isFinalStep ? '0 4px 8px rgba(46, 139, 87, 0.3)' : 'none'
+                },
+                transition: 'all 0.2s',
+                fontWeight: steps[currentStep].isFinalStep ? 600 : 'normal',
+                fontSize: steps[currentStep].isFinalStep ? '1rem' : '0.875rem'
+              }}
+            >
+              {currentStep === steps.length - 1 ? "Let's Get Started!" : "Next"}
             </Button>
           </Box>
 
@@ -174,11 +248,20 @@ const Onboarding = () => {
               <div
                 key={i}
                 style={{
-                  width: '10px',
-                  height: '10px',
+                  width: i === currentStep ? '12px' : '10px',
+                  height: i === currentStep ? '12px' : '10px',
                   borderRadius: '50%',
                   backgroundColor: i === currentStep ? 'var(--green)' : '#ccc',
-                  transition: 'all 0.3s'
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer',
+                  opacity: i === currentStep ? 1 : 0.7
+                }}
+                onClick={() => {
+                  if (!isAnimating) {
+                    setIsAnimating(true);
+                    setCurrentStep(i);
+                    setTimeout(() => setIsAnimating(false), 300);
+                  }
                 }}
               />
             ))}
