@@ -7,7 +7,8 @@ import {
   query,
   where,
   getDocs,
-  deleteDoc
+  deleteDoc,
+  orderBy
 } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -20,7 +21,15 @@ import {
   Tab,
   Box,
   CircularProgress,
-  Alert
+  Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Chip
 } from '@mui/material';
 import ProjectCard from "../components/ProjectCard";
 import "./Profile.css";
@@ -44,12 +53,16 @@ const Profile = () => {
   });
   const [errors, setErrors] = useState({});
   const [editingProject, setEditingProject] = useState(null);
+  const [donations, setDonations] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user);
         await fetchUserData(user.uid);
+        if (['farmer', 'cooperative', 'donor'].includes(userData?.type)) {
+          await fetchUserDonations(user.uid);
+        }
       } else {
         setCurrentUser(null);
         setUserData(null);
@@ -57,7 +70,7 @@ const Profile = () => {
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [userData?.type]);
 
   const fetchUserData = async (uid) => {
     try {
@@ -95,6 +108,29 @@ const Profile = () => {
       setProjects(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     } catch (error) {
       console.error("Error fetching projects:", error);
+    }
+  };
+
+  const fetchUserDonations = async (uid) => {
+    try {
+      const donationsQuery = query(
+        collection(db, 'donations'),
+        where('donorId', '==', uid),
+        orderBy('donationDate', 'desc')
+      );
+      const snapshot = await getDocs(donationsQuery);
+      const donationsData = await Promise.all(snapshot.docs.map(async doc => {
+        const donation = doc.data();
+        const projectDoc = await getDoc(doc(db, 'projects', donation.projectId));
+        return {
+          id: doc.id,
+          ...donation,
+          projectName: projectDoc.exists() ? projectDoc.data().title : 'Project not found'
+        };
+      }));
+      setDonations(donationsData);
+    } catch (error) {
+      console.error("Error fetching donations:", error);
     }
   };
 
@@ -226,6 +262,23 @@ const Profile = () => {
             <Typography>
               <strong>Address:</strong> {userData.cooperativeAddress || 'Not specified'}
             </Typography>
+            <div style={{ marginTop: '20px' }}>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                href="/projects"
+                style={{ marginRight: '10px' }}
+              >
+                Browse Projects
+              </Button>
+              <Button 
+                variant="contained" 
+                color="secondary" 
+                href="/projects/upload-project"
+              >
+                Create Project
+              </Button>
+            </div>
           </div>
         );
       case 'donor':
@@ -235,6 +288,15 @@ const Profile = () => {
             <Typography>
               Thank you for supporting Zambian agriculture!
             </Typography>
+            <div style={{ marginTop: '20px' }}>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                href="/projects"
+              >
+                Browse Projects to Donate
+              </Button>
+            </div>
           </div>
         );
       default:
@@ -247,6 +309,51 @@ const Profile = () => {
           </div>
         );
     }
+  };
+
+  const renderDonationsTable = () => {
+    if (donations.length === 0) {
+      return (
+        <Typography variant="body1" style={{ margin: '20px 0' }}>
+          You haven't made any donations yet.
+        </Typography>
+      );
+    }
+
+    return (
+      <TableContainer component={Paper} style={{ marginTop: '20px' }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell><strong>Project</strong></TableCell>
+              <TableCell><strong>Amount (ZMW)</strong></TableCell>
+              <TableCell><strong>Date</strong></TableCell>
+              <TableCell><strong>Status</strong></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {donations.map((donation) => (
+              <TableRow key={donation.id}>
+                <TableCell>{donation.projectName}</TableCell>
+                <TableCell>{donation.amount.toLocaleString()}</TableCell>
+                <TableCell>
+                  {new Date(donation.donationDate).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <Chip 
+                    label={donation.status || 'Received'} 
+                    color={
+                      donation.status === 'Completed' ? 'success' : 
+                      donation.status === 'Pending' ? 'warning' : 'primary'
+                    } 
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
   };
 
   if (loading) {
@@ -440,10 +547,15 @@ const Profile = () => {
               onChange={(e, newValue) => setActiveTab(newValue)}
               indicatorColor="primary"
               textColor="primary"
+              variant="scrollable"
+              scrollButtons="auto"
             >
               <Tab label="Profile" />
-              {['farmer', 'cooperative'].includes(userData.type) && (
+              {['farmer', 'cooperative'].includes(userData?.type) && (
                 <Tab label="My Projects" disabled={!isProfileComplete()} />
+              )}
+              {['donor', 'cooperative'].includes(userData?.type) && (
+                <Tab label="My Donations" />
               )}
             </Tabs>
             
@@ -496,7 +608,7 @@ const Profile = () => {
                     </Button>
                   </div>
                 </>
-              ) : (
+              ) : activeTab === 1 && ['farmer', 'cooperative'].includes(userData?.type) ? (
                 <div className="projects-section">
                   <Typography variant="h5" style={{ color: 'var(--green-dark)', marginBottom: 20 }}>
                     My Agricultural Projects
@@ -537,6 +649,13 @@ const Profile = () => {
                       )}
                     </div>
                   )}
+                </div>
+              ) : (
+                <div className="donations-section">
+                  <Typography variant="h5" style={{ color: 'var(--green-dark)' }}>
+                    My Donations
+                  </Typography>
+                  {renderDonationsTable()}
                 </div>
               )}
             </Box>
