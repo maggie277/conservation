@@ -671,6 +671,7 @@ const Profile = () => {
                           key={project.id}
                           project={project}
                           isProfileView={true}
+                          currentUserId={currentUser.uid}
                           handleDeleteProject={handleDeleteProject}
                           handleEditProject={handleEditProject}
                           isEditing={editingProject?.id === project.id}

@@ -11,7 +11,10 @@ import {
   Box,
   Divider,
   IconButton,
-  Tooltip
+  Tooltip,
+  Snackbar,
+  Alert,
+  CircularProgress
 } from '@mui/material';
 import { 
   doc, 
@@ -19,8 +22,8 @@ import {
   collection, 
   addDoc, 
   onSnapshot,
-  deleteDoc,
-  getDocs
+  serverTimestamp,
+  getDoc
 } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import EditIcon from '@mui/icons-material/Edit';
@@ -43,6 +46,12 @@ const ProjectCard = ({
   const [updates, setUpdates] = useState([]);
   const [newUpdate, setNewUpdate] = useState('');
   const [showUpdates, setShowUpdates] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+  const [isPostingUpdate, setIsPostingUpdate] = useState(false);
 
   // Fetch updates in real-time
   useEffect(() => {
@@ -62,20 +71,49 @@ const ProjectCard = ({
   }, [project.id]);
 
   const handleAddUpdate = async () => {
-    if (!newUpdate.trim()) return;
+    if (!newUpdate.trim()) {
+      setSnackbar({
+        open: true,
+        message: 'Update text cannot be empty',
+        severity: 'error'
+      });
+      return;
+    }
+    
+    setIsPostingUpdate(true);
     
     try {
+      // Verify the user is still the owner of the project
+      const projectDoc = await getDoc(doc(db, 'projects', project.id));
+      if (!projectDoc.exists() || projectDoc.data().userId !== currentUserId) {
+        throw new Error('You are no longer the owner of this project');
+      }
+
       const update = {
         text: newUpdate,
-        createdAt: new Date(),
-        userId: currentUserId
+        createdAt: serverTimestamp(),
+        userId: currentUserId,
+        userName: projectDoc.data().userName || 'Anonymous'
       };
       
       const updatesRef = collection(db, 'projects', project.id, 'updates');
       await addDoc(updatesRef, update);
+      
       setNewUpdate('');
+      setSnackbar({
+        open: true,
+        message: 'Update posted successfully',
+        severity: 'success'
+      });
     } catch (error) {
       console.error("Error adding update:", error);
+      setSnackbar({
+        open: true,
+        message: error.message || 'Failed to post update',
+        severity: 'error'
+      });
+    } finally {
+      setIsPostingUpdate(false);
     }
   };
 
@@ -83,12 +121,22 @@ const ProjectCard = ({
     try {
       await updateDoc(doc(db, 'projects', project.id), {
         ...editedProject,
-        updatedAt: new Date()
+        updatedAt: serverTimestamp()
       });
       setIsEditing(false);
       onUpdate();
+      setSnackbar({
+        open: true,
+        message: 'Project updated successfully',
+        severity: 'success'
+      });
     } catch (error) {
       console.error("Error updating project:", error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to update project',
+        severity: 'error'
+      });
     }
   };
 
@@ -97,12 +145,22 @@ const ProjectCard = ({
       await updateDoc(doc(db, 'projects', project.id), {
         fundsReceived: Number(fundingAmount),
         status: Number(fundingAmount) >= project.fundingGoal ? 'Funded' : 'Active',
-        updatedAt: new Date()
+        updatedAt: serverTimestamp()
       });
       setShowFundingDialog(false);
       onUpdate();
+      setSnackbar({
+        open: true,
+        message: 'Funding updated successfully',
+        severity: 'success'
+      });
     } catch (error) {
       console.error("Error updating funding:", error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to update funding',
+        severity: 'error'
+      });
     }
   };
 
@@ -285,10 +343,14 @@ const ProjectCard = ({
                   {updates.length > 0 ? (
                     updates.map(update => (
                       <Box key={update.id} className="update-item">
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                          {update.userName || 'Anonymous'}
+                        </Typography>
                         <Typography variant="body2">{update.text}</Typography>
                         <Typography variant="caption" color="text.secondary">
                           {update.createdAt?.toLocaleString() || 'Recently'}
                         </Typography>
+                        <Divider sx={{ my: 1 }} />
                       </Box>
                     ))
                   ) : (
@@ -315,9 +377,10 @@ const ProjectCard = ({
                         size="small" 
                         onClick={handleAddUpdate}
                         sx={{ mt: 1 }}
-                        disabled={!newUpdate.trim()}
+                        disabled={!newUpdate.trim() || isPostingUpdate}
+                        endIcon={isPostingUpdate ? <CircularProgress size={20} /> : null}
                       >
-                        Post Update
+                        {isPostingUpdate ? 'Posting...' : 'Post Update'}
                       </Button>
                     </Box>
                   )}
@@ -420,6 +483,21 @@ const ProjectCard = ({
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Snackbar for notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={() => setSnackbar({...snackbar, open: false})}
+      >
+        <Alert 
+          onClose={() => setSnackbar({...snackbar, open: false})}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </div>
   );
 };
