@@ -28,8 +28,13 @@
   box-shadow: 0 8px 20px rgba(46, 139, 87, 0.2);
 }
 
+.project-card.editing {
+  background-color: #f9f9f9;
+}
+
 /* Image */
 .project-image-container {
+  position: relative;
   width: 100%;
   margin-bottom: 20px;
   border-radius: 12px;
@@ -47,6 +52,12 @@
 
 .project-card:hover .project-image {
   transform: scale(1.05);
+}
+
+.project-status {
+  position: absolute;
+  top: 8px;
+  right: 8px;
 }
 
 /* Content */
@@ -110,66 +121,55 @@
   font-size: 1.1rem;
 }
 
+/* Progress bar */
+.project-progress {
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--green);
+  transition: width 0.5s ease;
+}
+
+/* Updates section */
+.updates-container {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 8px;
+}
+
+.update-item {
+  padding: 8px;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.update-item:last-child {
+  border-bottom: none;
+}
+
+/* Contact info */
+.contact-info {
+  background-color: #f5f5f5;
+  padding: 8px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
 /* Footer & Actions */
-.project-footer {
+.project-actions {
   margin-top: auto;
   padding-top: 20px;
   border-top: 1px solid rgba(46, 139, 87, 0.1);
-}
-
-.profile-actions {
   display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-}
-
-.share-btn, .edit-btn, .delete-btn {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: none;
-  font-size: 0.9rem;
-}
-
-.share-btn {
-  background: var(--green);
-  color: var(--white);
-}
-
-.share-btn:hover {
-  background: var(--green-light);
-}
-
-.edit-btn {
-  background: var(--sand);
-  color: var(--green-dark);
-  border: 1px solid var(--sand);
-}
-
-.edit-btn:hover {
-  background: #e8d4a8;
-}
-
-.delete-btn {
-  background: #E53935;
-  color: white;
-  border: 1px solid #C62828;
-}
-
-.delete-btn:hover {
-  background: #c62828;
-}
-
-/* Full-width share button in regular view */
-.share-btn.full-width {
-  width: 100%;
-  justify-content: center;
-  padding: 12px;
+  gap: 8px;
 }
 
 /* Edit Form */
@@ -258,11 +258,11 @@
     gap: 15px;
   }
   
-  .profile-actions {
+  .project-actions {
     flex-wrap: wrap;
   }
   
-  .profile-actions button {
+  .project-actions button {
     flex: 1;
     min-width: 100px;
     justify-content: center;

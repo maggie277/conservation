@@ -241,6 +241,59 @@ html, body {
   margin-bottom: 20px;
 }
 
+.project-status-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 500;
+  z-index: 1;
+}
+
+.funding-progress-container {
+  margin: 10px 0;
+}
+
+.funding-progress {
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #2e7d32;
+  transition: width 0.5s ease;
+}
+
+.funding-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.project-card {
+  position: relative;
+}
+
+.project-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.goal {
+  font-weight: 600;
+  color: #2e7d32;
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }

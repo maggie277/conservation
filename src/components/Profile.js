@@ -29,7 +29,9 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Chip
+  Chip,
+  Link,
+  Avatar
 } from '@mui/material';
 import ProjectCard from "../components/ProjectCard";
 import "./Profile.css";
@@ -119,15 +121,37 @@ const Profile = () => {
         orderBy('donationDate', 'desc')
       );
       const snapshot = await getDocs(donationsQuery);
+      
       const donationsData = await Promise.all(snapshot.docs.map(async doc => {
         const donation = doc.data();
-        const projectDoc = await getDoc(doc(db, 'projects', donation.projectId));
+        let projectName = 'General Donation';
+        let projectLink = null;
+        let projectImage = null;
+        
+        if (donation.projectId) {
+          try {
+            const projectDoc = await getDoc(doc(db, 'projects', donation.projectId));
+            if (projectDoc.exists()) {
+              const projectData = projectDoc.data();
+              projectName = projectData.title;
+              projectLink = `/projects/${donation.projectId}`;
+              projectImage = projectData.imageUrl || null;
+            }
+          } catch (error) {
+            console.error("Error fetching project:", error);
+          }
+        }
+        
         return {
           id: doc.id,
           ...donation,
-          projectName: projectDoc.exists() ? projectDoc.data().title : 'Project not found'
+          projectName,
+          projectLink,
+          projectImage,
+          date: donation.donationDate?.toDate?.() || new Date(donation.donationDate)
         };
       }));
+      
       setDonations(donationsData);
     } catch (error) {
       console.error("Error fetching donations:", error);
@@ -326,7 +350,7 @@ const Profile = () => {
           <TableHead>
             <TableRow>
               <TableCell><strong>Project</strong></TableCell>
-              <TableCell><strong>Amount (ZMW)</strong></TableCell>
+              <TableCell><strong>Amount</strong></TableCell>
               <TableCell><strong>Date</strong></TableCell>
               <TableCell><strong>Status</strong></TableCell>
             </TableRow>
@@ -334,14 +358,40 @@ const Profile = () => {
           <TableBody>
             {donations.map((donation) => (
               <TableRow key={donation.id}>
-                <TableCell>{donation.projectName}</TableCell>
-                <TableCell>{donation.amount.toLocaleString()}</TableCell>
                 <TableCell>
-                  {new Date(donation.donationDate).toLocaleDateString()}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {donation.projectImage && (
+                      <Avatar 
+                        src={donation.projectImage} 
+                        alt={donation.projectName}
+                        sx={{ width: 40, height: 40 }}
+                      />
+                    )}
+                    {donation.projectLink ? (
+                      <Link href={donation.projectLink} color="primary" underline="hover">
+                        {donation.projectName}
+                      </Link>
+                    ) : (
+                      <Typography>{donation.projectName}</Typography>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {donation.amount.toLocaleString('en-ZM', {
+                    style: 'currency',
+                    currency: 'ZMW'
+                  })}
+                </TableCell>
+                <TableCell>
+                  {donation.date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })}
                 </TableCell>
                 <TableCell>
                   <Chip 
-                    label={donation.status || 'Received'} 
+                    label={donation.status || 'Completed'} 
                     color={
                       donation.status === 'Completed' ? 'success' : 
                       donation.status === 'Pending' ? 'warning' : 'primary'

@@ -10,7 +10,8 @@ const Projects = () => {
   const [filteredProjects, setFilteredProjects] = useState([]);
   const [activeFilters, setActiveFilters] = useState({
     category: 'All',
-    tags: []
+    tags: [],
+    status: 'All'
   });
   const [loading, setLoading] = useState(true);
 
@@ -23,7 +24,9 @@ const Projects = () => {
         title: doc.data().title || 'Untitled Project',
         description: doc.data().description || '',
         category: doc.data().category || 'Uncategorized',
-        goal: doc.data().fundingGoal || doc.data().goal || '0',
+        fundingGoal: doc.data().fundingGoal || 0,
+        fundsReceived: doc.data().fundsReceived || 0,
+        status: doc.data().status || 'Active',
         tags: doc.data().tags || [],
         imageUrl: doc.data().imageUrl || null,
         updatedAt: doc.data().updatedAt?.toDate() || new Date()
@@ -51,11 +54,28 @@ const Projects = () => {
       );
     }
 
+    if (activeFilters.status !== 'All') {
+      result = result.filter(p => p.status === activeFilters.status);
+    }
+
     setFilteredProjects(result);
   }, [projects, activeFilters]);
 
   const handleFilterChange = (newFilters) => {
     setActiveFilters(newFilters);
+  };
+
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'Funded': return '#2e7d32';
+      case 'Completed': return '#1565c0';
+      default: return '#f57c00';
+    }
+  };
+
+  const calculateProgress = (fundsReceived, fundingGoal) => {
+    if (!fundingGoal || fundingGoal === 0) return 0;
+    return Math.min(100, (fundsReceived / fundingGoal) * 100);
   };
 
   if (loading) {
@@ -93,6 +113,7 @@ const Projects = () => {
           'Drought-resistant',
           'Community Project'
         ]}
+        availableStatuses={['All', 'Active', 'Funded', 'Completed']}
       />
 
       <div className="projects-grid">
@@ -116,13 +137,32 @@ const Projects = () => {
                     <img src="/farm-placeholder.png" alt="Farm project" />
                   </div>
                 )}
+                <div 
+                  className="project-status-badge"
+                  style={{ backgroundColor: getStatusColor(project.status) }}
+                >
+                  {project.status}
+                </div>
               </div>
               
               <div className="project-content">
                 <h3>{project.title}</h3>
                 <div className="project-meta">
                   <span className="category">{project.category}</span>
-                  <span className="goal">ZMW {project.goal}</span>
+                  <span className="goal">ZMW {project.fundingGoal.toLocaleString()}</span>
+                </div>
+                
+                <div className="funding-progress-container">
+                  <div className="funding-progress">
+                    <div 
+                      className="progress-bar"
+                      style={{ width: `${calculateProgress(project.fundsReceived, project.fundingGoal)}%` }}
+                    ></div>
+                  </div>
+                  <div className="funding-stats">
+                    <span>ZMW {project.fundsReceived.toLocaleString()} raised</span>
+                    <span>{Math.round(calculateProgress(project.fundsReceived, project.fundingGoal))}%</span>
+                  </div>
                 </div>
                 
                 <p className="project-description">

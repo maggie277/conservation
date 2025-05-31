@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import Spinner from "./Spinner";
 import { validateEmail, validatePhone, validateAmount } from "./validationUtils";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
 import './Donate.css';
 
 // Check if running on localhost
@@ -173,6 +175,27 @@ const Donate = () => {
           setIsLoading(false);
           setShowPaymentModal(false);
           setMessage({ type: "success", text: "Payment Successful!" });
+
+          // Save donation record to Firestore
+          try {
+            const user = auth.currentUser;
+            if (user) {
+              const donationData = {
+                donorId: user.uid,
+                amount: parseFloat(formData.amount),
+                email: formData.email,
+                phone: formData.phone,
+                paymentMethod: formData.paymentMethod,
+                referenceNo: referenceNo,
+                donationDate: serverTimestamp(),
+                status: "Completed"
+              };
+              
+              await addDoc(collection(db, "donations"), donationData);
+            }
+          } catch (error) {
+            console.error("Error saving donation record:", error);
+          }
 
           const receiptDetails = 
             `RECEIPT
